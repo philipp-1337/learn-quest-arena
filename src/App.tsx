@@ -7,197 +7,58 @@ import type { Subject } from './types/quizTypes';
 import useFirestore from "./hooks/useFirestore";
 
 // ============================================
-// MOCK DATA & AUTH
-// ============================================
-
-// Mock Database
-const mockDatabase = {
-  subjects: [
-    { 
-      id: '1', 
-      name: 'Deutsch', 
-      order: 1,
-      classes: [
-        { 
-          id: '1-1', 
-          name: 'Klasse 1', 
-          level: 1,
-          topics: [
-            {
-              id: '1-1-1',
-              name: 'Alphabet',
-              quizzes: [
-                {
-                  id: '1-1-1-1',
-                  title: 'Buchstaben erkennen',
-                  questions: [
-                    {
-                      question: 'Welcher Buchstabe kommt nach A?',
-                      answerType: 'text',
-                      answers: [
-                        { type: 'text', content: 'B' },
-                        { type: 'text', content: 'C' },
-                        { type: 'text', content: 'D' }
-                      ],
-                      correctAnswerIndex: 0
-                    },
-                    {
-                      question: 'Welcher Buchstabe ist ein Vokal?',
-                      answerType: 'text',
-                      answers: [
-                        { type: 'text', content: 'B' },
-                        { type: 'text', content: 'E' },
-                        { type: 'text', content: 'K' }
-                      ],
-                      correctAnswerIndex: 1
-                    },
-                    {
-                      question: 'Wie viele Buchstaben hat das ABC?',
-                      answerType: 'text',
-                      answers: [
-                        { type: 'text', content: '24' },
-                        { type: 'text', content: '26' },
-                        { type: 'text', content: '28' }
-                      ],
-                      correctAnswerIndex: 1
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        { 
-          id: '1-2', 
-          name: 'Klasse 2', 
-          level: 2,
-          topics: [
-            {
-              id: '1-2-1',
-              name: 'Wortarten',
-              quizzes: [
-                {
-                  id: '1-2-1-1',
-                  title: 'Nomen erkennen',
-                  questions: [
-                    {
-                      question: 'Was ist ein Nomen?',
-                      answerType: 'text',
-                      answers: [
-                        { type: 'text', content: 'Ein Wort für Dinge' },
-                        { type: 'text', content: 'Ein Wort für Tun' },
-                        { type: 'text', content: 'Ein Wort für Wie' }
-                      ],
-                      correctAnswerIndex: 0
-                    },
-                    {
-                      question: 'Welches Wort ist ein Nomen?',
-                      answerType: 'text',
-                      answers: [
-                        { type: 'text', content: 'laufen' },
-                        { type: 'text', content: 'Hund' },
-                        { type: 'text', content: 'schnell' }
-                      ],
-                      correctAnswerIndex: 1
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    { 
-      id: '2', 
-      name: 'Mathematik', 
-      order: 2,
-      classes: [
-        { 
-          id: '2-1', 
-          name: 'Klasse 1', 
-          level: 1,
-          topics: [
-            {
-              id: '2-1-1',
-              name: 'Addition',
-              quizzes: [
-                {
-                  id: '2-1-1-1',
-                  title: 'Zahlen addieren',
-                  questions: [
-                    {
-                      question: 'Was ist 2 + 3?',
-                      answerType: 'text',
-                      answers: [
-                        { type: 'text', content: '4' },
-                        { type: 'text', content: '5' },
-                        { type: 'text', content: '6' }
-                      ],
-                      correctAnswerIndex: 1
-                    },
-                    {
-                      question: 'Was ist 1 + 1?',
-                      answerType: 'text',
-                      answers: [
-                        { type: 'text', content: '2' },
-                        { type: 'text', content: '3' },
-                        { type: 'text', content: '1' }
-                      ],
-                      correctAnswerIndex: 0
-                    },
-                    {
-                      question: 'Was ist 5 + 2?',
-                      answerType: 'text',
-                      answers: [
-                        { type: 'text', content: '6' },
-                        { type: 'text', content: '7' },
-                        { type: 'text', content: '8' }
-                      ],
-                      correctAnswerIndex: 1
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
-};
-
-// ============================================
 // MAIN APP COMPONENT
 // ============================================
 
 export default function FlashcardQuizApp() {
   const { fetchCollection } = useFirestore();
-  const [subjects, setSubjects] = useState(mockDatabase.subjects);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Simple routing: Check URL for quiz deep link
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.startsWith('#/quiz/')) {
-      // Format: #/quiz/{subjectId}/{classId}/{topicId}/{quizId}
-      // This will be handled in StudentView
-    }
-  }, []);
-
+  // Load subjects from Firestore
   useEffect(() => {
     const loadSubjects = async () => {
-      const subjectsData = await fetchCollection("subjects");
-      const formattedSubjects = subjectsData.map((subject: any) => ({
-        id: subject.id,
-        name: subject.name || "",
-        order: subject.order || 0,
-        classes: subject.classes || [],
-      }));
-      setSubjects(formattedSubjects);
+      try {
+        console.log('🔄 Loading subjects from Firestore...');
+        setIsLoading(true);
+        setError(null);
+        
+        const subjectsData = await fetchCollection("subjects");
+        console.log('📦 Subjects data received:', subjectsData);
+        
+        // Handle empty collection
+        if (!subjectsData || subjectsData.length === 0) {
+          console.log('⚠️ No subjects found in Firestore - using empty array');
+          setSubjects([]);
+          setIsLoading(false);
+          return;
+        }
+        
+        const formattedSubjects = subjectsData.map((subject: any) => ({
+          id: subject.id,
+          name: subject.name || "",
+          order: subject.order || 0,
+          classes: subject.classes || [],
+        }));
+        
+        console.log('✅ Subjects loaded successfully:', formattedSubjects);
+        setSubjects(formattedSubjects);
+      } catch (error) {
+        console.error('❌ Error loading subjects:', error);
+        setError(error instanceof Error ? error.message : 'Fehler beim Laden der Daten');
+        // Set empty array on error so app can still load
+        setSubjects([]);
+      } finally {
+        setIsLoading(false);
+        console.log('✅ Loading complete');
+      }
     };
+    
     loadSubjects();
+    
   }, [fetchCollection]);
 
   const handleAdminClick = () => {
@@ -209,24 +70,50 @@ export default function FlashcardQuizApp() {
   };
 
   const handleSubjectsChange = (updatedSubjects: Subject[]) => {
-    console.log('Subjects updated:', updatedSubjects);
+    if (JSON.stringify(subjects) !== JSON.stringify(updatedSubjects)) {
+      console.log('Subjects updated:', updatedSubjects);
+      setSubjects(updatedSubjects);
+    }
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    console.log('Logged out');
-    navigate('/'); // Navigiere zurück zum StudentView
+    navigate('/');
   };
 
   const handleLogin = () => {
     setIsLoggedIn(true);
-    console.log('Logged in');
   };
 
-  // Removed unused handleSaveQuiz function to resolve the compile error.
-
-  function App() {
+  if (isLoading) {
     return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Lade Inhalte...</p>
+          <p className="text-xs text-gray-400 mt-2">Prüfe die Browser-Konsole für Details</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3">
+          <div className="max-w-7xl mx-auto flex items-center gap-2">
+            <svg className="w-5 h-5 text-yellow-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-yellow-800">{error}</p>
+              <p className="text-xs text-yellow-600 mt-1">Die App funktioniert trotzdem. Du kannst im Admin-Bereich Fächer hinzufügen.</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <Routes>
         <Route
           path="/"
@@ -251,12 +138,6 @@ export default function FlashcardQuizApp() {
           element={<StudentView subjects={subjects} onAdminClick={handleAdminClick} />}
         />
       </Routes>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <App />
     </div>
   );
 }

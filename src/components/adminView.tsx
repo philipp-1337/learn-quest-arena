@@ -19,9 +19,11 @@ import {
   Check,
   X,
   QrCode,
+  Upload,
 } from "lucide-react";
 import { slugify } from "../utils/slugify";
 import useFirestore from "../hooks/useFirestore";
+import ImportModal from "./importModal";
 
 // ============================================
 // ADMIN VIEW
@@ -39,6 +41,7 @@ export default function AdminView({
   const { saveDocument, fetchCollection } = useFirestore();
   const [subjects, setSubjects] = useState(initialSubjects);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [modalType, setModalType] = useState<
     "quiz" | "subject" | "topic" | "class"
   >("subject");
@@ -149,13 +152,22 @@ export default function AdminView({
             <h2 className="text-2xl font-bold text-gray-900">
               Inhalte verwalten
             </h2>
-            <button
-              onClick={handleAddSubject}
-              className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-            >
-              <Plus className="w-4 h-4" />
-              Fach hinzufügen
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              >
+                <Upload className="w-4 h-4" />
+                Quiz importieren
+              </button>
+              <button
+                onClick={handleAddSubject}
+                className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+              >
+                <Plus className="w-4 h-4" />
+                Fach hinzufügen
+              </button>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -221,6 +233,20 @@ export default function AdminView({
             }
           }}
           onClose={() => setShowAddModal(false)}
+        />
+      )}
+      {showImportModal && (
+        <ImportModal
+          subjects={subjects}
+          onImport={async (updatedSubjects) => {
+            // Speichere alle aktualisierten Subjects in Firestore
+            for (const subject of updatedSubjects) {
+              await saveDocument(`subjects/${subject.id}`, subject);
+            }
+            setSubjects(updatedSubjects);
+            setShowImportModal(false);
+          }}
+          onClose={() => setShowImportModal(false)}
         />
       )}
     </div>
@@ -347,35 +373,48 @@ function SubjectManager({
   onDelete: () => void;
   onUpdate: (updatedSubject: Subject) => void;
 }) {
+  const { saveDocument } = useFirestore();
   const [expanded, setExpanded] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const handleAddClass = (name: string) => {
+  const handleAddClass = async (name: string) => {
     const newClass = {
       id: `${subject.id}-${Date.now()}`,
       name,
       level: subject.classes.length + 1,
       topics: [],
     };
-    onUpdate({ ...subject, classes: [...subject.classes, newClass] });
+    const updatedSubject = {
+      ...subject,
+      classes: [...subject.classes, newClass],
+    };
+
+    await saveDocument(`subjects/${subject.id}`, updatedSubject);
+    onUpdate(updatedSubject);
     setShowAddModal(false);
   };
 
-  const handleDeleteClass = (classId: string) => {
-    onUpdate({
+  const handleDeleteClass = async (classId: string) => {
+    const updatedSubject = {
       ...subject,
-      classes: subject.classes.filter((c: { id: any }) => c.id !== classId),
-    });
+      classes: subject.classes.filter((c) => c.id !== classId),
+    };
+
+    await saveDocument(`subjects/${subject.id}`, updatedSubject);
+    onUpdate(updatedSubject);
   };
 
-  const handleUpdateClass = (updatedClass: Class) => {
-    onUpdate({
+  const handleUpdateClass = async (updatedClass: Class) => {
+    const updatedSubject = {
       ...subject,
-      classes: subject.classes.map((c: Class) =>
+      classes: subject.classes.map((c) =>
         c.id === updatedClass.id ? updatedClass : c
       ),
-    });
+    };
+
+    await saveDocument(`subjects/${subject.id}`, updatedSubject);
+    onUpdate(updatedSubject);
   };
 
   return (
@@ -422,7 +461,7 @@ function SubjectManager({
                   classItem={cls}
                   onDelete={() => handleDeleteClass(cls.id)}
                   onUpdate={handleUpdateClass}
-                  subject={subject}  // ← Vollständiges Objekt statt nur subjectId
+                  subject={subject} // ← Vollständiges Objekt statt nur subjectId
                 />
               ))
             )}
@@ -463,34 +502,65 @@ function ClassManager({
   onUpdate: (updatedClass: Class) => void;
   subject: Subject;
 }) {
+  const { saveDocument } = useFirestore();
   const [expanded, setExpanded] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const handleAddTopic = (name: string) => {
+  const handleAddTopic = async (name: string) => {
     const newTopic = {
       id: `${classItem.id}-${Date.now()}`,
       name,
       quizzes: [],
     };
-    onUpdate({ ...classItem, topics: [...classItem.topics, newTopic] });
+    const updatedClass = {
+      ...classItem,
+      topics: [...classItem.topics, newTopic],
+    };
+    const updatedSubject = {
+      ...subject,
+      classes: subject.classes.map((c) =>
+        c.id === classItem.id ? updatedClass : c
+      ),
+    };
+
+    await saveDocument(`subjects/${subject.id}`, updatedSubject);
+    onUpdate(updatedClass);
     setShowAddModal(false);
   };
 
-  const handleDeleteTopic = (topicId: string) => {
-    onUpdate({
+  const handleDeleteTopic = async (topicId: string) => {
+    const updatedClass = {
       ...classItem,
-      topics: classItem.topics.filter((t: { id: any }) => t.id !== topicId),
-    });
+      topics: classItem.topics.filter((t) => t.id !== topicId),
+    };
+    const updatedSubject = {
+      ...subject,
+      classes: subject.classes.map((c) =>
+        c.id === classItem.id ? updatedClass : c
+      ),
+    };
+
+    await saveDocument(`subjects/${subject.id}`, updatedSubject);
+    onUpdate(updatedClass);
   };
 
-  const handleUpdateTopic = (updatedTopic: Topic) => {
-    onUpdate({
+  const handleUpdateTopic = async (updatedTopic: Topic) => {
+    const updatedClass = {
       ...classItem,
-      topics: classItem.topics.map((t: Topic) =>
-        t.id === updatedTopic.id ? { ...t, ...updatedTopic } : t
+      topics: classItem.topics.map((t) =>
+        t.id === updatedTopic.id ? updatedTopic : t
       ),
-    });
+    };
+    const updatedSubject = {
+      ...subject,
+      classes: subject.classes.map((c) =>
+        c.id === classItem.id ? updatedClass : c
+      ),
+    };
+
+    await saveDocument(`subjects/${subject.id}`, updatedSubject);
+    onUpdate(updatedClass);
   };
 
   return (
@@ -583,34 +653,83 @@ function TopicManager({
   classItem: Class;
   topicId: string;
 }) {
+  const { saveDocument } = useFirestore();
   const [expanded, setExpanded] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const handleAddQuiz = (title: string) => {
+  const handleAddQuiz = async (title: string) => {
     const newQuiz = {
       id: `${topic.id}-${Date.now()}`,
       title,
       questions: [],
     };
-    onUpdate({ ...topic, quizzes: [...topic.quizzes, newQuiz] });
+    const updatedTopic = {
+      ...topic,
+      quizzes: [...topic.quizzes, newQuiz],
+    };
+    const updatedClass = {
+      ...classItem,
+      topics: classItem.topics.map((t) =>
+        t.id === topic.id ? updatedTopic : t
+      ),
+    };
+    const updatedSubject = {
+      ...subject,
+      classes: subject.classes.map((c) =>
+        c.id === classItem.id ? updatedClass : c
+      ),
+    };
+
+    await saveDocument(`subjects/${subject.id}`, updatedSubject);
+    onUpdate(updatedTopic);
     setShowAddModal(false);
   };
 
-  const handleDeleteQuiz = (quizId: string) => {
-    onUpdate({
+  const handleDeleteQuiz = async (quizId: string) => {
+    const updatedTopic = {
       ...topic,
-      quizzes: topic.quizzes.filter((q: { id: any }) => q.id !== quizId),
-    });
+      quizzes: topic.quizzes.filter((q) => q.id !== quizId),
+    };
+    const updatedClass = {
+      ...classItem,
+      topics: classItem.topics.map((t) =>
+        t.id === topic.id ? updatedTopic : t
+      ),
+    };
+    const updatedSubject = {
+      ...subject,
+      classes: subject.classes.map((c) =>
+        c.id === classItem.id ? updatedClass : c
+      ),
+    };
+
+    await saveDocument(`subjects/${subject.id}`, updatedSubject);
+    onUpdate(updatedTopic);
   };
 
-  const handleUpdateQuiz = (updatedQuiz: Quiz) => {
-    onUpdate({
+  const handleUpdateQuiz = async (updatedQuiz: Quiz) => {
+    const updatedTopic = {
       ...topic,
-      quizzes: topic.quizzes.map((q: Quiz) =>
+      quizzes: topic.quizzes.map((q) =>
         q.id === updatedQuiz.id ? updatedQuiz : q
       ),
-    });
+    };
+    const updatedClass = {
+      ...classItem,
+      topics: classItem.topics.map((t) =>
+        t.id === topic.id ? updatedTopic : t
+      ),
+    };
+    const updatedSubject = {
+      ...subject,
+      classes: subject.classes.map((c) =>
+        c.id === classItem.id ? updatedClass : c
+      ),
+    };
+
+    await saveDocument(`subjects/${subject.id}`, updatedSubject);
+    onUpdate(updatedTopic);
   };
 
   return (

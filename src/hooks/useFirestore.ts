@@ -1,38 +1,39 @@
 import { collection, doc, getFirestore, setDoc, getDocs } from "firebase/firestore";
-import { useState } from "react";
+import { useCallback } from "react";
 
 const useFirestore = () => {
   const db = getFirestore();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const saveDocument = async (path: string, data: any) => {
-    setLoading(true);
-    setError(null);
+  const saveDocument = useCallback(async (path: string, data: any) => {
     try {
+      console.log(`💾 Saving document to ${path}:`, data);
       await setDoc(doc(db, path), data);
-      setLoading(false);
+      console.log(`✅ Document saved successfully to ${path}`);
+      return { success: true, error: null };
     } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
+      console.error(`❌ Error saving document to ${path}:`, err);
+      return { success: false, error: err.message };
     }
-  };
+  }, [db]);
 
-  const fetchCollection = async (path: string) => {
-    setLoading(true);
-    setError(null);
+  const fetchCollection = useCallback(async (path: string) => {
     try {
+      console.log(`📥 Fetching collection: ${path}`);
       const querySnapshot = await getDocs(collection(db, path));
-      setLoading(false);
-      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const docs = querySnapshot.docs.map((doc) => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      }));
+      console.log(`✅ Fetched ${docs.length} documents from ${path}`);
+      return docs;
     } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
+      console.error(`❌ Error fetching collection ${path}:`, err);
+      // Return empty array instead of throwing
       return [];
     }
-  };
+  }, [db]);
 
-  return { saveDocument, fetchCollection, loading, error };
+  return { saveDocument, fetchCollection };
 };
 
 export default useFirestore;
