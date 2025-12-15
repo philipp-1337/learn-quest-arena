@@ -134,7 +134,7 @@ export default function QuizEditorModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl my-8 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b">
           <h3 className="text-2xl font-bold text-gray-900">
