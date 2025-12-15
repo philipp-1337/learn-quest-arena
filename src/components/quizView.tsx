@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import type { Subject, Class, Topic, Quiz, Answer } from '../types/quizTypes';
 import { slugify } from '../utils/slugify';
 
-export default function StudentView({ subjects: initialSubjects, onAdminClick }: { subjects: Subject[]; onAdminClick: () => void }) {
+export default function StudentView({ subjects: initialSubjects, onAdminClick }: { subjects: Subject[], onAdminClick: () => void }) {
   const { subjectSlug, classSlug, topicSlug, quizSlug } = useParams();
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);

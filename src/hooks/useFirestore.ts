@@ -1,4 +1,4 @@
-import { collection, doc, getFirestore, setDoc, getDocs } from "firebase/firestore";
+import { collection, doc, getFirestore, setDoc, getDocs, deleteDoc } from "firebase/firestore";
 import { useCallback } from "react";
 
 const useFirestore = () => {
@@ -33,7 +33,19 @@ const useFirestore = () => {
     }
   }, [db]);
 
-  return { saveDocument, fetchCollection };
+  const deleteDocument = useCallback(async (path: string) => {
+    try {
+      console.log(`🗑️ Deleting document at ${path}`);
+      await deleteDoc(doc(db, path));
+      console.log(`✅ Document deleted successfully at ${path}`);
+      return { success: true, error: null };
+    } catch (err: any) {
+      console.error(`❌ Error deleting document at ${path}:`, err);
+      return { success: false, error: err.message };
+    }
+  }, [db]);
+
+  return { saveDocument, fetchCollection, deleteDocument };
 };
 
 export default useFirestore;

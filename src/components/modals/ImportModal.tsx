@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Upload, AlertCircle, CheckCircle, X, Download } from "lucide-react";
-import type { Subject } from "../types/quizTypes";
+import type { Subject } from "../../types/quizTypes";
 
 // ============================================
 // IMPORT MODAL COMPONENT

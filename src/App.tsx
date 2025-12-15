@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import LoginView from './components/loginView';
 import StudentView from './components/quizView';
-import AdminView from './components/adminView';
+import AdminView from './components/admin/adminView';
 import type { Subject } from './types/quizTypes';
 import useFirestore from "./hooks/useFirestore";
+import ProtectedRoute from './utils/ProtectedRoute';
 
 // ============================================
 // MAIN APP COMPONENT
@@ -122,11 +123,13 @@ export default function FlashcardQuizApp() {
         <Route
           path="/admin"
           element={
-            <AdminView
-              subjects={subjects}
-              onSubjectsChange={handleSubjectsChange}
-              onLogout={handleLogout}
-            />
+            <ProtectedRoute>
+              <AdminView
+                subjects={subjects}
+                onSubjectsChange={handleSubjectsChange}
+                onLogout={handleLogout}
+              />
+            </ProtectedRoute>
           }
         />
         <Route
