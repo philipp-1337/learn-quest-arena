@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import LoginView from './components/loginView';
 import StudentView from './components/quizView';
-import AdminView from './components/admin/adminView';
+import AdminView from './components/admin/AdminView';
 import type { Subject } from './types/quizTypes';
 import useFirestore from "./hooks/useFirestore";
 import ProtectedRoute from './utils/ProtectedRoute';

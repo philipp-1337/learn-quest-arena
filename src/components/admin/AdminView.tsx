@@ -10,7 +10,11 @@ import AdminStats from './AdminStats';
 import QRCodeInfo from './QRCodeInfo';
 import SubjectManager from './managers/SubjectManager';
 import AddModal from '../modals/AddModal';
-import ImportModal from '../modals/importModal';
+import ImportModal from '../modals/ImportModal';
+
+// ============================================
+// ADMIN VIEW COMPONENT
+// ============================================
 
 interface AdminViewProps {
   subjects: Subject[];
