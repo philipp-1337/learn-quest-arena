@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import LoginView from './components/loginView';
 import StudentView from './components/quizView';
 import AdminView from './components/adminView';
@@ -132,6 +132,22 @@ export default function FlashcardQuizApp() {
         <Route
           path="/login"
           element={<LoginView onLogin={handleLogin} onBack={() => navigate('/')} />}
+        />
+        <Route
+          path="/quiz"
+          element={<Navigate to="/" replace />}
+        />
+        <Route
+          path="/quiz/:subjectSlug"
+          element={<StudentView subjects={subjects} onAdminClick={handleAdminClick} />}
+        />
+        <Route
+          path="/quiz/:subjectSlug/:classSlug"
+          element={<StudentView subjects={subjects} onAdminClick={handleAdminClick} />}
+        />
+        <Route
+          path="/quiz/:subjectSlug/:classSlug/:topicSlug"
+          element={<StudentView subjects={subjects} onAdminClick={handleAdminClick} />}
         />
         <Route
           path="/quiz/:subjectSlug/:classSlug/:topicSlug/:quizSlug"

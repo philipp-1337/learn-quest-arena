@@ -11,11 +11,19 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [subjects, setSubjects] = useState(initialSubjects);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   // Update subjects when prop changes (admin made changes)
   useEffect(() => {
     setSubjects(initialSubjects);
+  }, [initialSubjects]);
+
+  // Check if data is loaded
+  useEffect(() => {
+    if (initialSubjects.length > 0) {
+      setLoading(false);
+    }
   }, [initialSubjects]);
 
   // Handle deep linking to quiz
@@ -47,25 +55,36 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
   }, [subjects]);
 
   useEffect(() => {
-    if (subjectSlug && classSlug && topicSlug && quizSlug) {
+    if (loading) return;
+
+    if (subjectSlug) {
       const subject = subjects.find((s) => slugify(s.name) === subjectSlug);
       if (subject) {
-        const classItem = subject.classes.find((c) => slugify(c.name) === classSlug);
-        if (classItem) {
-          const topic = classItem.topics.find((t) => slugify(t.name) === topicSlug);
-          if (topic) {
-            const quiz = topic.quizzes.find((q) => slugify(q.title) === quizSlug);
-            if (quiz) {
-              setSelectedSubject(subject);
-              setSelectedClass(classItem);
-              setSelectedTopic(topic);
-              setSelectedQuiz(quiz);
+        setSelectedSubject(subject);
+
+        if (classSlug) {
+          const classItem = subject.classes.find((c) => slugify(c.name) === classSlug);
+          if (classItem) {
+            setSelectedClass(classItem);
+
+            if (topicSlug) {
+              const topic = classItem.topics.find((t) => slugify(t.name) === topicSlug);
+              if (topic) {
+                setSelectedTopic(topic);
+
+                if (quizSlug) {
+                  const quiz = topic.quizzes.find((q) => slugify(q.title) === quizSlug);
+                  if (quiz) {
+                    setSelectedQuiz(quiz);
+                  }
+                }
+              }
             }
           }
         }
       }
     }
-  }, [subjectSlug, classSlug, topicSlug, quizSlug, subjects]);
+  }, [subjectSlug, classSlug, topicSlug, quizSlug, subjects, loading]);
 
   const handleReset = () => {
     setSelectedSubject(null);
@@ -73,6 +92,7 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
     setSelectedTopic(null);
     setSelectedQuiz(null);
     window.location.hash = '';
+    navigate('/'); // Ensure route is reset
   };
 
   const handleQuizSelectWithNavigation = (quiz: Quiz, subject: Subject, classItem: any, topic: any) => {
@@ -94,6 +114,7 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
         onBack={() => {
           setSelectedQuiz(null);
           window.location.hash = '';
+          navigate('/'); // Ensure route is reset
         }}
         onHome={handleReset}
       />
@@ -125,6 +146,10 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
     handleQuizSelectWithNavigation(quiz, subject, classItem, topic);
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto">
@@ -133,7 +158,7 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Quiz Lernen 📚
+                Learn Quest 📚
               </h1>
               <p className="text-gray-600">
                 Wähle ein Thema und teste dein Wissen!
@@ -151,7 +176,10 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
           {(selectedSubject || selectedClass || selectedTopic) && (
             <div className="flex items-center gap-2 mt-4 text-sm flex-wrap">
               <button
-                onClick={handleReset}
+                onClick={() => {
+                  handleReset();
+                  navigate('/'); // Navigate to home
+                }}
                 className="text-indigo-600 hover:text-indigo-800 font-medium"
               >
                 Start
@@ -163,6 +191,7 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
                     onClick={() => {
                       setSelectedClass(null);
                       setSelectedTopic(null);
+                      navigate(`/quiz/${slugify(selectedSubject.name)}`); // Navigate to subject
                     }}
                     className="text-indigo-600 hover:text-indigo-800 font-medium"
                   >
@@ -174,7 +203,10 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
                 <>
                   <span className="text-gray-400">→</span>
                   <button
-                    onClick={() => setSelectedTopic(null)}
+                    onClick={() => {
+                      setSelectedTopic(null);
+                      navigate(`/quiz/${slugify(selectedSubject!.name)}/${slugify(selectedClass.name)}`); // Navigate to class
+                    }}
                     className="text-indigo-600 hover:text-indigo-800 font-medium"
                   >
                     {selectedClass.name}
@@ -204,6 +236,7 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
         {selectedSubject && !selectedClass && (
           <ClassSelector 
             classes={selectedSubject.classes}
+            subject={selectedSubject} // Pass subject explicitly
             onSelect={setSelectedClass}
           />
         )}
@@ -211,6 +244,8 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
         {selectedClass && !selectedTopic && (
           <TopicSelector 
             topics={selectedClass.topics}
+            subject={selectedSubject!} // Pass subject explicitly
+            classItem={selectedClass} // Pass class explicitly
             onSelect={setSelectedTopic}
           />
         )}
@@ -227,12 +262,17 @@ export default function StudentView({ subjects: initialSubjects, onAdminClick }:
 }
 
 function SubjectSelector({ subjects, onSelect }: { subjects: Subject[]; onSelect: (subject: Subject) => void }) {
+  const navigate = useNavigate();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {subjects.map((subject: Subject) => (
         <button
           key={subject.id}
-          onClick={() => onSelect(subject)}
+          onClick={() => {
+            onSelect(subject);
+            navigate(`/quiz/${slugify(subject.name)}`); // Update route
+          }}
           className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
         >
           <BookOpen className="w-12 h-12 text-indigo-600 mb-4 mx-auto" />
@@ -243,13 +283,18 @@ function SubjectSelector({ subjects, onSelect }: { subjects: Subject[]; onSelect
   );
 }
 
-function ClassSelector({ classes, onSelect }: { classes: Class[]; onSelect: (cls: Class) => void }) {
+function ClassSelector({ classes, subject, onSelect }: { classes: Class[]; subject: Subject; onSelect: (cls: Class) => void }) {
+  const navigate = useNavigate();
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
       {classes.map((cls: Class) => (
         <button
           key={cls.id}
-          onClick={() => onSelect(cls)}
+          onClick={() => {
+            onSelect(cls);
+            navigate(`/quiz/${slugify(subject.name)}/${slugify(cls.name)}`); // Update route
+          }}
           className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
         >
           <Users className="w-10 h-10 text-purple-600 mb-3 mx-auto" />
@@ -260,13 +305,18 @@ function ClassSelector({ classes, onSelect }: { classes: Class[]; onSelect: (cls
   );
 }
 
-function TopicSelector({ topics, onSelect }: { topics: Topic[]; onSelect: (topic: Topic) => void }) {
+function TopicSelector({ topics, subject, classItem, onSelect }: { topics: Topic[]; subject: Subject; classItem: Class; onSelect: (topic: Topic) => void }) {
+  const navigate = useNavigate();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {topics.map((topic: Topic) => (
         <button
           key={topic.id}
-          onClick={() => onSelect(topic)}
+          onClick={() => {
+            onSelect(topic);
+            navigate(`/quiz/${slugify(subject.name)}/${slugify(classItem.name)}/${slugify(topic.name)}`); // Update route
+          }}
           className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
         >
           <FolderOpen className="w-10 h-10 text-green-600 mb-3 mx-auto" />
