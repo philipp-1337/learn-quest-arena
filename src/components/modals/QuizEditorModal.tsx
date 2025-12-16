@@ -340,9 +340,15 @@ export default function QuizEditorModal({
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                         }`}
                       >
-                        {currentQuestion.correctAnswerIndex === i
-                          ? '✓ Richtig'
-                          : 'Als richtig markieren'}
+                        {currentQuestion.correctAnswerIndex === i ? (
+                          <span className="flex items-center gap-1">
+                            <Check className="w-4 h-4 inline text-white" />
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-gray-700">
+                            <Check className="w-4 h-4 inline text-gray-500" />
+                          </span>
+                        )}
                       </button>
                     </div>
                   ))}
@@ -407,9 +413,13 @@ export default function QuizEditorModal({
                               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                           }`}
                         >
-                          {currentQuestion.correctAnswerIndex === i
-                            ? '✓ Richtig'
-                            : 'Richtig'}
+                          {currentQuestion.correctAnswerIndex === i ? (
+                            <span className="flex items-center gap-1">
+                              <Check className="w-4 h-4 inline text-white" /> Richtig
+                            </span>
+                          ) : (
+                            'Richtig'
+                          )}
                         </button>
                       </div>
                     </div>

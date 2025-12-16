@@ -43,7 +43,7 @@ export default function FlatQuizManager({
     );
 
     if (success) {
-      toast.success("Link kopiert! 📋", {});
+      toast.success("Link kopiert!", {});
     } else {
       toast.error("Fehler beim Kopieren des Links", {});
     }
