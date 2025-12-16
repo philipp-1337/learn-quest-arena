@@ -600,20 +600,22 @@ function QuizPlayer({ quiz, onBack, onHome }: { quiz: Quiz; onBack: () => void; 
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">
-                    <img 
-                      src={answer.content} 
-                      alt={answer.alt || 'Antwort'}
-                      className="w-full max-w-xs h-48 object-cover rounded-lg mb-2"
-                      onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                        const img = e.target as HTMLImageElement;
-                        img.style.display = 'none';
-                        if (img.nextSibling && img.nextSibling instanceof HTMLElement) {
-                          (img.nextSibling as HTMLElement).style.display = 'block';
-                        }
-                      }}
-                    />
-                    <div style={{display: 'none'}} className="w-full max-w-xs h-48 bg-gray-200 rounded-lg mb-2 flex items-center justify-center text-gray-500">
-                      Bild nicht verfügbar
+                    <div className="w-full flex justify-center mb-2">
+                      <img 
+                        src={answer.content} 
+                        alt={answer.alt || 'Antwort'}
+                        className="max-h-72 max-w-full object-contain rounded-lg"
+                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                          const img = e.target as HTMLImageElement;
+                          img.style.display = 'none';
+                          if (img.nextSibling && img.nextSibling instanceof HTMLElement) {
+                            (img.nextSibling as HTMLElement).style.display = 'block';
+                          }
+                        }}
+                      />
+                      <div style={{display: 'none'}} className="max-h-72 w-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
+                        Bild nicht verfügbar
+                      </div>
                     </div>
                     {answer.alt && (
                       <span className="font-medium text-sm">{answer.alt}</span>
@@ -640,7 +642,7 @@ function QuizPlayer({ quiz, onBack, onHome }: { quiz: Quiz; onBack: () => void; 
         )}
 
         <button
-          onClick={onBack}
+          onClick={onHome}
           className="w-full mt-4 text-gray-600 hover:text-gray-900"
         >
           Quiz abbrechen

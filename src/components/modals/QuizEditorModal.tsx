@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Edit2, Trash2, Check, X } from 'lucide-react';
 import type { Quiz, Question, Answer } from '../../types/quizTypes';
+import { toast } from 'sonner';
 
 interface QuizEditorModalProps {
   quiz: Quiz;
@@ -9,6 +10,46 @@ interface QuizEditorModalProps {
 }
 
 type QuestionEditor = Question & { isEditing?: boolean; editIndex?: number };
+
+const MAX_IMAGE_SIZE = 500 * 1024; // 500 KB
+const MAX_BASE64_SIZE = 1 * 1024 * 1024; // 1 MB for Base64 encoded data
+
+const compressImage = (file: Blob, maxWidth: number = 1024, maxHeight: number = 1024): Promise<Blob> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          resolve(blob || file);
+        }, 'image/jpeg', 0.8);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+};
 
 export default function QuizEditorModal({
   quiz,
@@ -49,44 +90,74 @@ export default function QuizEditorModal({
     });
   };
 
-  const handleImageUpload = (index: number, file: Blob) => {
-    // Mock: Create preview URL
-    // In production: Upload to Firebase Storage
-    /*
-    Firebase Storage Implementation:
-    
-    const uploadImage = async (file, quizId, questionIndex, answerIndex) => {
-      const storage = getStorage();
-      const storageRef = ref(storage, `quizzes/${quizId}/q${questionIndex}/a${answerIndex}/${file.name}`);
-      
-      // Upload file
-      const snapshot = await uploadBytes(storageRef, file);
-      
-      // Get download URL
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      
-      return downloadURL;
-    };
-    
-    const url = await uploadImage(file, quiz.id, currentQuestion.editIndex || editedQuiz.questions.length, index);
-    */
+  const handleImageUpload = async (index: number, file: Blob) => {
+    try {
+      const fileName = (file as File).name;
 
-    // Mock: Use local preview URL
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (!currentQuestion) return;
-      const newAnswers = [...currentQuestion.answers];
-      newAnswers[index] = {
-        type: 'image',
-        content: reader.result as string, // In production: Firebase Storage URL
-        alt: newAnswers[index].alt || (file as File).name,
+      // Check original file size
+      if (file.size > MAX_IMAGE_SIZE) {
+        toast.error(
+          `Bild zu groß! Max. 500 KB. Dein Bild: ${(file.size / 1024).toFixed(1)} KB`
+        );
+        
+        // Ask user if they want compression help
+        const shouldCompress = window.confirm(
+          `Dein Bild ist zu groß (${(file.size / 1024).toFixed(1)} KB, max. 500 KB).\n\nMöchtest du eine Anleitung zur Bildkomprimierung?\n\nEmpfohlen:\n• Online: tinypng.com oder imagecompressor.com\n• Desktop: ImageMagick, GIMP oder Preview (macOS)`
+        );
+        
+        if (shouldCompress) {
+          toast.info(
+            'Komprimiere dein Bild online oder mit einem Tool und lade es erneut hoch.'
+          );
+        }
+        return;
+      }
+
+      const loadingToast = toast.loading('Bild wird verarbeitet...');
+
+      // Compress image if needed
+      let compressedFile = file;
+      if (file.size > 300 * 1024) {
+        compressedFile = await compressImage(file);
+      }
+
+      // Convert to Base64
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64String = reader.result as string;
+
+        // Check Base64 size
+        if (base64String.length > MAX_BASE64_SIZE) {
+          toast.dismiss(loadingToast);
+          toast.error(
+            'Base64-Daten zu groß! Bitte komprimiere das Bild stärker.'
+          );
+          return;
+        }
+
+        if (!currentQuestion) return;
+
+        const newAnswers = [...currentQuestion.answers];
+        newAnswers[index] = {
+          type: 'image',
+          content: base64String, // Base64 encoded image
+          alt: newAnswers[index].alt || fileName,
+        };
+
+        setCurrentQuestion({
+          ...currentQuestion,
+          answers: newAnswers,
+        });
+
+        toast.dismiss(loadingToast);
+        toast.success('Bild erfolgreich hochgeladen!');
       };
-      setCurrentQuestion({
-        ...currentQuestion,
-        answers: newAnswers,
-      });
-    };
-    reader.readAsDataURL(file);
+
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error('Fehler beim Hochladen des Bildes:', error);
+      toast.error('Fehler beim Verarbeiten des Bildes. Versuche es erneut.');
+    }
   };
 
   const handleSaveQuestion = () => {
@@ -251,7 +322,7 @@ export default function QuizEditorModal({
         {/* Question Editor */}
         {currentQuestion && (
           <div className="space-y-4 mb-6 flex-1 overflow-y-auto px-6">
-            <h4 className="text-lg font-semibold text-gray-900">
+            <h4 className="text-lg font-semibold text-gray-900 my-4">
               {currentQuestion.isEditing ? 'Frage bearbeiten' : 'Neue Frage'}
             </h4>
 
@@ -355,6 +426,14 @@ export default function QuizEditorModal({
                 </div>
               ) : (
                 <div className="space-y-3">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                    <p className="text-xs font-medium text-blue-900">
+                      💡 Bildgröße max. 500 KB. Größere Bilder werden automatisch komprimiert.
+                    </p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      Tipp: Nutze tinypng.com oder imagecompressor.com zur Optimierung.
+                    </p>
+                  </div>
                   {currentQuestion.answers.map((answer: Answer, i: number) => (
                     <div
                       key={i}
@@ -373,6 +452,7 @@ export default function QuizEditorModal({
                                 handleImageUpload(i, e.target.files[0]);
                               }
                             }}
+                            disabled={false}
                             className="w-full text-sm"
                           />
                           <input
