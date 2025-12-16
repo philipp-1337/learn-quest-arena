@@ -5,7 +5,7 @@ export function useQuizHierarchy(
   subjects: Subject[],
   onSubjectsChange: (subjects: Subject[]) => void
 ) {
-  const { saveDocument } = useFirestore();
+  const { saveDocument, deleteDocument } = useFirestore();
 
   /* ---------- Helpers ---------- */
 
@@ -115,6 +115,7 @@ export function useQuizHierarchy(
   /* ---------- Delete ---------- */
 
   const deleteSubject = async (subjectId: string) => {
+    await deleteDocument(`subjects/${subjectId}`);
     onSubjectsChange(subjects.filter(s => s.id !== subjectId));
   };
 
