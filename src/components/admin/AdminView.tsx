@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
-import { getAuth, signOut } from 'firebase/auth';
-import { Plus, Upload } from 'lucide-react';
-import type { Subject } from '../../types/quizTypes';
-import useFirestore from '../../hooks/useFirestore';
-import { useStatsCalculation } from '../../hooks/useStatsCalculation';
-import { useSubjectOperations } from '../../hooks/useSubjectOperations';
-import AdminHeader from './AdminHeader';
-import AdminStats from './AdminStats';
-import QRCodeInfo from './QRCodeInfo';
-import SubjectManager from './managers/SubjectManager';
-import AddModal from '../modals/AddModal';
-import ImportModal from '../modals/ImportModal';
+import { useEffect, useState } from "react";
+import { getAuth, signOut } from "firebase/auth";
+import { Plus, Upload } from "lucide-react";
+import type { Subject } from "../../types/quizTypes";
+import useFirestore from "../../hooks/useFirestore";
+import { useStatsCalculation } from "../../hooks/useStatsCalculation";
+import { useSubjectOperations } from "../../hooks/useSubjectOperations";
+import AdminHeader from "./AdminHeader";
+import AdminStats from "./AdminStats";
+import QRCodeInfo from "./QRCodeInfo";
+// import SubjectManager from "./managers/SubjectManager";
+import AddModal from "../modals/AddModal";
+import ImportModal from "../modals/ImportModal";
+import FlatQuizManager from "./FlatQuizManager";
 
 // ============================================
 // ADMIN VIEW COMPONENT
@@ -35,7 +36,7 @@ export default function AdminView({
 
   // Custom Hooks
   const stats = useStatsCalculation(subjects);
-  const { handleAddSubject, handleDeleteSubject, handleUpdateSubject } =
+  const { handleAddSubject } =
     useSubjectOperations(subjects, setSubjects);
 
   // Sync changes back to parent
@@ -45,10 +46,10 @@ export default function AdminView({
 
   // Load subjects from Firestore on mount
   const handleLoadSubjects = async () => {
-    const loadedSubjects = await fetchCollection('subjects');
+    const loadedSubjects = await fetchCollection("subjects");
     const formattedSubjects: Subject[] = loadedSubjects.map((subject: any) => ({
       id: subject.id,
-      name: subject.name || '',
+      name: subject.name || "",
       order: subject.order || 0,
       classes: subject.classes || [],
     }));
@@ -66,7 +67,7 @@ export default function AdminView({
         onLogout();
       })
       .catch((error) => {
-        console.error('Logout Fehler:', error);
+        console.error("Logout Fehler:", error);
       });
   };
 
@@ -91,9 +92,7 @@ export default function AdminView({
         {/* Content Management */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Quiz verwalten
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900">Quiz verwalten</h2>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowImportModal(true)}
@@ -113,14 +112,10 @@ export default function AdminView({
           </div>
 
           <div className="space-y-4">
-            {subjects.map((subject: Subject) => (
-              <SubjectManager
-                key={subject.id}
-                subject={subject}
-                onDelete={() => handleDeleteSubject(subject.id)}
-                onUpdate={handleUpdateSubject}
-              />
-            ))}
+            <FlatQuizManager
+              subjects={subjects}
+              onSubjectsChange={setSubjects}
+            />
           </div>
         </div>
 
