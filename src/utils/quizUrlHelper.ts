@@ -16,7 +16,7 @@ export function generateQuizUrl(
   const topicSlug = slugify(topic.name);
   const quizSlug = slugify(quiz.title);
 
-  return `#/quiz/${subjectSlug}/${classSlug}/${topicSlug}/${quizSlug}`;
+  return `/quiz/${subjectSlug}/${classSlug}/${topicSlug}/${quizSlug}`;
 }
 
 /**
@@ -29,7 +29,7 @@ export async function copyQuizUrlToClipboard(
   quiz: Quiz
 ): Promise<boolean> {
   try {
-    const url = window.location.origin + window.location.pathname + generateQuizUrl(subject, classItem, topic, quiz);
+    const url = window.location.origin + generateQuizUrl(subject, classItem, topic, quiz);
     await navigator.clipboard.writeText(url);
     return true;
   } catch (error) {

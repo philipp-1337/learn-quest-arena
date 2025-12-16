@@ -134,9 +134,9 @@ export default function QuizEditorModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl my-8 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b">
+    <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto max-h-screen">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-8 z-10 flex flex-col max-h-[90vh] p-0">
+        <div className="flex justify-between items-center sticky top-0 bg-white pb-4 border-b z-10 px-6 pt-6">
           <h3 className="text-2xl font-bold text-gray-900">
             Quiz bearbeiten: {quiz.title}
           </h3>
@@ -150,7 +150,7 @@ export default function QuizEditorModal({
 
         {/* Question List */}
         {!currentQuestion && (
-          <div className="space-y-4 mb-6">
+          <div className="space-y-4 mb-6 flex-1 overflow-y-auto px-6">
             <div className="flex justify-between items-center">
               <h4 className="text-lg font-semibold text-gray-900">
                 Fragen ({editedQuiz.questions.length})
@@ -183,7 +183,7 @@ export default function QuizEditorModal({
                             {index + 1}. {q.question}
                           </span>
                           <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">
-                            {q.answerType === 'text' ? '📝 Text' : '🖼️ Bilder'}
+                            {q.answerType === 'text' ? 'Text' : 'Bilder'}
                           </span>
                         </div>
                         <div className="space-y-2 text-sm">
@@ -250,7 +250,7 @@ export default function QuizEditorModal({
 
         {/* Question Editor */}
         {currentQuestion && (
-          <div className="space-y-4 mb-6">
+          <div className="space-y-4 mb-6 flex-1 overflow-y-auto px-6">
             <h4 className="text-lg font-semibold text-gray-900">
               {currentQuestion.isEditing ? 'Frage bearbeiten' : 'Neue Frage'}
             </h4>
@@ -286,7 +286,7 @@ export default function QuizEditorModal({
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  📝 Text
+                  Text
                 </button>
                 <button
                   onClick={() => handleAnswerTypeChange('image')}
@@ -296,7 +296,7 @@ export default function QuizEditorModal({
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  🖼️ Bilder
+                  Bilder
                 </button>
               </div>
             </div>
@@ -439,7 +439,7 @@ export default function QuizEditorModal({
 
         {/* Save Quiz Button */}
         {!currentQuestion && (
-          <div className="flex gap-3 pt-4 border-t sticky bottom-0 bg-white">
+          <div className="flex gap-3 pt-4 border-t sticky bottom-0 bg-white px-6 pb-6 z-10">
             <button
               onClick={() => onSave(editedQuiz)}
               className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700"

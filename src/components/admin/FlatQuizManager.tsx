@@ -1,17 +1,19 @@
-import type { Subject } from '../../types/quizTypes';
+import { copyQuizUrlToClipboard } from "../../utils/quizUrlHelper";
+import { toast, Toaster } from "sonner";
+import type { Subject, Class, Topic, Quiz } from "../../types/quizTypes";
 
-import { useExpandedState } from '../../hooks/useExpandedState';
-import { useModalState } from '../../hooks/useModalState';
-import { useQuizHierarchy } from '../../hooks/useQuizHierarchy';
+import { useExpandedState } from "../../hooks/useExpandedState";
+import { useModalState } from "../../hooks/useModalState";
+import { useQuizHierarchy } from "../../hooks/useQuizHierarchy";
 
-import { SubjectItem } from './QuizHierarchyItem/SubjectItem';
-import { ClassItem } from './QuizHierarchyItem/ClassItem';
-import { TopicItem } from './QuizHierarchyItem/TopicItem';
-import { QuizItem } from './QuizHierarchyItem/QuizItem';
+import { SubjectItem } from "./QuizHierarchyItem/SubjectItem";
+import { ClassItem } from "./QuizHierarchyItem/ClassItem";
+import { TopicItem } from "./QuizHierarchyItem/TopicItem";
+import { QuizItem } from "./QuizHierarchyItem/QuizItem";
 
-import AddModal from '../modals/AddModal';
-import DeleteConfirmModal from '../modals/DeleteConfirmModal';
-import QuizEditorModal from '../modals/QuizEditorModal';
+import AddModal from "../modals/AddModal";
+import DeleteConfirmModal from "../modals/DeleteConfirmModal";
+import QuizEditorModal from "../modals/QuizEditorModal";
 
 interface FlatQuizManagerProps {
   subjects: Subject[];
@@ -27,10 +29,31 @@ export default function FlatQuizManager({
   const modals = useModalState();
   const hierarchy = useQuizHierarchy(subjects, onSubjectsChange);
 
+  const handleCopyQuizLink = async (
+    subject: Subject,
+    classItem: Class,
+    topic: Topic,
+    quiz: Quiz
+  ) => {
+    const success = await copyQuizUrlToClipboard(
+      subject,
+      classItem,
+      topic,
+      quiz
+    );
+
+    if (success) {
+      toast.success("Link kopiert! 📋", {});
+    } else {
+      toast.error("Fehler beim Kopieren des Links", {});
+    }
+  };
+
   /* ---------------- Render ---------------- */
   return (
     <div className="space-y-3">
-      {subjects.map(subject => {
+      <Toaster position="top-center" richColors closeButton />
+      {subjects.map((subject) => {
         const subjectExpanded = expanded.expandedSubjects.has(subject.id);
 
         return (
@@ -41,11 +64,11 @@ export default function FlatQuizManager({
               expanded={subjectExpanded}
               onToggle={() => expanded.toggleSubject(subject.id)}
               onAddClass={() =>
-                modals.setAddModal({ type: 'class', parentId: subject.id })
+                modals.setAddModal({ type: "class", parentId: subject.id })
               }
               onDelete={() =>
                 modals.setDeleteModal({
-                  type: 'subject',
+                  type: "subject",
                   id: subject.id,
                   name: subject.name,
                 })
@@ -54,7 +77,7 @@ export default function FlatQuizManager({
 
             {/* ---------- Classes ---------- */}
             {subjectExpanded &&
-              subject.classes.map(cls => {
+              subject.classes.map((cls) => {
                 const classExpanded = expanded.expandedClasses.has(cls.id);
 
                 return (
@@ -65,13 +88,13 @@ export default function FlatQuizManager({
                       onToggle={() => expanded.toggleClass(cls.id)}
                       onAddTopic={() =>
                         modals.setAddModal({
-                          type: 'topic',
+                          type: "topic",
                           parentId: `${subject.id}:${cls.id}`,
                         })
                       }
                       onDelete={() =>
                         modals.setDeleteModal({
-                          type: 'class',
+                          type: "class",
                           id: `${subject.id}:${cls.id}`,
                           name: cls.name,
                         })
@@ -80,27 +103,26 @@ export default function FlatQuizManager({
 
                     {/* ---------- Topics ---------- */}
                     {classExpanded &&
-                      cls.topics.map(topic => {
-                        const topicExpanded =
-                          expanded.expandedTopics.has(topic.id);
+                      cls.topics.map((topic) => {
+                        const topicExpanded = expanded.expandedTopics.has(
+                          topic.id
+                        );
 
                         return (
                           <div key={topic.id} className="ml-6 space-y-2">
                             <TopicItem
                               topic={topic}
                               expanded={topicExpanded}
-                              onToggle={() =>
-                                expanded.toggleTopic(topic.id)
-                              }
+                              onToggle={() => expanded.toggleTopic(topic.id)}
                               onAddQuiz={() =>
                                 modals.setAddModal({
-                                  type: 'quiz',
+                                  type: "quiz",
                                   parentId: `${subject.id}:${cls.id}:${topic.id}`,
                                 })
                               }
                               onDelete={() =>
                                 modals.setDeleteModal({
-                                  type: 'topic',
+                                  type: "topic",
                                   id: `${subject.id}:${cls.id}:${topic.id}`,
                                   name: topic.name,
                                 })
@@ -109,10 +131,18 @@ export default function FlatQuizManager({
 
                             {/* ---------- Quizzes ---------- */}
                             {topicExpanded &&
-                              topic.quizzes.map(quiz => (
+                              topic.quizzes.map((quiz) => (
                                 <QuizItem
                                   key={quiz.id}
                                   quiz={quiz}
+                                  onCopyLink={() =>
+                                    handleCopyQuizLink(
+                                      subject,
+                                      cls,
+                                      topic,
+                                      quiz
+                                    )
+                                  }
                                   onEdit={() =>
                                     modals.setEditQuizModal({
                                       quiz,
@@ -123,7 +153,7 @@ export default function FlatQuizManager({
                                   }
                                   onDelete={() =>
                                     modals.setDeleteModal({
-                                      type: 'quiz',
+                                      type: "quiz",
                                       id: `${subject.id}:${cls.id}:${topic.id}:${quiz.id}`,
                                       name: quiz.title,
                                     })
@@ -145,24 +175,23 @@ export default function FlatQuizManager({
       {modals.addModal && (
         <AddModal
           type={modals.addModal.type}
-          onSave={name => {
-            if (modals.addModal?.type === 'subject') {
+          onSave={(name) => {
+            if (modals.addModal?.type === "subject") {
               hierarchy.addSubject(name);
             }
 
-            if (modals.addModal?.type === 'class') {
+            if (modals.addModal?.type === "class") {
               hierarchy.addClass(name, modals.addModal.parentId!);
             }
 
-            if (modals.addModal?.type === 'topic') {
-              const [subjectId, classId] =
-                modals.addModal.parentId!.split(':');
+            if (modals.addModal?.type === "topic") {
+              const [subjectId, classId] = modals.addModal.parentId!.split(":");
               hierarchy.addTopic(name, subjectId, classId);
             }
 
-            if (modals.addModal?.type === 'quiz') {
+            if (modals.addModal?.type === "quiz") {
               const [subjectId, classId, topicId] =
-                modals.addModal.parentId!.split(':');
+                modals.addModal.parentId!.split(":");
               hierarchy.addQuiz(name, subjectId, classId, topicId);
             }
 
@@ -176,21 +205,21 @@ export default function FlatQuizManager({
         <DeleteConfirmModal
           itemName={modals.deleteModal.name}
           onConfirm={() => {
-            const ids = modals.deleteModal!.id.split(':');
+            const ids = modals.deleteModal!.id.split(":");
 
-            if (modals.deleteModal!.type === 'subject') {
+            if (modals.deleteModal!.type === "subject") {
               hierarchy.deleteSubject(ids[0]);
             }
 
-            if (modals.deleteModal!.type === 'class') {
+            if (modals.deleteModal!.type === "class") {
               hierarchy.deleteClass(ids[0], ids[1]);
             }
 
-            if (modals.deleteModal!.type === 'topic') {
+            if (modals.deleteModal!.type === "topic") {
               hierarchy.deleteTopic(ids[0], ids[1], ids[2]);
             }
 
-            if (modals.deleteModal!.type === 'quiz') {
+            if (modals.deleteModal!.type === "quiz") {
               hierarchy.deleteQuiz(ids[0], ids[1], ids[2], ids[3]);
             }
 
@@ -203,7 +232,7 @@ export default function FlatQuizManager({
       {modals.editQuizModal && (
         <QuizEditorModal
           quiz={modals.editQuizModal.quiz}
-          onSave={updatedQuiz => {
+          onSave={(updatedQuiz) => {
             hierarchy.updateQuiz(
               updatedQuiz,
               modals.editQuizModal!.subjectId,
