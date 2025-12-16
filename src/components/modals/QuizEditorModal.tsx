@@ -150,17 +150,17 @@ export default function QuizEditorModal({
 
         {/* Question List */}
         {!currentQuestion && (
-          <div className="space-y-4 mb-6 flex-1 overflow-y-auto px-6">
-            <div className="flex justify-between items-center">
-              <h4 className="text-lg font-semibold text-gray-900">
-                Fragen ({editedQuiz.questions.length})
+          <div className="space-y-8 mb-10 flex-1 overflow-y-auto px-6">
+            <div className="flex justify-between items-center my-6">
+              <h4 className="text-xl font-semibold text-gray-900 tracking-tight">
+                Fragen <span className="text-base font-normal text-gray-500">({editedQuiz.questions.length})</span>
               </h4>
               <button
                 onClick={handleAddQuestion}
-                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                title="Frage hinzufügen"
+                className="p-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-green-400"
               >
-                <Plus className="w-4 h-4" />
-                Frage hinzufügen
+                <Plus className="w-6 h-6" />
               </button>
             </div>
 
@@ -181,9 +181,9 @@ export default function QuizEditorModal({
                         <div className="flex items-center gap-2 mb-2">
                           <span className="font-semibold text-gray-900">
                             {index + 1}. {q.question}
-                          </span>
-                          <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">
-                            {q.answerType === 'text' ? 'Text' : 'Bilder'}
+                            <span className="ml-2 text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded align-middle">
+                              {q.answerType === 'text' ? 'Text' : 'Bilder'}
+                            </span>
                           </span>
                         </div>
                         <div className="space-y-2 text-sm">
