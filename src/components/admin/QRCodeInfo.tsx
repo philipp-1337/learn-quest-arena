@@ -13,14 +13,8 @@ export default function QRCodeInfo() {
             Klicke auf das QR-Code-Symbol neben einem Quiz, um einen
             Direktlink zu kopieren. Dieser Link führt direkt zum Quiz.
           </p>
-          <p className="text-sm text-gray-600 mb-2">
-            Format:{' '}
-            <code className="bg-white px-2 py-1 rounded text-xs">
-              #/quiz/[subject]/[class]/[topic]/[quiz]
-            </code>
-          </p>
           <p className="text-sm text-gray-600">
-            💡 Tipp: Erstelle QR-Codes aus diesen Links mit Tools wie{' '}
+            Tipp: Erstelle QR-Codes aus diesen Links mit Tools wie{' '}
             <a
               href="https://kraft-qr.web.app/"
               className="text-indigo-600 hover:underline"
