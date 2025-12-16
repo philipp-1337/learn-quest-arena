@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BookOpen, Users, FolderOpen, Play, Check, X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { Subject, Class, Topic, Quiz, Answer } from '../types/quizTypes';
+import type { Subject, Class, Topic, Quiz, Answer, Question } from '../types/quizTypes';
 import { slugify } from '../utils/slugify';
 
 export default function StudentView({ subjects: initialSubjects, onAdminClick }: { subjects: Subject[], onAdminClick: () => void }) {
@@ -369,10 +369,14 @@ function QuizPlayer({ quiz, onBack, onHome }: { quiz: Quiz; onBack: () => void; 
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [shuffledAnswers, setShuffledAnswers] = useState<Array<Answer & { originalIndex: number }>>([]);
   const [showResults, setShowResults] = useState<boolean>(false);
+  const [repeatQuestions, setRepeatQuestions] = useState<Question[] | null>(null);
+  const [totalTries, setTotalTries] = useState<number>(1);
+  const [solvedQuestions, setSolvedQuestions] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const question = quiz.questions[currentQuestion];
-    const answerIndices = [0, 1, 2];
+    const questions = repeatQuestions || quiz.questions;
+    const question = questions[currentQuestion];
+    const answerIndices = question.answers.map((_, idx) => idx);
     const shuffled: Array<Answer & { originalIndex: number }> = answerIndices
       .sort(() => Math.random() - 0.5)
       .map(idx => ({
@@ -380,17 +384,19 @@ function QuizPlayer({ quiz, onBack, onHome }: { quiz: Quiz; onBack: () => void; 
         originalIndex: idx
       }));
     setShuffledAnswers(shuffled);
-  }, [currentQuestion, quiz]);
+  }, [currentQuestion, quiz, repeatQuestions]);
 
   const handleAnswerSelect = (answer: Answer & { originalIndex: number }) => {
     if (selectedAnswer !== null) return;
     setSelectedAnswer(answer);
-    const isCorrect = answer.originalIndex === quiz.questions[currentQuestion].correctAnswerIndex;
+    const questions = repeatQuestions || quiz.questions;
+    const isCorrect = answer.originalIndex === questions[currentQuestion].correctAnswerIndex;
     setAnswers([...answers, isCorrect]);
   };
 
   const handleNext = () => {
-    if (currentQuestion < quiz.questions.length - 1) {
+    const questions = repeatQuestions || quiz.questions;
+    if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
     } else {
@@ -403,32 +409,110 @@ function QuizPlayer({ quiz, onBack, onHome }: { quiz: Quiz; onBack: () => void; 
     setSelectedAnswer(null);
     setAnswers([]);
     setShowResults(false);
+    setRepeatQuestions(null);
+    setTotalTries(1);
+    setSolvedQuestions(new Set());
+  };
+
+  // Spaced Repetition: Nur falsche Fragen wiederholen
+  const handleRepeatWrong = () => {
+    const questions = repeatQuestions || quiz.questions;
+    const wrongQuestions = questions
+      .map((q, idx) => ({ ...q, _originalIndex: idx }))
+      .filter((_, idx) => !answers[idx]);
+    // Update solvedQuestions-Set
+    const newSolved = new Set(solvedQuestions);
+    questions.forEach((q, idx) => {
+      if (answers[idx]) {
+        newSolved.add(q.question);
+      }
+    });
+    setSolvedQuestions(newSolved);
+    if (wrongQuestions.length > 0) {
+      setRepeatQuestions(wrongQuestions);
+      setCurrentQuestion(0);
+      setSelectedAnswer(null);
+      setAnswers([]);
+      setShowResults(false);
+      setTotalTries(t => t + 1);
+    }
   };
 
   if (showResults) {
+    const questions = repeatQuestions || quiz.questions;
     const correctCount = answers.filter(a => a).length;
     const percentage = Math.round((correctCount / answers.length) * 100);
+    // Falsch beantwortete Fragen sammeln
+    const wrongQuestions = questions
+      .map((q, idx) => ({
+        ...q,
+        index: idx,
+        wasCorrect: answers[idx]
+      }))
+      .filter(q => !q.wasCorrect);
+
+    // Update solvedQuestions-Set, falls dies der letzte Durchlauf ist
+    let allSolved = solvedQuestions;
+    if (wrongQuestions.length === 0 && answers.length > 0) {
+      const newSolved = new Set(solvedQuestions);
+      questions.forEach((q, idx) => {
+        if (answers[idx]) {
+          newSolved.add(q.question);
+        }
+      });
+      allSolved = newSolved;
+    }
+    const totalQuestions = quiz.questions.length;
+    const solvedCount = allSolved.size;
 
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl w-full text-center">
           <div className="mb-6 text-6xl">
-            {percentage >= 80 ? '🎉' : percentage >= 60 ? '👍' : '💪'}
+            {solvedCount === totalQuestions && wrongQuestions.length === 0 ? '🏆' : percentage >= 80 ? '🎉' : percentage >= 60 ? '👍' : '💪'}
           </div>
-          
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Quiz beendet!
           </h2>
-          
           <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-8 mb-6">
-            <div className="text-6xl font-bold text-indigo-600 mb-2">
-              {correctCount} / {answers.length}
-            </div>
-            <p className="text-xl text-gray-700">
-              Richtige Antworten ({percentage}%)
-            </p>
+            {solvedCount === totalQuestions && wrongQuestions.length === 0 ? (
+              <>
+                <div className="text-4xl font-bold text-green-700 mb-2">
+                  Alle {totalQuestions} Fragen korrekt gelöst!
+                </div>
+                <div className="text-lg text-gray-700 mb-2">
+                  Benötigte Durchläufe: {totalTries}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-6xl font-bold text-indigo-600 mb-2">
+                  {correctCount} / {answers.length}
+                </div>
+                <p className="text-xl text-gray-700">
+                  Richtige Antworten ({percentage}%)
+                </p>
+              </>
+            )}
           </div>
-
+          {wrongQuestions.length > 0 && (
+            <div className="mb-6 text-left">
+              <h3 className="text-lg font-semibold text-red-600 mb-2">Falsch beantwortete Fragen:</h3>
+              <ul className="list-disc list-inside text-gray-800">
+                {wrongQuestions.map(q => (
+                  <li key={q.index} className="mb-1">
+                    <span className="font-bold">Frage {q.index + 1}:</span> {q.question}
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={handleRepeatWrong}
+                className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-xl font-semibold hover:bg-orange-600 transition-colors"
+              >
+                Nur falsche Fragen wiederholen
+              </button>
+            </div>
+          )}
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={handleRestart}
@@ -443,7 +527,6 @@ function QuizPlayer({ quiz, onBack, onHome }: { quiz: Quiz; onBack: () => void; 
               Zurück
             </button>
           </div>
-          
           <button
             onClick={onHome}
             className="mt-4 text-gray-600 hover:text-gray-900"
@@ -455,7 +538,8 @@ function QuizPlayer({ quiz, onBack, onHome }: { quiz: Quiz; onBack: () => void; 
     );
   }
 
-  const question = quiz.questions[currentQuestion];
+  const questions = repeatQuestions || quiz.questions;
+  const question = questions[currentQuestion];
   const correctAnswer = shuffledAnswers.find(
     a => a.originalIndex === question.correctAnswerIndex
   );
