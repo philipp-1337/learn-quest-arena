@@ -44,7 +44,7 @@ export default function QuizQuestion({
         </div>
 
         {/* Question */}
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 force-break" lang="de">
           {question.question}
         </h2>
 

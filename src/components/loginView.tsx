@@ -59,8 +59,8 @@ export default function LoginView({ onLogin, onBack }: LoginViewProps) {
         
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
-          <p className="text-gray-600">Für Lehrer und Administratoren</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 force-break" lang="de">Admin Login</h1>
+          <p className="text-gray-600 force-break" lang="de">Für Lehrer und Administratoren</p>
         </div>
         
         {/* Login Form */}

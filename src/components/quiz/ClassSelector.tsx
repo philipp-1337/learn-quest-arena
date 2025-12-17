@@ -16,7 +16,7 @@ export default function ClassSelector({ classes, onSelect }: ClassSelectorProps)
           className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
         >
           <Users className="w-10 h-10 text-purple-600 mb-3 mx-auto" />
-          <h3 className="text-xl font-bold text-gray-900">{cls.name}</h3>
+          <h3 className="text-xl font-bold text-gray-900 force-break" lang="de">{cls.name}</h3>
         </button>
       ))}
     </div>

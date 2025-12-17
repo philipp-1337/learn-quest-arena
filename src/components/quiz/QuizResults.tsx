@@ -59,7 +59,7 @@ export default function QuizResults({
         </div>
         {wrongQuestions.length > 0 && (
           <div className="mb-6 text-left">
-            <h3 className="text-lg font-semibold text-red-600 mb-2">Falsch beantwortete Fragen:</h3>
+            <h3 className="text-lg font-semibold text-red-600 mb-2 force-break" lang="de">Falsch beantwortete Fragen:</h3>
             <ul className="list-disc list-inside text-gray-800">
               {wrongQuestions.map(q => (
                 <li key={q.index} className="mb-1">

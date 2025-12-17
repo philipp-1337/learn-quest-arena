@@ -6,7 +6,7 @@ export default function QRCodeInfo() {
       <div className="flex items-start gap-4">
         <QrCode className="w-8 h-8 text-indigo-600 flex-shrink-0 mt-1" />
         <div>
-          <h3 className="font-bold text-gray-900 mb-2">
+          <h3 className="font-bold text-gray-900 mb-2 force-break" lang="de">
             Direktlink zu Quizzen
           </h3>
           <p className="text-gray-700 mb-3">

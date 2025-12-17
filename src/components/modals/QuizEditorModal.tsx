@@ -208,7 +208,7 @@ export default function QuizEditorModal({
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto max-h-screen">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-8 z-10 flex flex-col max-h-[90vh] p-0">
         <div className="flex justify-between items-center sticky top-0 bg-white pb-4 border-b z-10 px-6 pt-6">
-          <h3 className="text-2xl font-bold text-gray-900">
+          <h3 className="text-2xl font-bold text-gray-900 force-break" lang="de">
             Quiz bearbeiten: {quiz.title}
           </h3>
           <button
@@ -223,7 +223,7 @@ export default function QuizEditorModal({
         {!currentQuestion && (
           <div className="space-y-8 mb-10 flex-1 overflow-y-auto px-6">
             <div className="flex justify-between items-center my-6">
-              <h4 className="text-xl font-semibold text-gray-900 tracking-tight">
+              <h4 className="text-xl font-semibold text-gray-900 tracking-tight force-break" lang="de">
                 Fragen <span className="text-base font-normal text-gray-500">({editedQuiz.questions.length})</span>
               </h4>
               <button
@@ -322,7 +322,7 @@ export default function QuizEditorModal({
         {/* Question Editor */}
         {currentQuestion && (
           <div className="space-y-4 mb-6 flex-1 overflow-y-auto px-6">
-            <h4 className="text-lg font-semibold text-gray-900 my-4">
+            <h4 className="text-lg font-semibold text-gray-900 my-4 force-break" lang="de">
               {currentQuestion.isEditing ? 'Frage bearbeiten' : 'Neue Frage'}
             </h4>
 

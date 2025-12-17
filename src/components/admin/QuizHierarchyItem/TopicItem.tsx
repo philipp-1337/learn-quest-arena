@@ -27,7 +27,7 @@ export function TopicItem({
             <FolderOpen className="w-3.5 h-3.5 text-white" />
           </div>
           <div>
-            <h4 className="text-sm font-medium text-gray-900">
+            <h4 className="text-sm font-medium text-gray-900 force-break" lang="de">
               {topic.name}
             </h4>
             <p className="text-xs text-gray-500">

@@ -22,7 +22,7 @@ export function QuizItem({
             <Play className="w-3 h-3 text-white" />
           </div>
           <div>
-            <h5 className="text-sm font-medium text-gray-900">
+            <h5 className="text-sm font-medium text-gray-900 force-break" lang="de">
               {quiz.title}
             </h5>
             <p className="text-xs text-gray-500">

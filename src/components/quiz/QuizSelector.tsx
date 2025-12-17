@@ -23,7 +23,7 @@ export default function QuizSelector({ quizzes, onSelect }: QuizSelectorProps) {
           >
             <div className="flex items-center justify-between">
               <div className="text-left">
-                <h3 className="text-2xl font-bold mb-2">{quiz.title}</h3>
+                <h3 className="text-2xl font-bold mb-2 force-break" lang="de">{quiz.title}</h3>
                 <p className="text-indigo-100">
                   {quiz.questions.length} Fragen
                 </p>

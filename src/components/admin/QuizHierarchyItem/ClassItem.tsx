@@ -27,7 +27,7 @@ export function ClassItem({
             <Users className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">
+            <h3 className="font-semibold text-gray-900 force-break" lang="de">
               {classItem.name}
             </h3>
             <p className="text-xs text-gray-500">

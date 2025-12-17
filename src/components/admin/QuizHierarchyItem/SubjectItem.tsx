@@ -21,7 +21,7 @@ export function SubjectItem({ subject, expanded, onToggle, onAddClass, onDelete 
             <BookOpen className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h2 className="font-semibold text-gray-900">{subject.name}</h2>
+            <h2 className="font-semibold text-gray-900 force-break" lang="de">{subject.name}</h2>
             <p className="text-xs text-gray-500">{subject.classes.length} Klassen</p>
           </div>
         </div>

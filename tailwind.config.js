@@ -89,5 +89,13 @@ export const plugins = [
     }
 
     addUtilities(newUtilities)
+    // Eigene force-break Utility hinzufügen
+    addUtilities({
+      '.force-break': {
+        overflowWrap: 'anywhere',
+        wordBreak: 'break-word',
+        hyphens: 'auto',
+      },
+    })
   }
 ]

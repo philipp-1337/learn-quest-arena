@@ -57,7 +57,7 @@ export default function FlatQuizManager({
         const subjectExpanded = expanded.expandedSubjects.has(subject.id);
 
         return (
-          <div key={subject.id} className="space-y-2">
+          <div key={subject.id} className="space-y-2 break-words">
             {/* ---------- Subject ---------- */}
             <SubjectItem
               subject={subject}
