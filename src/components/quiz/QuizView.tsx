@@ -195,8 +195,8 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
 
   // Show QuizPlayer if a quiz is selected
   if (selectedQuiz) {
-    // Wenn kein Username gesetzt ist ("skip"), QuizPlayer ohne username-Prop (kein Fortschritt)
-    if (!username) {
+    // Wenn kein Username gesetzt ist oder Username "Gast" ist, QuizPlayer ohne username-Prop (kein Fortschritt)
+    if (!username || username === "Gast") {
       return (
         <QuizPlayer 
           quiz={selectedQuiz} 
