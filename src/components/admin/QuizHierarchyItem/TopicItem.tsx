@@ -43,6 +43,8 @@ export function TopicItem({
               onAddQuiz();
             }}
             className="p-1 backdrop-blur-xl bg-green-400/20 hover:bg-green-400/30 rounded-md border border-green-400/30 transition-all duration-200"
+            title="Quiz hinzufügen"
+            aria-label="Quiz hinzufügen"
           >
             <Plus className="w-3 h-3 text-green-700" />
           </button>
@@ -53,6 +55,8 @@ export function TopicItem({
               onDelete();
             }}
             className="p-1 backdrop-blur-xl bg-red-400/20 hover:bg-red-400/30 rounded-md border border-red-400/30 transition-all duration-200"
+            title="Thema löschen"
+            aria-label="Thema löschen"
           >
             <Trash2 className="w-3 h-3 text-red-700" />
           </button>

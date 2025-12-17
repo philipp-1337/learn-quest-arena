@@ -26,6 +26,8 @@ export default function Breadcrumb({
       <button
         onClick={onNavigateHome}
         className="text-indigo-600 hover:text-indigo-800 font-medium"
+        title="Zur Startseite"
+        aria-label="Zur Startseite"
       >
         Start
       </button>
@@ -35,6 +37,8 @@ export default function Breadcrumb({
           <button
             onClick={onNavigateToSubject}
             className="text-indigo-600 hover:text-indigo-800 font-medium"
+            title={selectedSubject.name}
+            aria-label={selectedSubject.name}
           >
             {selectedSubject.name}
           </button>
@@ -46,6 +50,8 @@ export default function Breadcrumb({
           <button
             onClick={onNavigateToClass}
             className="text-indigo-600 hover:text-indigo-800 font-medium"
+            title={selectedClass.name}
+            aria-label={selectedClass.name}
           >
             {selectedClass.name}
           </button>

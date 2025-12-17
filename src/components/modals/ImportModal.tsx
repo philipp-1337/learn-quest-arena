@@ -306,6 +306,8 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
+            title="Schließen"
+            aria-label="Schließen"
           >
             <X className="w-6 h-6" />
           </button>
@@ -328,6 +330,8 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             <button
               onClick={() => downloadTemplate('json')}
               className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+              title="JSON Vorlage herunterladen"
+              aria-label="JSON Vorlage herunterladen"
             >
               <Download className="w-4 h-4" />
               JSON Vorlage
@@ -335,6 +339,8 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             <button
               onClick={() => downloadTemplate('csv')}
               className="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors"
+              title="CSV Vorlage herunterladen"
+              aria-label="CSV Vorlage herunterladen"
             >
               <Download className="w-4 h-4" />
               CSV Vorlage

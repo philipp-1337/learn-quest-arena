@@ -52,6 +52,7 @@ export default function LoginView({ onLogin, onBack }: LoginViewProps) {
           onClick={onBack}
           className="mb-6 text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2 group"
           aria-label="Zurück zur Startseite"
+          title="Zurück zur Startseite"
         >
           <span className="group-hover:-translate-x-1 transition-transform">←</span>
           Zurück
@@ -113,6 +114,7 @@ export default function LoginView({ onLogin, onBack }: LoginViewProps) {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                 aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
+                title={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
                 disabled={loading}
               >
                 {showPassword ? (
@@ -147,6 +149,8 @@ export default function LoginView({ onLogin, onBack }: LoginViewProps) {
             type="submit"
             disabled={loading || !isFormValid}
             className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] shadow-sm hover:shadow-md"
+            title={loading ? 'Anmelden läuft' : 'Anmelden'}
+            aria-label={loading ? 'Anmelden läuft' : 'Anmelden'}
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">

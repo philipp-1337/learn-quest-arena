@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Cog } from 'lucide-react';
 import { useQuizState } from '../../hooks/useQuizState';
 import { useQuizNavigation } from '../../hooks/useQuizNavigation';
 import Breadcrumb from './Breadcrumb';
@@ -181,9 +182,15 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
             </div>
             <button
               onClick={onAdminClick}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              aria-label="Admin-Bereich"
+              title="Admin-Bereich"
             >
-              Admin
+              <Cog className="w-6 h-6" />
+              {/* Tooltip */}
+              <span className="absolute -top-10 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+                Admin-Bereich
+              </span>
             </button>
           </div>
           {/* Breadcrumb */}

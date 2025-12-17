@@ -73,6 +73,8 @@ export default function QuizQuestion({
           <button
             onClick={onNext}
             className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+            title={currentQuestion < totalQuestions - 1 ? 'Nächste Frage' : 'Ergebnis anzeigen'}
+            aria-label={currentQuestion < totalQuestions - 1 ? 'Nächste Frage' : 'Ergebnis anzeigen'}
           >
             {currentQuestion < totalQuestions - 1 ? 'Nächste Frage' : 'Ergebnis anzeigen'}
           </button>
@@ -81,6 +83,8 @@ export default function QuizQuestion({
         <button
           onClick={onHome}
           className="w-full mt-4 text-gray-600 hover:text-gray-900"
+          title="Quiz abbrechen"
+          aria-label="Quiz abbrechen"
         >
           Quiz abbrechen
         </button>

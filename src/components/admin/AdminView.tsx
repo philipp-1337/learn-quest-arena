@@ -97,6 +97,8 @@ export default function AdminView({
               <button
                 onClick={() => setShowImportModal(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-green-100 border border-green-300 rounded-md text-green-600 hover:text-green-700 hover:bg-green-200"
+                title="Quiz importieren"
+                aria-label="Quiz importieren"
               >
                 <Upload className="w-4 h-4" />
                 <span className="max-[640px]:hidden">Quiz importieren</span>
@@ -104,6 +106,8 @@ export default function AdminView({
               <button
                 onClick={() => setShowAddModal(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-indigo-100 border border-indigo-300 rounded-md text-indigo-600 hover:text-indigo-700 hover:bg-indigo-200"
+                title="Fach hinzufügen"
+                aria-label="Fach hinzufügen"
               >
                 <Plus className="w-4 h-4" />
                 <span className="max-[640px]:hidden">Fach hinzufügen</span>

@@ -36,6 +36,8 @@ export default function AnswerButton({
       onClick={() => onSelect(answer)}
       disabled={disabled}
       className={buttonClass}
+      title={typeof answer.content === 'string' ? answer.content : 'Antwort auswählen'}
+      aria-label={typeof answer.content === 'string' ? answer.content : 'Antwort auswählen'}
     >
       {answer.type === 'text' ? (
         <div className="flex items-center justify-between text-left">

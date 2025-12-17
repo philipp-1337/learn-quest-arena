@@ -22,6 +22,8 @@ export default function QuizSelector({ quizzes, onSelect }: QuizSelectorProps) {
               }
             }}
             className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+            title={quiz.title}
+            aria-label={quiz.title}
           >
             <div className="flex items-center justify-between">
               <div className="text-left">

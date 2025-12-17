@@ -25,12 +25,16 @@ export default function DeleteConfirmModal({
           <button
             onClick={onConfirm}
             className="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+            title="Löschen bestätigen"
+            aria-label="Löschen bestätigen"
           >
             Ja, löschen
           </button>
           <button
             onClick={onClose}
             className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+            title="Abbrechen"
+            aria-label="Abbrechen"
           >
             Abbrechen
           </button>

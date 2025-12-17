@@ -53,6 +53,8 @@ export default function AddModal({ type, onSave, onClose }: AddModalProps) {
             onClick={handleSubmit}
             className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center justify-center"
             disabled={loading}
+            title={loading ? 'Speichern läuft' : 'Speichern'}
+            aria-label={loading ? 'Speichern läuft' : 'Speichern'}
           >
             {loading ? (
               <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -66,6 +68,8 @@ export default function AddModal({ type, onSave, onClose }: AddModalProps) {
             onClick={onClose}
             className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
             disabled={loading}
+            title="Abbrechen"
+            aria-label="Abbrechen"
           >
             Abbrechen
           </button>

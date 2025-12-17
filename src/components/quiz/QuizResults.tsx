@@ -70,6 +70,8 @@ export default function QuizResults({
             <button
               onClick={onRepeatWrong}
               className="mt-4 bg-orange-500 text-white py-2 px-4 rounded-xl font-semibold hover:bg-orange-600 transition-colors"
+              title="Nur falsche Fragen wiederholen"
+              aria-label="Nur falsche Fragen wiederholen"
             >
               Nur falsche Fragen wiederholen
             </button>
@@ -79,12 +81,16 @@ export default function QuizResults({
           <button
             onClick={onRestart}
             className="flex-1 bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+            title="Nochmal spielen"
+            aria-label="Nochmal spielen"
           >
             Nochmal spielen
           </button>
           <button
             onClick={onBack}
             className="flex-1 bg-gray-200 text-gray-900 py-4 rounded-xl font-semibold hover:bg-gray-300 transition-colors"
+            title="Zurück"
+            aria-label="Zurück"
           >
             Zurück
           </button>
@@ -92,6 +98,8 @@ export default function QuizResults({
         <button
           onClick={onHome}
           className="mt-4 text-gray-600 hover:text-gray-900"
+          title="Zum Start"
+          aria-label="Zum Start"
         >
           Zum Start
         </button>

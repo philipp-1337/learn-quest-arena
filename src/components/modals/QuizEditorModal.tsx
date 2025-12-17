@@ -215,6 +215,8 @@ export default function QuizEditorModal({
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
+            title="Schließen"
+            aria-label="Schließen"
           >
             <X className="w-6 h-6" />
           </button>
@@ -230,6 +232,7 @@ export default function QuizEditorModal({
               <button
                 onClick={handleAddQuestion}
                 title="Frage hinzufügen"
+                aria-label="Frage hinzufügen"
                 className="p-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-green-400"
               >
                 <Plus className="w-6 h-6" />
@@ -302,12 +305,16 @@ export default function QuizEditorModal({
                         <button
                           onClick={() => handleEditQuestion(index)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                          title="Frage bearbeiten"
+                          aria-label="Frage bearbeiten"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteQuestion(index)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded"
+                          title="Frage löschen"
+                          aria-label="Frage löschen"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -513,6 +520,8 @@ export default function QuizEditorModal({
               <button
                 onClick={handleSaveQuestion}
                 className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700"
+                title={currentQuestion.isEditing ? 'Änderungen speichern' : 'Frage hinzufügen'}
+                aria-label={currentQuestion.isEditing ? 'Änderungen speichern' : 'Frage hinzufügen'}
               >
                 {currentQuestion.isEditing
                   ? 'Änderungen speichern'
@@ -521,6 +530,8 @@ export default function QuizEditorModal({
               <button
                 onClick={() => setCurrentQuestion(null)}
                 className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300"
+                title="Abbrechen"
+                aria-label="Abbrechen"
               >
                 Abbrechen
               </button>
@@ -546,12 +557,16 @@ export default function QuizEditorModal({
               <button
                 onClick={() => onSave(editedQuiz)}
                 className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700"
+                title="Quiz speichern"
+                aria-label="Quiz speichern"
               >
                 Quiz speichern
               </button>
               <button
                 onClick={onClose}
                 className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300"
+                title="Schließen"
+                aria-label="Schließen"
               >
                 Schließen
               </button>

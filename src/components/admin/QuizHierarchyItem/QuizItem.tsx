@@ -80,6 +80,8 @@ export function QuizItem({
           <button
             onClick={onEdit}
             className="p-1 backdrop-blur-xl bg-blue-400/20 hover:bg-blue-400/30 rounded-md border border-blue-400/30 transition-all duration-200"
+            title="Quiz bearbeiten"
+            aria-label="Quiz bearbeiten"
           >
             <Edit2 className="w-3 h-3 text-blue-700" />
           </button>
@@ -87,6 +89,8 @@ export function QuizItem({
           <button
             onClick={onDelete}
             className="p-1 backdrop-blur-xl bg-red-400/20 hover:bg-red-400/30 rounded-md border border-red-400/30 transition-all duration-200"
+            title="Quiz löschen"
+            aria-label="Quiz löschen"
           >
             <Trash2 className="w-3 h-3 text-red-700" />
           </button>

@@ -14,6 +14,8 @@ export default function TopicSelector({ topics, onSelect }: TopicSelectorProps) 
           key={topic.id}
           onClick={() => onSelect(topic)}
           className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+          title={topic.name}
+          aria-label={topic.name}
         >
           <FolderOpen className="w-10 h-10 text-green-600 mb-3 mx-auto" />
           <h3 className="text-xl font-bold text-gray-900 force-break" lang="de">{topic.name}</h3>

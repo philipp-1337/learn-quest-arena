@@ -17,14 +17,18 @@ export default function AdminHeader({ onLogout }: AdminHeaderProps) {
               onClick={() => {
                 navigate("/"); // Navigate to home
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200"
+              className="flex items-center gap-2 px-4 py-2 bg-green-100 border border-green-300 rounded-md text-green-600 hover:text-green-700 hover:bg-green-200"
+              title="Zum Quiz"
+              aria-label="Zum Quiz"
             >
               <BookOpen className="w-4 h-4" />
               <span className="max-[640px]:hidden">Zum Quiz</span>
             </button>
             <button
               onClick={onLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200"
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-100 border border-indigo-300 rounded-md text-indigo-600 hover:text-indigo-700 hover:bg-indigo-200"
+              title="Abmelden"
+              aria-label="Abmelden"
             >
               <LogOut className="w-4 h-4" />
               <span className="max-[640px]:hidden">Abmelden</span>
