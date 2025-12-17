@@ -9,7 +9,7 @@ interface QuizSelectorProps {
 export default function QuizSelector({ quizzes, onSelect }: QuizSelectorProps) {
   return (
     <div className="space-y-4">
-      {quizzes.map((quiz: Quiz) => (
+      {[...quizzes].sort((a, b) => a.title.localeCompare(b.title)).map((quiz: Quiz) => (
         <div key={quiz.id} className="relative">
           <button
             onClick={() => {

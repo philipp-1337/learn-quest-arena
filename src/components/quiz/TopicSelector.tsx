@@ -9,7 +9,7 @@ interface TopicSelectorProps {
 export default function TopicSelector({ topics, onSelect }: TopicSelectorProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {topics.map((topic: Topic) => (
+      {[...topics].sort((a, b) => a.name.localeCompare(b.name)).map((topic: Topic) => (
         <button
           key={topic.id}
           onClick={() => onSelect(topic)}

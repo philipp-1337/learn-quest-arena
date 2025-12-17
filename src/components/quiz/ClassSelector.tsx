@@ -9,7 +9,7 @@ interface ClassSelectorProps {
 export default function ClassSelector({ classes, onSelect }: ClassSelectorProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-      {classes.map((cls: Class) => (
+      {[...classes].sort((a, b) => a.name.localeCompare(b.name)).map((cls: Class) => (
         <button
           key={cls.id}
           onClick={() => onSelect(cls)}

@@ -9,7 +9,7 @@ interface SubjectSelectorProps {
 export default function SubjectSelector({ subjects, onSelect }: SubjectSelectorProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {subjects.map((subject: Subject) => (
+      {[...subjects].sort((a, b) => a.name.localeCompare(b.name)).map((subject: Subject) => (
         <button
           key={subject.id}
           onClick={() => onSelect(subject)}
