@@ -1,15 +1,26 @@
 import { useState, useEffect } from 'react';
 import type { Quiz, Question, Answer } from '../types/quizTypes';
 
-export function useQuizPlayer(quiz: Quiz) {
+export type QuizPlayerInitialState = {
+  answers?: boolean[];
+  solvedQuestions?: string[];
+  totalTries?: number;
+};
+
+export function useQuizPlayer(
+  quiz: Quiz,
+  initialState?: QuizPlayerInitialState
+) {
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
   const [selectedAnswer, setSelectedAnswer] = useState<(Answer & { originalIndex: number }) | null>(null);
-  const [answers, setAnswers] = useState<boolean[]>([]);
+  const [answers, setAnswers] = useState<boolean[]>(initialState?.answers || []);
   const [shuffledAnswers, setShuffledAnswers] = useState<Array<Answer & { originalIndex: number }>>([]);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [repeatQuestions, setRepeatQuestions] = useState<Question[] | null>(null);
-  const [totalTries, setTotalTries] = useState<number>(1);
-  const [solvedQuestions, setSolvedQuestions] = useState<Set<string>>(new Set());
+  const [totalTries, setTotalTries] = useState<number>(initialState?.totalTries || 1);
+  const [solvedQuestions, setSolvedQuestions] = useState<Set<string>>(
+    initialState?.solvedQuestions ? new Set(initialState.solvedQuestions) : new Set()
+  );
 
   // Shuffle answers when question changes
   useEffect(() => {
@@ -39,7 +50,17 @@ export function useQuizPlayer(quiz: Quiz) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
     } else {
+      // Nach Abschluss: Alle korrekt beantworteten Fragen zu solvedQuestions hinzufügen
       setShowResults(true);
+      setSolvedQuestions(prev => {
+        const newSolved = new Set(prev);
+        questions.forEach((q, idx) => {
+          if (answers[idx]) {
+            newSolved.add(q.question);
+          }
+        });
+        return newSolved;
+      });
     }
   };
 
@@ -125,6 +146,7 @@ export function useQuizPlayer(quiz: Quiz) {
     showResults,
     repeatQuestions,
     solvedQuestions,
+    totalTries,
     handleAnswerSelect,
     handleNext,
     handleRestart,

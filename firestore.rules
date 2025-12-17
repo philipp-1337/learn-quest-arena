@@ -14,7 +14,10 @@ service cloud.firestore {
     
     // Optional: Zusätzliche Collections (falls du später welche brauchst)
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if true;
+      match /progress/{quizId} {
+        allow read, write: if true;
+      }
     }
     
     // Quiz Results / Progress (falls du das später trackst)
