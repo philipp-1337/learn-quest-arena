@@ -149,6 +149,22 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
     );
   }
 
+  // Hilfsfunktionen zum Filtern
+  function hasVisibleQuizInTopic(topic: { quizzes: Quiz[] }): boolean {
+    return topic.quizzes.some((q: Quiz) => !q.hidden);
+  }
+  function hasVisibleQuizInClass(cls: { topics: { quizzes: Quiz[] }[] }): boolean {
+    return cls.topics.some(hasVisibleQuizInTopic);
+  }
+  function hasVisibleQuizInSubject(subject: { classes: { topics: { quizzes: Quiz[] }[] }[] }): boolean {
+    return subject.classes.some(hasVisibleQuizInClass);
+  }
+
+  // Gefilterte Daten
+  const visibleSubjects = subjects.filter(hasVisibleQuizInSubject);
+  const visibleClasses = selectedSubject ? selectedSubject.classes.filter(hasVisibleQuizInClass) : [];
+  const visibleTopics = selectedClass ? selectedClass.topics.filter(hasVisibleQuizInTopic) : [];
+
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto">
@@ -170,7 +186,6 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
               Admin
             </button>
           </div>
-          
           {/* Breadcrumb */}
           <Breadcrumb
             selectedSubject={selectedSubject}
@@ -185,28 +200,28 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
         {/* Content - Conditional Rendering based on selection */}
         {!selectedSubject && (
           <SubjectSelector 
-            subjects={subjects}
+            subjects={visibleSubjects}
             onSelect={handleSubjectSelect}
           />
         )}
 
         {selectedSubject && !selectedClass && (
           <ClassSelector 
-            classes={selectedSubject.classes}
+            classes={visibleClasses}
             onSelect={handleClassSelect}
           />
         )}
 
         {selectedClass && !selectedTopic && (
           <TopicSelector 
-            topics={selectedClass.topics}
+            topics={visibleTopics}
             onSelect={handleTopicSelect}
           />
         )}
 
         {selectedTopic && (
           <QuizSelector 
-            quizzes={selectedTopic.quizzes}
+            quizzes={selectedTopic.quizzes.filter(q => !q.hidden)}
             onSelect={handleQuizSelect}
           />
         )}
