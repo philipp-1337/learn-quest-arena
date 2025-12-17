@@ -23,10 +23,31 @@ export function useStatsCalculation(subjects: Subject[]) {
       0
     );
 
+    const totalQuestions = subjects.reduce(
+      (acc: number, s: Subject) =>
+        acc +
+        s.classes.reduce(
+          (a: number, c: Class) =>
+            a +
+            c.topics.reduce(
+              (b: number, t: Topic) =>
+                b +
+                t.quizzes.reduce(
+                  (qAcc: number, q) => qAcc + (q.questions ? q.questions.length : 0),
+                  0
+                ),
+              0
+            ),
+          0
+        ),
+      0
+    );
+
     return {
       totalSubjects: subjects.length,
       totalTopics,
       totalQuizzes,
+      totalQuestions,
     };
   }, [subjects]);
 

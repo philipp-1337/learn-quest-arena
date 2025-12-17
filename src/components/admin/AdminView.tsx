@@ -87,6 +87,7 @@ export default function AdminView({
           totalSubjects={stats.totalSubjects}
           totalTopics={stats.totalTopics}
           totalQuizzes={stats.totalQuizzes}
+          totalQuestions={stats.totalQuestions}
         />
 
         {/* Content Management */}
