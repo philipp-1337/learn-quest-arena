@@ -158,6 +158,15 @@ export default function FlatQuizManager({
                                       name: quiz.title,
                                     })
                                   }
+                                  onToggleHidden={async (hidden) => {
+                                    const updatedQuiz = { ...quiz, hidden };
+                                    await hierarchy.updateQuiz(
+                                      updatedQuiz,
+                                      subject.id,
+                                      cls.id,
+                                      topic.id
+                                    );
+                                  }}
                                 />
                               ))}
                           </div>

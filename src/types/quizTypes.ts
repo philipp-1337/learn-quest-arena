@@ -23,6 +23,7 @@ export interface Quiz {
   id: string;
   title: string;
   questions: Question[];
+  hidden?: boolean; // Wenn true, ist das Quiz ausgeblendet
 }
 
 export interface Question {

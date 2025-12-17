@@ -11,9 +11,11 @@ export function useQuizHierarchy(
 
   const persistSubject = async (updated: Subject) => {
     await saveDocument(`subjects/${updated.id}`, updated);
-    onSubjectsChange(
-      subjects.map(s => (s.id === updated.id ? updated : s))
+    // Tiefe Kopie, um State-Referenz zu ändern und ein Re-Render zu erzwingen
+    const newSubjects = subjects.map(s =>
+      s.id === updated.id ? JSON.parse(JSON.stringify(updated)) : s
     );
+    onSubjectsChange(newSubjects);
   };
 
   /* ---------- Add ---------- */

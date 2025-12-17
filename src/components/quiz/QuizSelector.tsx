@@ -7,9 +7,11 @@ interface QuizSelectorProps {
 }
 
 export default function QuizSelector({ quizzes, onSelect }: QuizSelectorProps) {
+  // Nur nicht-ausgeblendete Quizze anzeigen
+  const visibleQuizzes = quizzes.filter(q => !q.hidden);
   return (
     <div className="space-y-4">
-      {[...quizzes].sort((a, b) => a.title.localeCompare(b.title)).map((quiz: Quiz) => (
+      {[...visibleQuizzes].sort((a, b) => a.title.localeCompare(b.title)).map((quiz: Quiz) => (
         <div key={quiz.id} className="relative">
           <button
             onClick={() => {

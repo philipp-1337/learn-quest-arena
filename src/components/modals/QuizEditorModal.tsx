@@ -59,6 +59,7 @@ export default function QuizEditorModal({
   const [editedQuiz, setEditedQuiz] = useState<Quiz>({
     ...quiz,
     questions: quiz.questions || [],
+    hidden: quiz.hidden || false,
   });
   const [currentQuestion, setCurrentQuestion] = useState<QuestionEditor | null>(
     null
@@ -527,21 +528,34 @@ export default function QuizEditorModal({
           </div>
         )}
 
-        {/* Save Quiz Button */}
+        {/* Hidden Toggle */}
         {!currentQuestion && (
-          <div className="flex gap-3 pt-4 border-t sticky bottom-0 bg-white px-6 pb-6 z-10">
-            <button
-              onClick={() => onSave(editedQuiz)}
-              className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700"
-            >
-              Quiz speichern
-            </button>
-            <button
-              onClick={onClose}
-              className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300"
-            >
-              Schließen
-            </button>
+          <div className="flex flex-col gap-3 pt-4 border-t sticky bottom-0 bg-white px-6 pb-6 z-10">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="hidden-toggle"
+                checked={!!editedQuiz.hidden}
+                onChange={e => setEditedQuiz(q => ({ ...q, hidden: e.target.checked }))}
+              />
+              <label htmlFor="hidden-toggle" className="text-sm">
+                Quiz ist <span className={editedQuiz.hidden ? 'text-red-500' : 'text-green-600'}>{editedQuiz.hidden ? 'ausgeblendet' : 'sichtbar'}</span>
+              </label>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => onSave(editedQuiz)}
+                className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700"
+              >
+                Quiz speichern
+              </button>
+              <button
+                onClick={onClose}
+                className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300"
+              >
+                Schließen
+              </button>
+            </div>
           </div>
         )}
       </div>
