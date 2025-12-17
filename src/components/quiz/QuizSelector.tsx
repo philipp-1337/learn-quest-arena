@@ -1,42 +1,93 @@
 import { Play } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import type { Quiz } from '../../types/quizTypes';
+import type { UserProgress } from '../../types/userProgress';
+import { loadAllUserProgress } from '../../utils/loadAllUserProgress';
+
 
 interface QuizSelectorProps {
   quizzes: Quiz[];
   onSelect: (quiz: Quiz) => void;
+  username?: string;
 }
 
-export default function QuizSelector({ quizzes, onSelect }: QuizSelectorProps) {
+export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps) {
+  const [progressMap, setProgressMap] = useState<Record<string, UserProgress>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!username) {
+      setProgressMap({});
+      setLoading(false);
+      return;
+    }
+    let mounted = true;
+    async function fetchProgress() {
+      setLoading(true);
+      try {
+        if (!username) throw new Error('Username is required');
+        const allProgress = await loadAllUserProgress(username);
+        if (mounted) setProgressMap(allProgress);
+      } catch (e) {
+        if (mounted) setProgressMap({});
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    fetchProgress();
+    return () => { mounted = false; };
+  }, [username]);
+
   // Nur nicht-ausgeblendete Quizze anzeigen
-  const visibleQuizzes = quizzes.filter(q => !q.hidden);
+  const visibleQuizzes = quizzes.filter((q: Quiz) => !q.hidden);
+
   return (
     <div className="space-y-4">
-      {[...visibleQuizzes].sort((a, b) => a.title.localeCompare(b.title)).map((quiz: Quiz) => (
-        <div key={quiz.id} className="relative">
-          <button
-            onClick={() => {
-              try {
-                onSelect(quiz);
-              } catch (error) {
-                console.error('Error selecting quiz:', error);
-              }
-            }}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
-            title={quiz.title}
-            aria-label={quiz.title}
-          >
-            <div className="flex items-center justify-between">
-              <div className="text-left">
-                <h3 className="text-2xl font-bold mb-2 force-break" lang="de">{quiz.title}</h3>
-                <p className="text-indigo-100">
-                  {quiz.questions.length} Fragen
-                </p>
+      {[...visibleQuizzes].sort((a, b) => a.title.localeCompare(b.title)).map((quiz: Quiz) => {
+        const progress = progressMap[quiz.id];
+        let progressText = '';
+        if (username && progress && Array.isArray(progress.solvedQuestions)) {
+          const solved = progress.solvedQuestions.length;
+          const total = quiz.questions.length;
+          const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
+          progressText = `${solved}/${total} gelöst (${percent}%)`;
+        }
+        return (
+          <div key={quiz.id} className="relative">
+            <button
+              onClick={() => {
+                try {
+                  onSelect(quiz);
+                } catch (error) {
+                  console.error('Error selecting quiz:', error);
+                }
+              }}
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+              title={quiz.title}
+              aria-label={quiz.title}
+            >
+              <div className="flex items-center justify-between">
+                <div className="text-left">
+                  <h3 className="text-2xl font-bold mb-2 force-break" lang="de">{quiz.title}</h3>
+                  <p className="text-indigo-100">
+                    {quiz.questions.length} Fragen
+                  </p>
+                  {username ? (
+                    loading ? (
+                      <span className="text-xs text-indigo-200">Lade Fortschritt...</span>
+                    ) : progressText ? (
+                      <span className="text-xs text-green-200">Fortschritt: {progressText}</span>
+                    ) : (
+                      <span className="text-xs text-indigo-200">Noch nicht gestartet</span>
+                    )
+                  ) : null}
+                </div>
+                <Play className="w-12 h-12" />
               </div>
-              <Play className="w-12 h-12" />
-            </div>
-          </button>
-        </div>
-      ))}
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }

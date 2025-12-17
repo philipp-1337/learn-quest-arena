@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import UsernamePicker from '../UsernamePicker';
+import UsernameManualEntry from '../UsernameManualEntry';
 import { Cog } from 'lucide-react';
 import { useQuizState } from '../../hooks/useQuizState';
 import { useQuizNavigation } from '../../hooks/useQuizNavigation';
@@ -6,7 +8,7 @@ import Breadcrumb from './Breadcrumb';
 import SubjectSelector from './SubjectSelector';
 import ClassSelector from './ClassSelector';
 import TopicSelector from './TopicSelector';
-import QuizSelector from './QuizSelector';
+import { QuizSelector } from './QuizSelector';
 import QuizPlayer from './QuizPlayer';
 import type { Subject, Quiz } from '../../types/quizTypes';
 
@@ -18,6 +20,14 @@ interface QuizViewProps {
 export default function QuizView({ subjects: initialSubjects, onAdminClick }: QuizViewProps) {
   const [subjects, setSubjects] = useState(initialSubjects);
   const [loading, setLoading] = useState(true);
+  // Username ist standardmäßig "Gast", außer es ist ein anderer im LocalStorage gespeichert
+  const [username, setUsername] = useState<string>(() => {
+    const stored = localStorage.getItem('lqa_username');
+    return stored && stored !== '' ? stored : 'Gast';
+  });
+  // Zeige Username-Auswahl nur, wenn explizit gewünscht
+  const [showUsernamePicker, setShowUsernamePicker] = useState(false);
+  const [showManualEntry, setShowManualEntry] = useState(false);
 
   const {
     selectedSubject,
@@ -139,13 +149,68 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
     return <div>Loading...</div>;
   }
 
+  // Username-Auswahl nur anzeigen, wenn explizit gewünscht
+  if (showUsernamePicker) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+          <h2 className="text-2xl font-bold mb-4">Wähle deinen Nutzernamen</h2>
+          <p className="mb-4 text-gray-600">Du kannst dir einen Namen aussuchen und ihn dir merken, um deinen Fortschritt zu speichern.</p>
+          {!showManualEntry ? (
+            <>
+              <UsernamePicker
+                onUsernameSelected={(name) => {
+                  if (name === "skip") {
+                    setUsername("Gast");
+                    localStorage.setItem('lqa_username', "Gast");
+                    setShowUsernamePicker(false);
+                  } else {
+                    setUsername(name);
+                    localStorage.setItem('lqa_username', name);
+                    setShowUsernamePicker(false);
+                  }
+                }}
+              />
+              <button
+                className="text-xs text-indigo-500 underline mt-2"
+                onClick={() => setShowManualEntry(true)}
+              >
+                Ich habe schon einen Namen
+              </button>
+            </>
+          ) : (
+            <UsernameManualEntry
+              onUsernameSelected={(name) => {
+                setUsername(name);
+                localStorage.setItem('lqa_username', name);
+                setShowUsernamePicker(false);
+              }}
+            />
+          )}
+          <div className="mt-6 text-xs text-gray-400">Merke dir deinen Namen gut!<br/>Du brauchst ihn beim nächsten Besuch.</div>
+        </div>
+      </div>
+    );
+  }
+
   // Show QuizPlayer if a quiz is selected
   if (selectedQuiz) {
+    // Wenn kein Username gesetzt ist ("skip"), QuizPlayer ohne username-Prop (kein Fortschritt)
+    if (!username) {
+      return (
+        <QuizPlayer 
+          quiz={selectedQuiz} 
+          onBack={handleBackFromQuiz}
+          onHome={handleReset}
+        />
+      );
+    }
     return (
       <QuizPlayer 
         quiz={selectedQuiz} 
         onBack={handleBackFromQuiz}
         onHome={handleReset}
+        username={username}
       />
     );
   }
@@ -180,18 +245,28 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
                 Wähle ein Thema und teste dein Wissen!
               </p>
             </div>
-            <button
-              onClick={onAdminClick}
-              className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-              aria-label="Admin-Bereich"
-              title="Admin-Bereich"
-            >
-              <Cog className="w-6 h-6" />
-              {/* Tooltip */}
-              <span className="absolute -top-10 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-                Admin-Bereich
-              </span>
-            </button>
+            <div className="flex flex-col items-end">
+              <button
+                onClick={onAdminClick}
+                className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                aria-label="Admin-Bereich"
+                title="Admin-Bereich"
+              >
+                <Cog className="w-6 h-6" />
+                {/* Tooltip */}
+                <span className="absolute -top-10 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+                  Admin-Bereich
+                </span>
+              </button>
+              <div className="mt-2 text-xs text-gray-500">👤 {username}</div>
+              <button
+                className="text-xs text-indigo-500 underline mt-1"
+                onClick={() => {
+                  setShowUsernamePicker(true);
+                  setShowManualEntry(false);
+                }}
+              >Namen wählen</button>
+            </div>
           </div>
           {/* Breadcrumb */}
           <Breadcrumb
@@ -227,10 +302,18 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
         )}
 
         {selectedTopic && (
-          <QuizSelector 
-            quizzes={selectedTopic.quizzes.filter(q => !q.hidden)}
-            onSelect={handleQuizSelect}
-          />
+          username ? (
+            <QuizSelector 
+              quizzes={selectedTopic.quizzes.filter(q => !q.hidden)}
+              onSelect={handleQuizSelect}
+              username={username}
+            />
+          ) : (
+            <QuizSelector 
+              quizzes={selectedTopic.quizzes.filter(q => !q.hidden)}
+              onSelect={handleQuizSelect}
+            />
+          )
         )}
       </div>
     </div>
