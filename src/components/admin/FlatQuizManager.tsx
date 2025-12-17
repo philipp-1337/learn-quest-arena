@@ -53,7 +53,7 @@ export default function FlatQuizManager({
   return (
     <div className="space-y-3">
       <Toaster position="top-center" richColors closeButton />
-      {subjects.map((subject) => {
+      {[...subjects].sort((a, b) => a.name.localeCompare(b.name)).map((subject) => {
         const subjectExpanded = expanded.expandedSubjects.has(subject.id);
 
         return (
@@ -77,7 +77,7 @@ export default function FlatQuizManager({
 
             {/* ---------- Classes ---------- */}
             {subjectExpanded &&
-              subject.classes.map((cls) => {
+              [...subject.classes].sort((a, b) => a.name.localeCompare(b.name)).map((cls) => {
                 const classExpanded = expanded.expandedClasses.has(cls.id);
 
                 return (
@@ -103,7 +103,7 @@ export default function FlatQuizManager({
 
                     {/* ---------- Topics ---------- */}
                     {classExpanded &&
-                      cls.topics.map((topic) => {
+                      [...cls.topics].sort((a, b) => a.name.localeCompare(b.name)).map((topic) => {
                         const topicExpanded = expanded.expandedTopics.has(
                           topic.id
                         );
@@ -131,7 +131,7 @@ export default function FlatQuizManager({
 
                             {/* ---------- Quizzes ---------- */}
                             {topicExpanded &&
-                              topic.quizzes.map((quiz) => (
+                              [...topic.quizzes].sort((a, b) => a.title.localeCompare(b.title)).map((quiz) => (
                                 <QuizItem
                                   key={quiz.id}
                                   quiz={quiz}
