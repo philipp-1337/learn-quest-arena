@@ -2,15 +2,17 @@ import { useState, useEffect } from 'react';
 import LoadingScreen from './components/LoadingScreen';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import LoginView from './components/loginView';
-import StudentView from './components/quizView';
+import QuizView from './components/quiz/QuizView';
 import AdminView from './components/admin/AdminView';
 import type { Subject } from './types/quizTypes';
 import useFirestore from "./hooks/useFirestore";
 import ProtectedRoute from './utils/ProtectedRoute';
 
+
 // ============================================
 // MAIN APP COMPONENT
 // ============================================
+
 
 export default function FlashcardQuizApp() {
   const { fetchCollection } = useFirestore();
@@ -19,6 +21,7 @@ export default function FlashcardQuizApp() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
 
   // Load subjects from Firestore
   useEffect(() => {
@@ -63,6 +66,7 @@ export default function FlashcardQuizApp() {
     
   }, [fetchCollection]);
 
+
   const handleAdminClick = () => {
     if (!isLoggedIn) {
       navigate('/login');
@@ -71,6 +75,7 @@ export default function FlashcardQuizApp() {
     }
   };
 
+
   const handleSubjectsChange = (updatedSubjects: Subject[]) => {
     if (JSON.stringify(subjects) !== JSON.stringify(updatedSubjects)) {
       console.log('Subjects updated:', updatedSubjects);
@@ -78,18 +83,22 @@ export default function FlashcardQuizApp() {
     }
   };
 
+
   const handleLogout = () => {
     setIsLoggedIn(false);
     navigate('/');
   };
 
+
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
 
+
   if (isLoading) {
     return <LoadingScreen />;
   }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -111,7 +120,7 @@ export default function FlashcardQuizApp() {
       <Routes>
         <Route
           path="/"
-          element={<StudentView subjects={subjects} onAdminClick={handleAdminClick} />}
+          element={<QuizView subjects={subjects} onAdminClick={handleAdminClick} />}
         />
         <Route
           path="/admin"
@@ -135,19 +144,19 @@ export default function FlashcardQuizApp() {
         />
         <Route
           path="/quiz/:subjectSlug"
-          element={<StudentView subjects={subjects} onAdminClick={handleAdminClick} />}
+          element={<QuizView subjects={subjects} onAdminClick={handleAdminClick} />}
         />
         <Route
           path="/quiz/:subjectSlug/:classSlug"
-          element={<StudentView subjects={subjects} onAdminClick={handleAdminClick} />}
+          element={<QuizView subjects={subjects} onAdminClick={handleAdminClick} />}
         />
         <Route
           path="/quiz/:subjectSlug/:classSlug/:topicSlug"
-          element={<StudentView subjects={subjects} onAdminClick={handleAdminClick} />}
+          element={<QuizView subjects={subjects} onAdminClick={handleAdminClick} />}
         />
         <Route
           path="/quiz/:subjectSlug/:classSlug/:topicSlug/:quizSlug"
-          element={<StudentView subjects={subjects} onAdminClick={handleAdminClick} />}
+          element={<QuizView subjects={subjects} onAdminClick={handleAdminClick} />}
         />
       </Routes>
     </div>
