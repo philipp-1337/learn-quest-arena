@@ -3,6 +3,10 @@ import type { UserProgress } from "../types/userProgress";
 
 // Speichert den Fortschritt eines Users für ein Quiz
 export async function saveUserProgress(progress: UserProgress) {
+  if (progress.username === "Gast") {
+    // Niemals Gast-User speichern
+    return;
+  }
   const db = getFirestore();
   const ref = doc(db, "users", progress.username, "progress", progress.quizId);
   await setDoc(ref, progress, { merge: true });
@@ -10,6 +14,10 @@ export async function saveUserProgress(progress: UserProgress) {
 
 // Lädt den Fortschritt eines Users für ein Quiz
 export async function loadUserProgress(username: string, quizId: string): Promise<UserProgress | null> {
+  if (username === "Gast") {
+    // Niemals Gast-Fortschritt laden
+    return null;
+  }
   const db = getFirestore();
   const ref = doc(db, "users", username, "progress", quizId);
   const snap = await getDoc(ref);
