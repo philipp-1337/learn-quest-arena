@@ -23,6 +23,18 @@ export default function UsernamePicker({ onUsernameSelected }: UsernamePickerPro
     }
   };
 
+  // Hilfsfunktion: User-Dokument anlegen, falls nicht vorhanden
+  const handleSelectName = async (name: string) => {
+    try {
+      const { getFirestore, doc, setDoc } = await import("firebase/firestore");
+      const db = getFirestore();
+      await setDoc(doc(db, "users", name), { createdAt: new Date() }, { merge: true });
+      onUsernameSelected(name);
+    } catch (err) {
+      setError("Fehler beim Anlegen des Nutzers: " + (err instanceof Error ? err.message : String(err)));
+    }
+  };
+
   return (
     <div className="mb-3 flex flex-col items-center gap-2">
       <button
@@ -44,7 +56,7 @@ export default function UsernamePicker({ onUsernameSelected }: UsernamePickerPro
           {usernames.map((name) => (
             <button
               key={name}
-              onClick={() => onUsernameSelected(name)}
+              onClick={() => handleSelectName(name)}
               className="px-3 py-1 bg-gray-100 rounded border hover:bg-indigo-100 w-full sm:w-auto mb-2 sm:mb-0"
             >
               {name}
