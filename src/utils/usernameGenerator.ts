@@ -1,4 +1,4 @@
-import { animalNames } from "./animalNames";
+import { animalNames, reservedAnimalNames } from "./animalNames";
 import { getFirestore, collection, doc, getDoc } from "firebase/firestore";
 
 // Hilfsfunktion: Zufällige 6-stellige Buchstaben-/Zahlen-Kombination
@@ -20,11 +20,17 @@ async function usernameExists(username: string): Promise<boolean> {
 }
 
 // Generiert 3 einzigartige Usernamen, die noch nicht in Firestore existieren
+// Reservierte Tiernamen werden dabei nicht verwendet
 export async function generateUniqueUsernames(): Promise<string[]> {
   const usernames: string[] = [];
   const usedNames = new Set<string>();
+  const availableAnimals = animalNames.filter(
+    (animal) => !reservedAnimalNames.includes(animal)
+  );
+  
   while (usernames.length < 3) {
-    const animal = animalNames[Math.floor(Math.random() * animalNames.length)];
+    const animal =
+      availableAnimals[Math.floor(Math.random() * availableAnimals.length)];
     const suffix = randomSuffix();
     const username = `${animal}-${suffix}`;
     if (usedNames.has(username)) continue;
