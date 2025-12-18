@@ -73,6 +73,10 @@ export default function FlatQuizManager({
                   name: subject.name,
                 })
               }
+              onRename={async (newName) => {
+                await hierarchy.updateSubjectName(subject.id, newName);
+                toast.success("Fach umbenannt");
+              }}
             />
 
             {/* ---------- Classes ---------- */}
@@ -99,6 +103,10 @@ export default function FlatQuizManager({
                           name: cls.name,
                         })
                       }
+                      onRename={async (newName) => {
+                        await hierarchy.updateClassName(subject.id, cls.id, newName);
+                        toast.success("Klasse umbenannt");
+                      }}
                     />
 
                     {/* ---------- Topics ---------- */}
@@ -127,6 +135,10 @@ export default function FlatQuizManager({
                                   name: topic.name,
                                 })
                               }
+                              onRename={async (newName) => {
+                                await hierarchy.updateTopicName(subject.id, cls.id, topic.id, newName);
+                                toast.success("Thema umbenannt");
+                              }}
                             />
 
                             {/* ---------- Quizzes ---------- */}
@@ -166,6 +178,15 @@ export default function FlatQuizManager({
                                       cls.id,
                                       topic.id
                                     );
+                                  }}
+                                  onRename={async (newTitle) => {
+                                    await hierarchy.updateQuiz(
+                                      { ...quiz, title: newTitle },
+                                      subject.id,
+                                      cls.id,
+                                      topic.id
+                                    );
+                                    toast.success("Quiz umbenannt");
                                   }}
                                 />
                               ))}

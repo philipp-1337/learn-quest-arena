@@ -209,9 +209,18 @@ export default function QuizEditorModal({
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto max-h-screen">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-8 z-10 flex flex-col max-h-[90vh] p-0">
         <div className="flex justify-between items-center sticky top-0 bg-white pb-4 border-b z-10 px-6 pt-6">
-          <h3 className="text-2xl font-bold text-gray-900 force-break" lang="de">
-            Quiz bearbeiten: {quiz.title}
-          </h3>
+          <div className="flex flex-col flex-1 mr-4">
+            <label htmlFor="quiz-title" className="text-xs font-medium text-gray-600 mb-1">Quiz-Titel</label>
+            <input
+              id="quiz-title"
+              type="text"
+              value={editedQuiz.title}
+              onChange={e => setEditedQuiz(q => ({ ...q, title: e.target.value }))}
+              className="text-2xl font-bold text-gray-900 force-break bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              placeholder="Quiz-Titel eingeben"
+              lang="de"
+            />
+          </div>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"

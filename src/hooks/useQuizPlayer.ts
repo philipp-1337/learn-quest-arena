@@ -21,17 +21,26 @@ export function useQuizPlayer(
   quiz: Quiz,
   initialState?: QuizPlayerInitialState
 ) {
+  // Fragen einmalig mischen (gleiche Reihenfolge für die Session)
+  const [shuffledQuestions] = useState(() => {
+    const arr = [...quiz.questions];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  });
   // Finde die erste ungelöste Frage, falls Fortschritt vorhanden
 
   // Neues Modell: Fragen-Fortschritt initialisieren
   function getFirstUnsolvedIndex() {
     if (initialState?.questions) {
-      const idx = quiz.questions.findIndex((_, i) => !initialState.questions?.[String(i)]?.answered);
+      const idx = shuffledQuestions.findIndex((_, i) => !initialState.questions?.[String(i)]?.answered);
       return idx === -1 ? 0 : idx;
     }
     if (!initialState?.answers || initialState.answers.length === 0) return 0;
     const idx = initialState.answers.findIndex(a => a === false);
-    if (idx === -1) return initialState.answers.length < quiz.questions.length ? initialState.answers.length : 0;
+    if (idx === -1) return initialState.answers.length < shuffledQuestions.length ? initialState.answers.length : 0;
     return idx;
   }
 
@@ -51,7 +60,7 @@ export function useQuizPlayer(
 
   // Shuffle answers when question changes
   useEffect(() => {
-    const questions = repeatQuestions || quiz.questions;
+    const questions = repeatQuestions || shuffledQuestions;
     const question = questions[currentQuestion];
     const answerIndices = question.answers.map((_, idx) => idx);
     const shuffled: Array<Answer & { originalIndex: number }> = answerIndices
@@ -61,12 +70,12 @@ export function useQuizPlayer(
         originalIndex: idx
       }));
     setShuffledAnswers(shuffled);
-  }, [currentQuestion, quiz, repeatQuestions]);
+  }, [currentQuestion, shuffledQuestions, repeatQuestions]);
 
   const handleAnswerSelect = (answer: Answer & { originalIndex: number }) => {
     if (selectedAnswer !== null) return;
     setSelectedAnswer(answer);
-    const questions = repeatQuestions || quiz.questions;
+    const questions = repeatQuestions || shuffledQuestions;
     const isCorrect = answer.originalIndex === questions[currentQuestion].correctAnswerIndex;
     setAnswers(prevAnswers => {
       const newAnswers = [...prevAnswers, isCorrect];
@@ -96,7 +105,7 @@ export function useQuizPlayer(
   };
 
   const handleNext = () => {
-    const questions = repeatQuestions || quiz.questions;
+    const questions = repeatQuestions || shuffledQuestions;
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
@@ -126,7 +135,7 @@ export function useQuizPlayer(
   };
 
   const handleRepeatWrong = () => {
-    const questions = repeatQuestions || quiz.questions;
+    const questions = repeatQuestions || shuffledQuestions;
     const wrongQuestions = questions
       .map((q, idx) => ({ ...q, _originalIndex: idx }))
       .filter((_, idx) => !answers[idx]);
@@ -151,7 +160,7 @@ export function useQuizPlayer(
   };
 
   const getCurrentQuestion = () => {
-    const questions = repeatQuestions || quiz.questions;
+    const questions = repeatQuestions || shuffledQuestions;
     return questions[currentQuestion];
   };
 
@@ -163,7 +172,7 @@ export function useQuizPlayer(
   };
 
   const getWrongQuestions = () => {
-    const questions = repeatQuestions || quiz.questions;
+    const questions = repeatQuestions || shuffledQuestions;
     return questions
       .map((q, idx) => ({
         ...q,
@@ -176,13 +185,13 @@ export function useQuizPlayer(
   const getStatistics = () => {
     const correctCount = answers.filter(a => a).length;
     const percentage = Math.round((correctCount / answers.length) * 100);
-    const allSolved = solvedQuestions.size === quiz.questions.length;
+    const allSolved = solvedQuestions.size === shuffledQuestions.length;
     
     return {
       correctCount,
       totalAnswered: answers.length,
       percentage,
-      totalQuestions: quiz.questions.length,
+      totalQuestions: shuffledQuestions.length,
       solvedCount: solvedQuestions.size,
       allSolved,
       totalTries,
@@ -203,7 +212,10 @@ export function useQuizPlayer(
     handleNext,
     handleRestart,
     handleRepeatWrong,
-    getCurrentQuestion,
+    getCurrentQuestion: () => {
+      const questions = repeatQuestions || shuffledQuestions;
+      return questions[currentQuestion];
+    },
     getCorrectAnswer,
     getWrongQuestions,
     getStatistics,
