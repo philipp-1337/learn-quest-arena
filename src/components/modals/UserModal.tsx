@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import { Pencil } from 'lucide-react';
+import { toast } from 'sonner';
 import type { UserQuizProgress } from '../../types/userProgress';
+import type { Subject } from '../../types/quizTypes';
 
 
 interface UserModalProps {
   username: string;
   onClose: () => void;
   onChooseName: () => void;
+  subjects: Subject[];
 }
 
 interface UserDashboardProps {
   username: string;
+  subjects: Subject[];
 }
 
-const UserDashboard: React.FC<UserDashboardProps> = ({ username }) => {
+const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => {
   const [progressList, setProgressList] = useState<UserQuizProgress[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,9 +25,6 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username }) => {
     async function fetchProgress() {
       setLoading(true);
       try {
-        // Dynamisch alle Progress-Dokumente für den User laden
-        // Firestore-Query: users/{username}/progress
-        // Annahme: loadAllUserProgress(username) gibt UserQuizProgress[] zurück
         const { loadAllUserProgress } = await import('../../utils/loadAllUserProgress');
         const progressObj: Record<string, UserQuizProgress> = await loadAllUserProgress(username);
         const allProgress: UserQuizProgress[] = Object.values(progressObj);
@@ -45,22 +47,35 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username }) => {
         <div>Kein Fortschritt vorhanden.</div>
       ) : (
         <div className="space-y-6">
-          {progressList.map((progress) => (
-            <div key={progress.quizId} className="border rounded-lg p-4 bg-gray-50">
-              <div className="font-semibold text-lg mb-2">Quiz: {progress.quizId}</div>
-              <div className="mb-1">Abgeschlossen: {progress.completed ? '✅' : '❌'}</div>
-              <div className="mb-1">Versuche: {progress.totalTries}</div>
-              <div className="mb-1">Zuletzt bearbeitet: {new Date(progress.lastUpdated).toLocaleString()}</div>
-              <div className="mb-1">Fragen:</div>
-              <ul className="ml-4 list-disc">
-                {Object.entries(progress.questions).map(([qId, q]) => (
-                  <li key={qId}>
-                    {qId}: {q.answered ? '✔️' : '❌'} (Versuche: {q.attempts})
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {progressList.map((progress) => {
+            // Quiz-Titel anhand quizId suchen
+            let quizTitle = progress.quizId;
+            subjects.forEach(subject => {
+              subject.classes.forEach(cls => {
+                cls.topics.forEach(topic => {
+                  const quiz = topic.quizzes.find(q => q.id === progress.quizId);
+                  if (quiz) quizTitle = quiz.title;
+                });
+              });
+            });
+            return (
+              <div key={progress.quizId} className="border rounded-lg p-4 bg-gray-50">
+                <div className="font-semibold text-lg mb-2">Quiz: {quizTitle}</div>
+                <div className="mb-1">Abgeschlossen: {progress.completed ? '✅' : '❌'}</div>
+                <div className="mb-1">Versuche: {progress.totalTries}</div>
+                <div className="mb-1">Zuletzt bearbeitet: {new Date(progress.lastUpdated).toLocaleString()}</div>
+                <div className="mb-1">
+                  Fragen: {
+                    (() => {
+                      const total = Object.keys(progress.questions).length;
+                      const correct = Object.values(progress.questions).filter(q => q.answered).length;
+                      return `${correct}/${total} korrekt`;
+                    })()
+                  }
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -68,7 +83,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username }) => {
 };
 
 
-const UserModal: React.FC<UserModalProps> = ({ username, onClose, onChooseName }) => {
+const UserModal: React.FC<UserModalProps> = ({ username, onClose, onChooseName, subjects }) => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50 backdrop-blur-sm z-50">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl border border-gray-100 relative">
@@ -90,27 +105,49 @@ const UserModal: React.FC<UserModalProps> = ({ username, onClose, onChooseName }
           <p className="text-gray-600 force-break" lang="de">Dein zufällig generierter Nutzername</p>
         </div>
 
-        {/* Username Display */}
-        <div className="mb-6 text-2xl text-gray-800 font-mono text-center break-all select-all border border-gray-200 rounded-lg py-4 bg-gray-50">
-          {username}
+
+        {/* Username Display mit Icon-Button */}
+        <div className="mb-6 flex items-center justify-between text-2xl text-gray-800 font-mono break-all select-all border border-gray-200 rounded-lg py-4 px-4 bg-gray-50">
+          <span className="truncate">{username}</span>
+          <button
+            onClick={() => {
+              toast.custom(
+                (t) => (
+                  <div>
+                    <div className="mb-2">Wenn du deinen Namen änderst, geht dein Fortschritt verloren. Bist du sicher?</div>
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+                        onClick={() => {
+                          toast.dismiss(t);
+                          onChooseName();
+                        }}
+                      >Weiter</button>
+                      <button
+                        className="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                        onClick={() => toast.dismiss(t)}
+                      >Abbrechen</button>
+                    </div>
+                  </div>
+                ),
+                { duration: 10000 }
+              );
+            }}
+            className="ml-2 p-2 rounded-full hover:bg-indigo-100 text-indigo-600 hover:text-indigo-900 transition-colors"
+            title="Anderen Namen wählen"
+            aria-label="Anderen Namen wählen"
+            type="button"
+          >
+            <Pencil className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Dashboard */}
         <div className="mb-8">
-          <UserDashboard username={username} />
+          <UserDashboard username={username} subjects={subjects} />
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3">
-          <button
-            onClick={onChooseName}
-            className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] shadow-sm hover:shadow-md"
-            title="Anderen Namen wählen"
-            aria-label="Anderen Namen wählen"
-          >
-            Anderen Namen wählen
-          </button>
-        </div>
+        {/* Action Buttons entfernt, da Icon-Button jetzt im Username-Display ist */}
       </div>
     </div>
   );

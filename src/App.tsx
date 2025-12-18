@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import LoadingScreen from './components/LoadingScreen';
+import Toaster from './ToasterProvider';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import LoginView from './components/loginView';
 import QuizView from './components/quiz/QuizView';
@@ -102,6 +103,7 @@ export default function FlashcardQuizApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <Toaster position="top-center" richColors closeButton />
       {/* Error Banner */}
       {error && (
         <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3">

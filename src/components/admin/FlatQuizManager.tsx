@@ -1,5 +1,5 @@
 import { copyQuizUrlToClipboard } from "../../utils/quizUrlHelper";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import type { Subject, Class, Topic, Quiz } from "../../types/quizTypes";
 
 import { useExpandedState } from "../../hooks/useExpandedState";
@@ -52,7 +52,6 @@ export default function FlatQuizManager({
   /* ---------------- Render ---------------- */
   return (
     <div className="space-y-3">
-      <Toaster position="top-center" richColors closeButton />
       {[...subjects].sort((a, b) => a.name.localeCompare(b.name)).map((subject) => {
         const subjectExpanded = expanded.expandedSubjects.has(subject.id);
 
