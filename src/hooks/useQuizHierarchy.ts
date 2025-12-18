@@ -80,7 +80,8 @@ export function useQuizHierarchy(
     title: string,
     subjectId: string,
     classId: string,
-    topicId: string
+    topicId: string,
+    hidden: boolean = false
   ) => {
     const subject = subjects.find(s => s.id === subjectId);
     if (!subject) return;
@@ -95,6 +96,7 @@ export function useQuizHierarchy(
       id: `${topicId}-${Date.now()}`,
       title,
       questions: [],
+      hidden,
     };
 
     await persistSubject({
