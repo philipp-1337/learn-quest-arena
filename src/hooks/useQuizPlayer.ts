@@ -26,7 +26,7 @@ export function useQuizPlayer(
   // Neues Modell: Fragen-Fortschritt initialisieren
   function getFirstUnsolvedIndex() {
     if (initialState?.questions) {
-      const idx = quiz.questions.findIndex(q => !initialState.questions?.[q.question]?.answered);
+      const idx = quiz.questions.findIndex((_, i) => !initialState.questions?.[String(i)]?.answered);
       return idx === -1 ? 0 : idx;
     }
     if (!initialState?.answers || initialState.answers.length === 0) return 0;
@@ -70,13 +70,13 @@ export function useQuizPlayer(
     const isCorrect = answer.originalIndex === questions[currentQuestion].correctAnswerIndex;
     setAnswers(prevAnswers => {
       const newAnswers = [...prevAnswers, isCorrect];
-      // Neues Modell: Frage-Fortschritt aktualisieren
+      // Neues Modell: Frage-Fortschritt aktualisieren (Index als Key)
       setQuestionProgress(prev => {
-        const qId = questions[currentQuestion].question;
-        const prevQ = prev?.[qId] || { answered: false, attempts: 0, lastAnswerCorrect: false };
+        const qIdx = String(currentQuestion);
+        const prevQ = prev?.[qIdx] || { answered: false, attempts: 0, lastAnswerCorrect: false };
         return {
           ...prev,
-          [qId]: {
+          [qIdx]: {
             answered: isCorrect ? true : prevQ.answered,
             attempts: prevQ.attempts + 1,
             lastAnswerCorrect: isCorrect,
