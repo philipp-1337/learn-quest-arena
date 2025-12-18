@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useQuizPlayer } from '../../hooks/useQuizPlayer';
-import type { QuizPlayerInitialState } from '../../hooks/useQuizPlayer';
 import QuizQuestion from './QuizQuestion';
 import QuizResults from './QuizResults';
 import type { Quiz } from '../../types/quizTypes';
-import { saveUserProgress, loadUserProgress } from '../../utils/userProgressFirestore';
-import type { UserProgress } from '../../types/userProgress';
+import { saveUserQuizProgress, loadUserQuizProgress } from '../../utils/userProgressFirestore';
+import type { UserQuizProgress } from '../../types/userProgress';
 
 
 
@@ -18,8 +17,8 @@ interface QuizPlayerProps {
 
 export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlayerProps) {
   // Fortschritt laden und an useQuizPlayer übergeben (nur wenn username gesetzt)
-  const [initialState, setInitialState] = useState<QuizPlayerInitialState | undefined>(undefined);
-  const [progressLoaded, setProgressLoaded] = useState(!username); // Wenn kein username: sofort geladen
+  const [initialState, setInitialState] = useState<any>(undefined);
+  const [progressLoaded, setProgressLoaded] = useState(!username);
 
   useEffect(() => {
     if (!username) {
@@ -29,14 +28,10 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
     }
     let mounted = true;
     async function fetchProgress() {
-      const progress = await loadUserProgress(username as string, quiz.id);
+      const progress = await loadUserQuizProgress(username as string, quiz.id);
       if (mounted) {
         if (progress) {
-          setInitialState({
-            answers: progress.answers,
-            solvedQuestions: progress.solvedQuestions,
-            totalTries: progress.totalTries,
-          });
+          setInitialState(progress);
         }
         setProgressLoaded(true);
       }
@@ -47,6 +42,7 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
   }, [quiz.id, username]);
 
   // useQuizPlayer erst initialisieren, wenn Fortschritt geladen wurde (nur beim ersten Mount)
+  // TODO: useQuizPlayer muss auf das neue Modell angepasst werden!
   const quizPlayer = useQuizPlayer(quiz, progressLoaded ? initialState : undefined);
   const {
     currentQuestion,
@@ -67,37 +63,35 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
   } = quizPlayer;
 
 
-  // Fortschritt speichern nach jeder Aktion
+  // Fortschritt speichern nach jeder Aktion (neues Modell)
   useEffect(() => {
     if (!progressLoaded || !username) return;
-    const progress: UserProgress = {
+    // questions-Objekt für Firestore erzeugen
+    const questionsObj: UserQuizProgress['questions'] = {};
+    quiz.questions.forEach((q, idx) => {
+      // Annahme: questionProgress ist im quizPlayer vorhanden (über useQuizPlayer)
+      if (quizPlayer.questionProgress && quizPlayer.questionProgress[q.question]) {
+        questionsObj[q.question] = quizPlayer.questionProgress[q.question];
+      } else {
+        questionsObj[q.question] = {
+          answered: answers[idx] ?? false,
+          attempts: answers[idx] !== undefined ? 1 : 0,
+          lastAnswerCorrect: answers[idx] ?? false,
+        };
+      }
+    });
+    const completed = Object.values(questionsObj).every(q => q.answered);
+    const progress: UserQuizProgress = {
       username: username as string,
       quizId: quiz.id,
-      answers,
-      solvedQuestions: Array.from(solvedQuestions),
+      questions: questionsObj,
       totalTries: typeof totalTries === 'function' ? 1 : totalTries,
+      completed,
       lastUpdated: Date.now(),
     };
-    saveUserProgress(progress);
+    saveUserQuizProgress(progress);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers, solvedQuestions, totalTries, quiz.id, username, progressLoaded]);
-
-
-
-  // Fortschritt speichern nach jeder Aktion
-  useEffect(() => {
-    if (!progressLoaded) return;
-    const progress: UserProgress = {
-      username: username ?? '',
-      quizId: quiz.id,
-      answers,
-      solvedQuestions: Array.from(solvedQuestions),
-      totalTries: typeof totalTries === 'function' ? 1 : totalTries,
-      lastUpdated: Date.now(),
-    };
-    saveUserProgress(progress);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers, solvedQuestions, totalTries, quiz.id, username, progressLoaded]);
+  }, [answers, solvedQuestions, totalTries, quiz.id, username, progressLoaded, quizPlayer.questionProgress]);
 
   if (!progressLoaded) {
     return <div>Lade Fortschritt...</div>;

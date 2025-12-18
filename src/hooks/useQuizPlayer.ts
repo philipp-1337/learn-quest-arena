@@ -1,10 +1,20 @@
 import { useState, useEffect } from 'react';
 import type { Quiz, Question, Answer } from '../types/quizTypes';
 
+
+// Akzeptiert jetzt auch das neue Modell
 export type QuizPlayerInitialState = {
   answers?: boolean[];
   solvedQuestions?: string[];
   totalTries?: number;
+  questions?: {
+    [questionId: string]: {
+      answered: boolean;
+      attempts: number;
+      lastAnswerCorrect: boolean;
+    };
+  };
+  completed?: boolean;
 };
 
 export function useQuizPlayer(
@@ -12,14 +22,22 @@ export function useQuizPlayer(
   initialState?: QuizPlayerInitialState
 ) {
   // Finde die erste ungelöste Frage, falls Fortschritt vorhanden
+
+  // Neues Modell: Fragen-Fortschritt initialisieren
   function getFirstUnsolvedIndex() {
+    if (initialState?.questions) {
+      const idx = quiz.questions.findIndex(q => !initialState.questions?.[q.question]?.answered);
+      return idx === -1 ? 0 : idx;
+    }
     if (!initialState?.answers || initialState.answers.length === 0) return 0;
-    // Suche die erste Frage, die noch nicht beantwortet wurde
     const idx = initialState.answers.findIndex(a => a === false);
-    // Wenn alle beantwortet, dann auf die nächste Frage (oder 0)
     if (idx === -1) return initialState.answers.length < quiz.questions.length ? initialState.answers.length : 0;
     return idx;
   }
+
+  // State für neues Modell
+  const [questionProgress, setQuestionProgress] = useState<QuizPlayerInitialState['questions']>(initialState?.questions || {});
+
   const [currentQuestion, setCurrentQuestion] = useState<number>(getFirstUnsolvedIndex());
   const [selectedAnswer, setSelectedAnswer] = useState<(Answer & { originalIndex: number }) | null>(null);
   const [answers, setAnswers] = useState<boolean[]>(initialState?.answers || []);
@@ -52,6 +70,19 @@ export function useQuizPlayer(
     const isCorrect = answer.originalIndex === questions[currentQuestion].correctAnswerIndex;
     setAnswers(prevAnswers => {
       const newAnswers = [...prevAnswers, isCorrect];
+      // Neues Modell: Frage-Fortschritt aktualisieren
+      setQuestionProgress(prev => {
+        const qId = questions[currentQuestion].question;
+        const prevQ = prev?.[qId] || { answered: false, attempts: 0, lastAnswerCorrect: false };
+        return {
+          ...prev,
+          [qId]: {
+            answered: isCorrect ? true : prevQ.answered,
+            attempts: prevQ.attempts + 1,
+            lastAnswerCorrect: isCorrect,
+          }
+        };
+      });
       // Wenn richtig beantwortet, sofort zu solvedQuestions hinzufügen
       if (isCorrect) {
         setSolvedQuestions(prevSolved => {
@@ -167,6 +198,7 @@ export function useQuizPlayer(
     repeatQuestions,
     solvedQuestions,
     totalTries,
+    questionProgress,
     handleAnswerSelect,
     handleNext,
     handleRestart,
