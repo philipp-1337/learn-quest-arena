@@ -1,6 +1,4 @@
-
 import React, { useEffect, useState } from 'react';
-import { loadUserQuizProgress } from '../../utils/userProgressFirestore';
 import type { UserQuizProgress } from '../../types/userProgress';
 
 
@@ -12,27 +10,28 @@ interface UserModalProps {
 
 interface UserDashboardProps {
   username: string;
-  onClose: () => void;
 }
 
-const UserDashboard: React.FC<UserDashboardProps> = ({ username, onClose }) => {
+const UserDashboard: React.FC<UserDashboardProps> = ({ username }) => {
   const [progressList, setProgressList] = useState<UserQuizProgress[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchProgress() {
       setLoading(true);
-      // TODO: Hier müsste ein Firestore-Query alle Quiz-Progress-Dokumente für den User laden
-      // Platzhalter: Nur ein Quiz laden (Demo)
-      // In echt: Query auf Collection "users/{username}/progress"
-      const quizIds = ["demo-quiz-1", "demo-quiz-2"];
-      const allProgress: UserQuizProgress[] = [];
-      for (const quizId of quizIds) {
-        const progress = await loadUserQuizProgress(username, quizId);
-        if (progress) allProgress.push(progress);
+      try {
+        // Dynamisch alle Progress-Dokumente für den User laden
+        // Firestore-Query: users/{username}/progress
+        // Annahme: loadAllUserProgress(username) gibt UserQuizProgress[] zurück
+        const { loadAllUserProgress } = await import('../../utils/loadAllUserProgress');
+        const progressObj: Record<string, UserQuizProgress> = await loadAllUserProgress(username);
+        const allProgress: UserQuizProgress[] = Object.values(progressObj);
+        setProgressList(allProgress);
+      } catch (e) {
+        setProgressList([]);
+      } finally {
+        setLoading(false);
       }
-      setProgressList(allProgress);
-      setLoading(false);
     }
     fetchProgress();
   }, [username]);
@@ -98,7 +97,7 @@ const UserModal: React.FC<UserModalProps> = ({ username, onClose, onChooseName }
 
         {/* Dashboard */}
         <div className="mb-8">
-          <UserDashboard username={username} onClose={onClose} />
+          <UserDashboard username={username} />
         </div>
 
         {/* Action Buttons */}
