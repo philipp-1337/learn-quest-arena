@@ -1,7 +1,7 @@
 import { Play } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { Quiz } from '../../types/quizTypes';
-import type { UserProgress } from '../../types/userProgress';
+import type { UserQuizProgress } from '../../types/userProgress';
 import { loadAllUserProgress } from '../../utils/loadAllUserProgress';
 
 
@@ -12,7 +12,7 @@ interface QuizSelectorProps {
 }
 
 export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps) {
-  const [progressMap, setProgressMap] = useState<Record<string, UserProgress>>({});
+  const [progressMap, setProgressMap] = useState<Record<string, UserQuizProgress>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,11 +47,19 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
         const progress = progressMap[quiz.id];
         let progressText = '';
         let triesText = '';
-        if (username && progress && Array.isArray(progress.solvedQuestions)) {
-          const solved = progress.solvedQuestions.length;
+        if (username && progress) {
+          // Fortschritt aus neuem Modell berechnen
           const total = quiz.questions.length;
+          let solved = 0;
+          if (progress.questions) {
+            solved = Object.values(progress.questions).filter(q => q.answered).length;
+          }
           const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
-          progressText = `${solved}/${total} gelöst (${percent}%)`;
+          if (progress.completed) {
+            progressText = `✅ Abgeschlossen (${solved}/${total})`;
+          } else {
+            progressText = `${solved}/${total} gelöst (${percent}%)`;
+          }
           if (typeof progress.totalTries === 'number') {
             triesText = `Versuche: ${progress.totalTries}`;
           }

@@ -1,22 +1,35 @@
 import '../firebaseConfig';
 import { getFirestore, collection, getDocs } from "firebase/firestore";
-import type { UserProgress } from "../types/userProgress";
+import type { UserQuizProgress, UserProgress } from "../types/userProgress";
 
-// Lädt den Fortschritt eines Users für alle Quizzes
-export async function loadAllUserProgress(username: string): Promise<Record<string, UserProgress>> {
+// Lädt den Fortschritt eines Users für alle Quizzes (neues Modell bevorzugt)
+export async function loadAllUserProgress(username: string): Promise<Record<string, UserQuizProgress>> {
   if (username === "Gast") {
-    // Niemals Gast-Fortschritt laden
     return {};
   }
   const db = getFirestore();
   const progressCol = collection(db, "users", username, "progress");
   const snap = await getDocs(progressCol);
-  const result: Record<string, UserProgress> = {};
+  const result: Record<string, UserQuizProgress> = {};
   snap.forEach(docSnap => {
-    const data = docSnap.data() as UserProgress;
-    // quizId ergänzen, falls nicht vorhanden
-    if (!data.quizId) data.quizId = docSnap.id;
-    result[docSnap.id] = data;
+    const data = docSnap.data();
+    // Prüfe, ob neues Modell (questions-Feld vorhanden)
+    if (data.questions) {
+      const quizProgress = data as UserQuizProgress;
+      if (!quizProgress.quizId) quizProgress.quizId = docSnap.id;
+      result[docSnap.id] = quizProgress;
+    } else {
+      // Fallback: altes Modell in neues Modell umwandeln
+      const old = data as UserProgress;
+      result[docSnap.id] = {
+        username: old.username,
+        quizId: old.quizId || docSnap.id,
+        questions: {},
+        totalTries: old.totalTries,
+        completed: Array.isArray(old.answers) ? old.answers.every(Boolean) : false,
+        lastUpdated: old.lastUpdated,
+      };
+    }
   });
   return result;
 }
