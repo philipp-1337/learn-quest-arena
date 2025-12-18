@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { isValidGeneratedUsername, usernameExists } from "../utils/usernameValidation";
 
+
 interface UsernamePickerProps {
   onUsernameSelected: (username: string) => void;
-  onBack?: () => void;
+  onBack: () => void;
 }
 
 export default function UsernameManualEntry({ onUsernameSelected, onBack }: UsernamePickerProps) {
@@ -42,19 +43,21 @@ export default function UsernameManualEntry({ onUsernameSelected, onBack }: User
       <div className="flex gap-2 w-full justify-center">
         <button
           type="submit"
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-indigo-100"
+          className="px-4 py-2 rounded bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition"
+          title="Mit diesem Namen fortfahren"
+          aria-label="Mit diesem Namen fortfahren"
         >
           Weiter mit diesem Namen
         </button>
-        {onBack && (
-          <button
-            type="button"
-            className="px-3 py-1 bg-gray-100 rounded hover:bg-red-100 text-gray-600"
-            onClick={onBack}
-          >
-            Zurück
-          </button>
-        )}
+        <button
+          type="button"
+          className="px-4 py-2 rounded bg-white border border-indigo-600 text-indigo-600 font-semibold shadow hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition"
+          onClick={onBack}
+          title="Zurück zur vorherigen Ansicht"
+          aria-label="Zurück zur vorherigen Ansicht"
+        >
+          Zurück
+        </button>
       </div>
       {error && <div className="text-red-500 text-xs">{error}</div>}
     </form>
