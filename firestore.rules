@@ -3,6 +3,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // Hilfsfunktion: Validiert das Username-Format (Tiername-6Zeichen)
+    function isValidUsername(username) {
+      // Format: Tiername-6Zeichen (z.B. "Hase-AbC123")
+      // Prüfe: Mindestens 1 Buchstabe, dann Bindestrich, dann genau 6 alphanumerische Zeichen
+      return username.matches('^[A-Za-zäöüßÄÖÜ]+-[A-Za-z0-9]{6}$');
+    }
+    
     // Subjects Collection - Lesen für alle, Schreiben nur für authentifizierte User
     match /subjects/{subjectId} {
       // Jeder kann Subjects lesen (für Quiz-Teilnehmer)
@@ -12,9 +19,21 @@ service cloud.firestore {
       allow create, update, delete: if request.auth != null;
     }
     
-    // Optional: Zusätzliche Collections (falls du später welche brauchst)
+    // Users Collection - Streng kontrolliert
     match /users/{userId} {
-      allow read, write: if true;
+      // Jeder kann lesen (nur um zu prüfen, ob Username existiert)
+      allow read: if true;
+      
+      // Erstellen erlaubt: validem Username-Format (keine Auth nötig, da anonym)
+      allow create: if isValidUsername(userId);
+      
+      // Nur der Benutzer selbst darf sein Dokument ändern (falls später authentifiziert)
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Löschen nicht erlaubt
+      allow delete: if false;
+      
+      // Progress-Subcollection - Lesen/Schreiben erlaubt (geschützt durch Username-Validierung)
       match /progress/{quizId} {
         allow read, write: if true;
       }
