@@ -1,4 +1,4 @@
-import { BowArrow, LogOut } from "lucide-react";
+import { Sword, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface AdminHeaderProps {
@@ -8,9 +8,14 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onLogout }: AdminHeaderProps) {
   const navigate = useNavigate();
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+    <div className="bg-white rounded-2xl shadow-lg p-5 mb-5">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+        <div>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Quiz Verwaltung</h1>
+        <p className="text-gray-600">
+          Für Lehrerkräfte von morgen.
+        </p>
+        </div>
         <div className="flex flex-row gap-2 items-end">
           {/* Quiz Button */}
           <button
@@ -21,7 +26,7 @@ export default function AdminHeader({ onLogout }: AdminHeaderProps) {
             aria-label="Zum Quiz"
             title="Zum Quiz"
           >
-            <BowArrow className="w-6 h-6" />
+            <Sword className="w-6 h-6" />
             {/* Tooltip */}
             <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
               Zum Quiz

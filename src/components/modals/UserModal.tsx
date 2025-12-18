@@ -46,7 +46,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
       {loading ? (
         <div>Lade Fortschritt...</div>
       ) : progressList.length === 0 ? (
-        <div>Kein Fortschritt vorhanden.</div>
+        <div>{username === "Gast" ? "Wähle deinen Namen, wenn du Fortschritt speichern willst." : "Kein Fortschritt vorhanden."}</div>
       ) : (
         <div className="space-y-6">
           {progressList.map((progress) => {

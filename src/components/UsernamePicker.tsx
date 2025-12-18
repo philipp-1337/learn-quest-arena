@@ -133,7 +133,7 @@ export default function UsernamePicker({
   return (
     <div className="mb-3 flex flex-col items-center gap-2">
       <p className="mb-2 text-gray-600">
-        Du kannst dir einen persönlichen Namen erstellen, um deinen Fortschritt zu speichern.
+        Erstelle deinen eigenen Namen und speichere deinen Fortschritt.
       </p>
       <div className="mb-3 text-xs text-red-600">
         Merke dir deinen Namen gut!

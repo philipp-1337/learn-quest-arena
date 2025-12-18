@@ -84,7 +84,7 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
                   <p className="text-indigo-100">
                     {quiz.questions.length} Fragen
                   </p>
-                  {username ? (
+                  {username && username !== "Gast" ? (
                     loading ? (
                       <span className="text-xs text-indigo-200">Lade Fortschritt...</span>
                     ) : progressText ? (

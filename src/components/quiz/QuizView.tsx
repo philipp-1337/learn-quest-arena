@@ -253,7 +253,7 @@ export default function QuizView({
     <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-lg p-5 mb-5">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -269,7 +269,7 @@ export default function QuizView({
                 </svg>
               </h1>
               <p className="text-gray-600">
-                Wähle ein Thema und teste dein Wissen!
+                Fordere dein Wissen heraus!
               </p>
             </div>
             <div className="flex flex-row gap-2 items-end">
