@@ -77,11 +77,11 @@ export function ClassItem({
           {onRename && !editMode && (
             <button
               onClick={e => { e.stopPropagation(); setEditMode(true); }}
-              className="p-1 text-gray-500 hover:bg-gray-100 rounded"
+              className="p-1 backdrop-blur-xl bg-blue-400/20 hover:bg-blue-400/30 rounded-md border border-blue-400/30 transition-all duration-200"
               title="Klasse umbenennen"
               aria-label="Klasse umbenennen"
             >
-              <Edit2 size={16} />
+              <Edit2 className="w-4 h-4 text-blue-700" />
             </button>
           )}
           <button
