@@ -222,7 +222,8 @@ export default function FlatQuizManager({
             if (modals.addModal?.type === "quiz") {
               const [subjectId, classId, topicId] =
                 modals.addModal.parentId!.split(":");
-              hierarchy.addQuiz(name, subjectId, classId, topicId);
+              // Pass hidden=true for new quizzes
+              hierarchy.addQuiz(name, subjectId, classId, topicId, true);
             }
 
             modals.setAddModal(null);

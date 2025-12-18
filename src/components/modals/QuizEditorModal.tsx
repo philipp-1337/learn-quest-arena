@@ -59,7 +59,7 @@ export default function QuizEditorModal({
   const [editedQuiz, setEditedQuiz] = useState<Quiz>({
     ...quiz,
     questions: quiz.questions || [],
-    hidden: quiz.hidden || false,
+    hidden: quiz.hidden === undefined ? true : quiz.hidden,
   });
   const [currentQuestion, setCurrentQuestion] = useState<QuestionEditor | null>(
     null
