@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { UserPlus, KeyRound } from "lucide-react";
+import { CustomToast } from "./CustomToast";
+import { toast } from "sonner";
+import { UserPlus, Briefcase } from "lucide-react";
 import { generateUniqueUsernames } from "../utils/usernameGenerator";
 
 interface UsernamePickerProps {
@@ -14,61 +16,154 @@ export default function UsernamePicker({
   const [usernames, setUsernames] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generateClicks, setGenerateClicks] = useState(0);
+  // Remove confirmName state, use toast for confirmation
 
   const handleGenerate = async () => {
+    if (generateClicks >= 3) {
+      toast.error("Du kannst nur 3x einen Namen generieren.");
+      return;
+    }
+    if (generateClicks === 1) {
+      toast.warning("Achtung: Du kannst nur noch ein weiteres Mal einen Namen generieren!");
+    }
+    setGenerateClicks((prev) => prev + 1);
     setLoading(true);
     setError(null);
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let didTimeout = false;
+
+    // Set a timeout for 5 seconds
+    timeoutId = setTimeout(() => {
+      didTimeout = true;
+      toast.custom(
+        (t) => (
+          <CustomToast
+            message={
+              <div>
+                <div className="mb-2">Fehler beim Generieren der Usernamen. Bitte versuche es erneut.</div>
+                <div className="flex gap-2 justify-end mt-2">
+                  <button
+                    className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+                    onClick={() => {
+                      toast.dismiss(t);
+                      window.location.reload();
+                    }}
+                  >
+                    Neu laden
+                  </button>
+                </div>
+              </div>
+            }
+            type="error"
+          />
+        ),
+        { duration: 10000 }
+      );
+      setLoading(false);
+    }, 5000);
+
     try {
       const names = await generateUniqueUsernames();
-      setUsernames(names);
+      if (!didTimeout) {
+        if (timeoutId) clearTimeout(timeoutId);
+        setUsernames(names);
+      }
     } catch (e) {
-      setError("Fehler beim Generieren der Usernamen.");
+      if (!didTimeout) {
+        if (timeoutId) clearTimeout(timeoutId);
+        setError("Fehler beim Generieren der Usernamen.");
+        setLoading(false);
+      }
     } finally {
-      setLoading(false);
+      if (!didTimeout) {
+        setLoading(false);
+      }
     }
   };
 
   // Hilfsfunktion: User-Dokument anlegen, falls nicht vorhanden
-  const handleSelectName = async (name: string) => {
-    try {
-      const { getFirestore, doc, setDoc } = await import("firebase/firestore");
-      const db = getFirestore();
-      await setDoc(
-        doc(db, "users", name),
-        { createdAt: new Date() },
-        { merge: true }
-      );
-      onUsernameSelected(name);
-    } catch (err) {
-      setError(
-        "Fehler beim Anlegen des Nutzers: " +
-          (err instanceof Error ? err.message : String(err))
-      );
-    }
+  const handleSelectName = (name: string) => {
+    toast.custom((t) => (
+      <CustomToast
+        message={
+          <div>
+            <div className="mb-2">Möchtest du den Namen <span className="font-bold">{name}</span> wirklich wählen?</div>
+            <div className="flex gap-2 justify-end mt-2">
+              <button
+                className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+                onClick={async () => {
+                  toast.dismiss(t);
+                  try {
+                    const { getFirestore, doc, setDoc } = await import("firebase/firestore");
+                    const db = getFirestore();
+                    await setDoc(
+                      doc(db, "users", name),
+                      { createdAt: new Date() },
+                      { merge: true }
+                    );
+                    onUsernameSelected(name);
+                  } catch (err) {
+                    setError(
+                      "Fehler beim Anlegen des Nutzers: " +
+                        (err instanceof Error ? err.message : String(err))
+                    );
+                  }
+                }}
+              >
+                Ja
+              </button>
+              <button
+                className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                onClick={() => toast.dismiss(t)}
+              >
+                Nein
+              </button>
+            </div>
+          </div>
+        }
+        type="info"
+      />
+    ), { duration: 10000 });
   };
+
+  // handleConfirmName removed, logic moved to toast button
 
   return (
     <div className="mb-3 flex flex-col items-center gap-2">
+      <p className="mb-2 text-gray-600">
+        Du kannst dir einen persönlichen Namen erstellen, um deinen Fortschritt zu speichern.
+      </p>
+      <div className="mb-3 text-xs text-red-600">
+        Merke dir deinen Namen gut!
+        <br />
+        Du brauchst ihn beim nächsten Besuch.
+      </div>
       <div className="flex flex-row gap-2 w-full justify-center">
         <button
+          type="button"
+          className="flex items-center gap-1 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-700"
+          onClick={() => onUsernameSelected("skip")}
+          title="Als Gast fortfahren"
+          aria-label="Als Gast fortfahren"
+        >
+          <Briefcase className="w-4 h-4" />
+          Gast bleiben
+        </button>
+        <button
           onClick={handleGenerate}
-          className="flex items-center gap-1 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-          disabled={loading}
+          className={`flex items-center gap-1 px-4 py-2 rounded transition-colors duration-200
+            ${loading || generateClicks >= 3
+              ? "bg-gray-300 text-gray-400 cursor-not-allowed"
+              : "bg-indigo-600 text-white hover:bg-indigo-700"}
+          `}
+          disabled={loading || generateClicks >= 3}
           title="Nutzernamen generieren"
           aria-label="Nutzernamen generieren"
         >
           <UserPlus className="w-4 h-4" />
-          {loading ? "Laden..." : "Neu"}
-        </button>
-        <button
-          className="flex items-center gap-1 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-700"
-          onClick={onManualEntryRequested}
-          type="button"
-          title="Vorhandenen Namen eingeben"
-          aria-label="Vorhandenen Namen eingeben"
-        >
-          <KeyRound className="w-4 h-4" />
-          Name eingeben
+          {loading ? "Generiere..." : generateClicks >= 3 ? "Limit erreicht" : "Name"}
         </button>
       </div>
       {error && <div className="text-red-500 mt-2">{error}</div>}
@@ -85,13 +180,15 @@ export default function UsernamePicker({
           ))}
         </div>
       )}
+
+      {/* Confirmation toast handled by Sonner, no modal here */}
       <button
-        onClick={() => onUsernameSelected("skip")}
+        onClick={onManualEntryRequested}
+        title="Vorhandenen Namen eingeben"
+        aria-label="Vorhandenen Namen eingeben"
         className="text-xs text-indigo-500 underline mt-1"
-        title="Als Gast fortfahren"
-        aria-label="Als Gast fortfahren"
       >
-        Als Gast fortfahren
+        Vorhandenen Namen eingeben
       </button>
     </div>
   );

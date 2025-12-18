@@ -157,15 +157,6 @@ export default function QuizView({
       <div className="min-h-screen flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4">Wähle deinen Nutzernamen</h2>
-          <p className="mb-2 text-gray-600">
-            Du kannst dir einen Namen aussuchen, um deinen
-            Fortschritt zu speichern.
-          </p>
-          <div className="mb-3 text-xs text-red-600">
-            Merke dir deinen Namen gut!
-            <br />
-            Du brauchst ihn beim nächsten Besuch.
-          </div>
           {!showManualEntry ? (
             <UsernamePicker
               onUsernameSelected={(name) => {

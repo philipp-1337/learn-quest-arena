@@ -1,5 +1,6 @@
 import { copyQuizUrlToClipboard } from "../../utils/quizUrlHelper";
 import { toast } from "sonner";
+import { CustomToast } from "../CustomToast";
 import type { Subject, Class, Topic, Quiz } from "../../types/quizTypes";
 
 import { useExpandedState } from "../../hooks/useExpandedState";
@@ -43,9 +44,9 @@ export default function FlatQuizManager({
     );
 
     if (success) {
-      toast.success("Link kopiert!", {});
+      toast.custom(() => <CustomToast message="Link kopiert!" type="success" />, { duration: 4000 });
     } else {
-      toast.error("Fehler beim Kopieren des Links", {});
+      toast.custom(() => <CustomToast message="Fehler beim Kopieren des Links" type="error" />, { duration: 4000 });
     }
   };
 
