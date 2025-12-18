@@ -1,6 +1,16 @@
-import { useState } from 'react';
-import { Play, Edit2, Trash2, QrCode, Eye, EyeOff, Loader2, X, Check } from 'lucide-react';
-import type { Quiz } from '../../../types/quizTypes';
+import { useState } from "react";
+import {
+  Play,
+  Edit2,
+  Trash2,
+  QrCode,
+  Eye,
+  EyeOff,
+  Loader2,
+  X,
+  Check,
+} from "lucide-react";
+import type { Quiz } from "../../../types/quizTypes";
 
 interface QuizItemProps {
   quiz: Quiz;
@@ -46,10 +56,18 @@ export function QuizItem({
   };
 
   return (
-    <div className={`ml-6 backdrop-blur-xl bg-gradient-to-r from-white/30 to-white/20 hover:from-white/40 hover:to-white/30 rounded-lg border border-white/30 shadow-sm hover:shadow-md transition-all duration-300 group`}>
+    <div
+      className={`ml-6 backdrop-blur-xl bg-gradient-to-r from-white/30 to-white/20 hover:from-white/40 hover:to-white/30 rounded-lg border border-white/30 shadow-sm hover:shadow-md transition-all duration-300 group`}
+    >
       <div className="p-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className={`p-1 rounded-md shadow-sm ${quiz.hidden ? 'bg-gradient-to-br from-gray-500 to-gray-500' : 'bg-gradient-to-br from-blue-500 to-cyan-500'}`}>
+          <div
+            className={`p-1 rounded-md shadow-sm ${
+              quiz.hidden
+                ? "bg-gradient-to-br from-gray-500 to-gray-500"
+                : "bg-gradient-to-br from-blue-500 to-cyan-500"
+            }`}
+          >
             <Play className="w-3 h-3 text-white" />
           </div>
           <div>
@@ -59,19 +77,42 @@ export function QuizItem({
                   className="text-sm font-medium text-gray-900 force-break bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   value={title}
                   autoFocus
-                  onChange={e => setTitle(e.target.value)}
-                  onClick={e => e.stopPropagation()}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') handleRename();
-                    if (e.key === 'Escape') handleCancel();
+                  onChange={(e) => setTitle(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleRename();
+                    if (e.key === "Escape") handleCancel();
                   }}
                 />
-                <button onClick={e => { e.stopPropagation(); handleRename(); }} title="Speichern" className="p-1 text-green-600 hover:bg-green-100 rounded"><Check size={16} /></button>
-                <button onClick={e => { e.stopPropagation(); handleCancel(); }} title="Abbrechen" className="p-1 text-red-600 hover:bg-red-100 rounded"><X size={16} /></button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRename();
+                  }}
+                  title="Speichern"
+                  className="p-1 text-green-600 hover:bg-green-100 rounded"
+                >
+                  <Check size={16} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCancel();
+                  }}
+                  title="Abbrechen"
+                  className="p-1 text-red-600 hover:bg-red-100 rounded"
+                >
+                  <X size={16} />
+                </button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <h5 className={`text-sm font-medium text-gray-900 force-break ${quiz.hidden ? 'opacity-50' : ''}`} lang="de">
+                <h5
+                  className={`text-sm font-medium text-gray-900 force-break ${
+                    quiz.hidden ? "opacity-50" : ""
+                  }`}
+                  lang="de"
+                >
                   {quiz.title}
                 </h5>
                 {/* Edit-Button für Umbenennen entfernt */}
@@ -84,11 +125,23 @@ export function QuizItem({
         </div>
 
         <div className="flex items-center gap-1 transition-opacity duration-200">
+          <button
+            onClick={onEdit}
+            className="p-1 backdrop-blur-xl bg-blue-400/20 hover:bg-blue-400/30 rounded-md border border-blue-400/30 transition-all duration-200"
+            title="Quiz bearbeiten"
+            aria-label="Quiz bearbeiten"
+          >
+            <Edit2 className="w-3 h-3 text-blue-700" />
+          </button>
           {onToggleHidden && (
             <button
               onClick={handleToggleHidden}
-              className={`p-1 rounded-md border transition-all duration-200 flex items-center justify-center ${quiz.hidden ? 'bg-green-300 border-green-400 text-green-700' : 'bg-gray-200 border-gray-400 text-gray-700'}`}
-              title={quiz.hidden ? 'Quiz einblenden' : 'Quiz ausblenden'}
+              className={`p-1 rounded-md border transition-all duration-200 flex items-center justify-center ${
+                quiz.hidden
+                  ? "bg-green-300 border-green-400 text-green-700"
+                  : "bg-gray-200 border-gray-400 text-gray-700"
+              }`}
+              title={quiz.hidden ? "Quiz einblenden" : "Quiz ausblenden"}
               disabled={isTogglingHidden}
             >
               {isTogglingHidden ? (
@@ -109,17 +162,6 @@ export function QuizItem({
               <QrCode className="w-3 h-3 text-indigo-700" />
             </button>
           )}
-
-          <button
-            onClick={onEdit}
-            className="p-1 backdrop-blur-xl bg-blue-400/20 hover:bg-blue-400/30 rounded-md border border-blue-400/30 transition-all duration-200"
-            title="Quiz bearbeiten"
-            aria-label="Quiz bearbeiten"
-          >
-            <Edit2 className="w-3 h-3 text-blue-700" />
-          </button>
-
-          {/* Edit-Button für Umbenennen entfernt */}
 
           <button
             onClick={onDelete}
