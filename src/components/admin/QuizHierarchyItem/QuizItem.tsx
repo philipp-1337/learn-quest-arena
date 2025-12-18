@@ -136,10 +136,10 @@ export function QuizItem({
           {onToggleHidden && (
             <button
               onClick={handleToggleHidden}
-              className={`p-1 rounded-md border transition-all duration-200 flex items-center justify-center ${
+              className={`p-1 rounded-md border backdrop-blur-xl transition-all duration-200 flex items-center justify-center ${
                 quiz.hidden
-                  ? "bg-green-300 border-green-400 text-green-700"
-                  : "bg-gray-200 border-gray-400 text-gray-700"
+                  ? "bg-gray-400/20 hover:bg-gray-400/30 border-gray-400/30 text-gray-700"
+                  : "bg-green-400/20 hover:bg-green-400/30 border-green-400/30 text-green-700"
               }`}
               title={quiz.hidden ? "Quiz einblenden" : "Quiz ausblenden"}
               disabled={isTogglingHidden}
@@ -147,9 +147,9 @@ export function QuizItem({
               {isTogglingHidden ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
               ) : quiz.hidden ? (
-                <Eye className="w-3 h-3" />
-              ) : (
                 <EyeOff className="w-3 h-3" />
+              ) : (
+                <Eye className="w-3 h-3" />
               )}
             </button>
           )}
