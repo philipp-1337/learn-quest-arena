@@ -11,7 +11,16 @@ export function useQuizPlayer(
   quiz: Quiz,
   initialState?: QuizPlayerInitialState
 ) {
-  const [currentQuestion, setCurrentQuestion] = useState<number>(0);
+  // Finde die erste ungelöste Frage, falls Fortschritt vorhanden
+  function getFirstUnsolvedIndex() {
+    if (!initialState?.answers || initialState.answers.length === 0) return 0;
+    // Suche die erste Frage, die noch nicht beantwortet wurde
+    const idx = initialState.answers.findIndex(a => a === false);
+    // Wenn alle beantwortet, dann auf die nächste Frage (oder 0)
+    if (idx === -1) return initialState.answers.length < quiz.questions.length ? initialState.answers.length : 0;
+    return idx;
+  }
+  const [currentQuestion, setCurrentQuestion] = useState<number>(getFirstUnsolvedIndex());
   const [selectedAnswer, setSelectedAnswer] = useState<(Answer & { originalIndex: number }) | null>(null);
   const [answers, setAnswers] = useState<boolean[]>(initialState?.answers || []);
   const [shuffledAnswers, setShuffledAnswers] = useState<Array<Answer & { originalIndex: number }>>([]);
@@ -41,7 +50,18 @@ export function useQuizPlayer(
     setSelectedAnswer(answer);
     const questions = repeatQuestions || quiz.questions;
     const isCorrect = answer.originalIndex === questions[currentQuestion].correctAnswerIndex;
-    setAnswers([...answers, isCorrect]);
+    setAnswers(prevAnswers => {
+      const newAnswers = [...prevAnswers, isCorrect];
+      // Wenn richtig beantwortet, sofort zu solvedQuestions hinzufügen
+      if (isCorrect) {
+        setSolvedQuestions(prevSolved => {
+          const newSolved = new Set(prevSolved);
+          newSolved.add(questions[currentQuestion].question);
+          return newSolved;
+        });
+      }
+      return newAnswers;
+    });
   };
 
   const handleNext = () => {

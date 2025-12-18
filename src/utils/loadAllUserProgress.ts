@@ -12,8 +12,11 @@ export async function loadAllUserProgress(username: string): Promise<Record<stri
   const progressCol = collection(db, "users", username, "progress");
   const snap = await getDocs(progressCol);
   const result: Record<string, UserProgress> = {};
-  snap.forEach(doc => {
-    result[doc.id] = doc.data() as UserProgress;
+  snap.forEach(docSnap => {
+    const data = docSnap.data() as UserProgress;
+    // quizId ergänzen, falls nicht vorhanden
+    if (!data.quizId) data.quizId = docSnap.id;
+    result[docSnap.id] = data;
   });
   return result;
 }

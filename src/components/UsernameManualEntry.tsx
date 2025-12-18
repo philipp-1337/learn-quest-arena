@@ -19,13 +19,24 @@ export default function UsernameManualEntry({ onUsernameSelected, onBack }: User
       return;
     }
     if (!isValidGeneratedUsername(trimmed)) {
-      setError("Nur gültige, generierte Namen sind erlaubt (Tiername_XXXXXX).");
+      setError("Nur gültige, generierte Namen sind erlaubt (Tiername-XXXXXX).");
       return;
     }
+    // Prüfe Existenz, lege aber das Dokument an, falls es noch nicht existiert (Testmodus)
     const exists = await usernameExists(trimmed);
     if (!exists) {
-      setError("Dieser Name existiert nicht. Bitte überprüfe die Schreibweise.");
-      return;
+      // Lege ein leeres User-Dokument an, damit der Username ab jetzt existiert
+      try {
+        const { getFirestore, doc, setDoc } = await import("firebase/firestore");
+        const db = getFirestore();
+        await setDoc(doc(db, "users", trimmed), { createdAt: new Date() });
+        setError(null);
+        onUsernameSelected(trimmed);
+        return;
+      } catch (err) {
+        setError("Fehler beim Anlegen des Nutzers: " + (err instanceof Error ? err.message : String(err)));
+        return;
+      }
     }
     setError(null);
     onUsernameSelected(trimmed);
@@ -47,7 +58,7 @@ export default function UsernameManualEntry({ onUsernameSelected, onBack }: User
           title="Mit diesem Namen fortfahren"
           aria-label="Mit diesem Namen fortfahren"
         >
-          Weiter mit diesem Namen
+          Namen verwenden
         </button>
         <button
           type="button"

@@ -46,11 +46,15 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
       {[...visibleQuizzes].sort((a, b) => a.title.localeCompare(b.title)).map((quiz: Quiz) => {
         const progress = progressMap[quiz.id];
         let progressText = '';
+        let triesText = '';
         if (username && progress && Array.isArray(progress.solvedQuestions)) {
           const solved = progress.solvedQuestions.length;
           const total = quiz.questions.length;
           const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
           progressText = `${solved}/${total} gelöst (${percent}%)`;
+          if (typeof progress.totalTries === 'number') {
+            triesText = `Versuche: ${progress.totalTries}`;
+          }
         }
         return (
           <div key={quiz.id} className="relative">
@@ -76,7 +80,12 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
                     loading ? (
                       <span className="text-xs text-indigo-200">Lade Fortschritt...</span>
                     ) : progressText ? (
-                      <span className="text-xs text-green-200">Fortschritt: {progressText}</span>
+                      <>
+                        <span className="text-xs text-green-200">Fortschritt: {progressText}</span>
+                        {triesText && (
+                          <span className="text-xs text-indigo-100 ml-2">{triesText}</span>
+                        )}
+                      </>
                     ) : (
                       <span className="text-xs text-indigo-200">Noch nicht gestartet</span>
                     )

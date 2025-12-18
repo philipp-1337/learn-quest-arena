@@ -26,7 +26,7 @@ export async function generateUniqueUsernames(): Promise<string[]> {
   while (usernames.length < 3) {
     const animal = animalNames[Math.floor(Math.random() * animalNames.length)];
     const suffix = randomSuffix();
-    const username = `${animal}_${suffix}`;
+    const username = `${animal}-${suffix}`;
     if (usedNames.has(username)) continue;
     if (!(await usernameExists(username))) {
       usernames.push(username);
