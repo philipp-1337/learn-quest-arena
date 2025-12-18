@@ -2,7 +2,7 @@ import UserModal from "../modals/UserModal";
 import { useEffect, useState } from "react";
 import UsernamePicker from "../UsernamePicker";
 import UsernameManualEntry from "../UsernameManualEntry";
-import { Cog, User } from "lucide-react";
+import { Cog, Sword, User } from "lucide-react";
 import { useQuizState } from "../../hooks/useQuizState";
 import { useQuizNavigation } from "../../hooks/useQuizNavigation";
 import Breadcrumb from "./Breadcrumb";
@@ -257,26 +257,22 @@ export default function QuizView({
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Learn Quest 📚
+                Learn Quest
+                <svg className="inline w-8 h-8 ml-1" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="swordGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="hsl(221 83% 53%)" />  {/* blue-500 */}
+                      <stop offset="100%" stopColor="hsl(264 79% 61%)" /> {/* purple-500 */}
+                    </linearGradient>
+                  </defs>
+                  <Sword stroke="url(#swordGradient)" strokeWidth={2} />
+                </svg>
               </h1>
               <p className="text-gray-600">
                 Wähle ein Thema und teste dein Wissen!
               </p>
             </div>
             <div className="flex flex-row gap-2 items-end">
-              {/* User Icon */}
-              <button
-                onClick={() => setShowUserModal(true)}
-                className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                aria-label="Nutzername anzeigen"
-                title="Nutzername anzeigen"
-              >
-                <User className="w-6 h-6" />
-                {/* Tooltip */}
-                <span className="absolute -top-5 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-                  {username}
-                </span>
-              </button>
               {/* Admin Icon */}
               <button
                 onClick={onAdminClick}
@@ -286,8 +282,21 @@ export default function QuizView({
               >
                 <Cog className="w-6 h-6" />
                 {/* Tooltip */}
-                <span className="absolute -top-5 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+                <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
                   Admin-Bereich
+                </span>
+              </button>
+              {/* User Icon */}
+              <button
+                onClick={() => setShowUserModal(true)}
+                className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                aria-label="Nutzername anzeigen"
+                title="Nutzername anzeigen"
+              >
+                <User className="w-6 h-6" />
+                {/* Tooltip */}
+                <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+                  {username}
                 </span>
               </button>
             </div>

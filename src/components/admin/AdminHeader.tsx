@@ -1,4 +1,4 @@
-import { BookOpen, LogOut } from "lucide-react";
+import { BowArrow, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface AdminHeaderProps {
@@ -8,32 +8,38 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onLogout }: AdminHeaderProps) {
   const navigate = useNavigate();
   return (
-    <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-          <div className="flex gap-4">
-            <button
-              onClick={() => {
-                navigate("/"); // Navigate to home
-              }}
-              className="flex items-center gap-2 px-4 py-2 bg-green-100 border border-green-300 rounded-md text-green-600 hover:text-green-700 hover:bg-green-200"
-              title="Zum Quiz"
-              aria-label="Zum Quiz"
-            >
-              <BookOpen className="w-4 h-4" />
-              <span className="max-[640px]:hidden">Zum Quiz</span>
-            </button>
-            <button
-              onClick={onLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-100 border border-indigo-300 rounded-md text-indigo-600 hover:text-indigo-700 hover:bg-indigo-200"
-              title="Abmelden"
-              aria-label="Abmelden"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="max-[640px]:hidden">Abmelden</span>
-            </button>
-          </div>
+    <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+        <div className="flex flex-row gap-2 items-end">
+          {/* Quiz Button */}
+          <button
+            onClick={() => {
+              navigate("/"); // Navigate to home
+            }}
+            className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            aria-label="Zum Quiz"
+            title="Zum Quiz"
+          >
+            <BowArrow className="w-6 h-6" />
+            {/* Tooltip */}
+            <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+              Zum Quiz
+            </span>
+          </button>
+          {/* Logout Button */}
+          <button
+            onClick={onLogout}
+            className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            title="Abmelden"
+            aria-label="Abmelden"
+          >
+            <LogOut className="w-6 h-6" />
+            {/* Tooltip */}
+            <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+              Abmelden
+            </span>
+          </button>
         </div>
       </div>
     </div>
