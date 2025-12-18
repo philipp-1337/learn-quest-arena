@@ -1,7 +1,8 @@
+import UserModal from '../modals/UserModal';
 import { useEffect, useState } from 'react';
 import UsernamePicker from '../UsernamePicker';
 import UsernameManualEntry from '../UsernameManualEntry';
-import { Cog } from 'lucide-react';
+import { Cog, User } from 'lucide-react';
 import { useQuizState } from '../../hooks/useQuizState';
 import { useQuizNavigation } from '../../hooks/useQuizNavigation';
 import Breadcrumb from './Breadcrumb';
@@ -28,6 +29,8 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
   // Zeige Username-Auswahl nur, wenn explizit gewünscht
   const [showUsernamePicker, setShowUsernamePicker] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
+  const [showUserModal, setShowUserModal] = useState(false);
+
 
   const {
     selectedSubject,
@@ -172,7 +175,7 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
                 }}
               />
               <button
-                className="text-xs text-indigo-500 underline mt-2"
+                className="text-xs text-indigo-500 underline mt-1"
                 onClick={() => setShowManualEntry(true)}
               >
                 Ich habe schon einen Namen
@@ -185,11 +188,27 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
                 localStorage.setItem('lqa_username', name);
                 setShowUsernamePicker(false);
               }}
+              onBack={() => setShowManualEntry(false)}
             />
           )}
           <div className="mt-6 text-xs text-gray-400">Merke dir deinen Namen gut!<br/>Du brauchst ihn beim nächsten Besuch.</div>
         </div>
       </div>
+    );
+  }
+
+  // User Modal anzeigen, wenn gewünscht
+  if (showUserModal) {
+    return (
+      <UserModal
+        username={username}
+        onClose={() => setShowUserModal(false)}
+        onChooseName={() => {
+          setShowUserModal(false);
+          setShowUsernamePicker(true);
+          setShowManualEntry(false);
+        }}
+      />
     );
   }
 
@@ -245,7 +264,8 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
                 Wähle ein Thema und teste dein Wissen!
               </p>
             </div>
-            <div className="flex flex-col items-end">
+            <div className="flex flex-row gap-2 items-end">
+              {/* Admin Icon */}
               <button
                 onClick={onAdminClick}
                 className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
@@ -254,18 +274,23 @@ export default function QuizView({ subjects: initialSubjects, onAdminClick }: Qu
               >
                 <Cog className="w-6 h-6" />
                 {/* Tooltip */}
-                <span className="absolute -top-10 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+                <span className="absolute -top-5 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
                   Admin-Bereich
                 </span>
               </button>
-              <div className="mt-2 text-xs text-gray-500">👤 {username}</div>
+              {/* User Icon */}
               <button
-                className="text-xs text-indigo-500 underline mt-1"
-                onClick={() => {
-                  setShowUsernamePicker(true);
-                  setShowManualEntry(false);
-                }}
-              >Namen wählen</button>
+                onClick={() => setShowUserModal(true)}
+                className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                aria-label="Nutzername anzeigen"
+                title="Nutzername anzeigen"
+              >
+                <User className="w-6 h-6" />
+                {/* Tooltip */}
+                <span className="absolute -top-5 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+                  {username}
+                </span>
+              </button>
             </div>
           </div>
           {/* Breadcrumb */}
