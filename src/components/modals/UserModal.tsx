@@ -4,6 +4,8 @@ import { toast } from 'sonner';
 import type { UserQuizProgress } from '../../types/userProgress';
 import type { Subject } from '../../types/quizTypes';
 
+import { CustomToast } from '../CustomToast';
+
 
 interface UserModalProps {
   username: string;
@@ -110,28 +112,45 @@ const UserModal: React.FC<UserModalProps> = ({ username, onClose, onChooseName, 
         <div className="mb-6 flex items-center justify-between text-2xl text-gray-800 font-mono break-all select-all border border-gray-200 rounded-lg py-4 px-4 bg-gray-50">
           <span className="truncate">{username}</span>
           <button
-            onClick={() => {
-              toast.custom(
-                (t) => (
-                  <div>
-                    <div className="mb-2">Wenn du deinen Namen änderst, geht dein Fortschritt verloren. Bist du sicher?</div>
-                    <div className="flex gap-2 justify-end">
-                      <button
-                        className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-                        onClick={() => {
-                          toast.dismiss(t);
-                          onChooseName();
-                        }}
-                      >Weiter</button>
-                      <button
-                        className="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
-                        onClick={() => toast.dismiss(t)}
-                      >Abbrechen</button>
-                    </div>
-                  </div>
-                ),
-                { duration: 10000 }
-              );
+            onClick={async () => {
+              // Fortschritt laden
+              let hasProgress = false;
+              try {
+                const { loadAllUserProgress } = await import('../../utils/loadAllUserProgress');
+                const progressObj = await loadAllUserProgress(username);
+                hasProgress = Object.keys(progressObj).length > 0;
+              } catch (e) {
+                hasProgress = false;
+              }
+              if (username !== 'Gast' || hasProgress) {
+                toast.custom(
+                  (t) => (
+                    <CustomToast
+                      message={
+                        <>
+                          <div className="mb-2">Wenn du deinen Namen änderst, geht dein Fortschritt verloren. Bist du sicher?</div>
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+                              onClick={() => {
+                                toast.dismiss(t);
+                                onChooseName();
+                              }}
+                            >Weiter</button>
+                            <button
+                              className="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                              onClick={() => toast.dismiss(t)}
+                            >Abbrechen</button>
+                          </div>
+                        </>
+                      }
+                    />
+                  ),
+                  { duration: 10000 }
+                );
+              } else {
+                onChooseName();
+              }
             }}
             className="ml-2 p-2 rounded-full hover:bg-indigo-100 text-indigo-600 hover:text-indigo-900 transition-colors"
             title="Anderen Namen wählen"
