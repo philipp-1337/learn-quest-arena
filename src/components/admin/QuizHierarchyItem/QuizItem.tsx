@@ -1,4 +1,5 @@
-import { Play, Edit2, Trash2, QrCode, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { Play, Edit2, Trash2, QrCode, Eye, EyeOff, Loader2, X, Check } from 'lucide-react';
 import type { Quiz } from '../../../types/quizTypes';
 
 interface QuizItemProps {
@@ -7,9 +8,8 @@ interface QuizItemProps {
   onDelete(): void;
   onCopyLink?: () => void;
   onToggleHidden?: (hidden: boolean) => Promise<void> | void;
+  onRename?: (newTitle: string) => void;
 }
-
-import React from 'react';
 
 export function QuizItem({
   quiz,
@@ -17,8 +17,11 @@ export function QuizItem({
   onDelete,
   onCopyLink,
   onToggleHidden,
+  onRename,
 }: QuizItemProps) {
-  const [isTogglingHidden, setIsTogglingHidden] = React.useState(false);
+  const [isTogglingHidden, setIsTogglingHidden] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [title, setTitle] = useState(quiz.title);
 
   const handleToggleHidden = async () => {
     if (!onToggleHidden) return;
@@ -30,6 +33,18 @@ export function QuizItem({
     }
   };
 
+  const handleRename = () => {
+    if (onRename && title.trim() && title !== quiz.title) {
+      onRename(title.trim());
+    }
+    setEditMode(false);
+  };
+
+  const handleCancel = () => {
+    setTitle(quiz.title);
+    setEditMode(false);
+  };
+
   return (
     <div className={`ml-6 backdrop-blur-xl bg-gradient-to-r from-white/30 to-white/20 hover:from-white/40 hover:to-white/30 rounded-lg border border-white/30 shadow-sm hover:shadow-md transition-all duration-300 group`}>
       <div className="p-3 flex items-center justify-between">
@@ -38,12 +53,30 @@ export function QuizItem({
             <Play className="w-3 h-3 text-white" />
           </div>
           <div>
-            <h5 className={`text-sm font-medium text-gray-900 force-break ${quiz.hidden ? 'opacity-50' : ''}`} lang="de">
-              {quiz.title}
-              {quiz.hidden 
-              // && <span className="ml-2 text-xs text-red-500">(ausgeblendet)</span>
-              }
-            </h5>
+            {editMode ? (
+              <div className="flex items-center gap-2">
+                <input
+                  className="text-sm font-medium text-gray-900 force-break bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={title}
+                  autoFocus
+                  onChange={e => setTitle(e.target.value)}
+                  onClick={e => e.stopPropagation()}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') handleRename();
+                    if (e.key === 'Escape') handleCancel();
+                  }}
+                />
+                <button onClick={e => { e.stopPropagation(); handleRename(); }} title="Speichern" className="p-1 text-green-600 hover:bg-green-100 rounded"><Check size={16} /></button>
+                <button onClick={e => { e.stopPropagation(); handleCancel(); }} title="Abbrechen" className="p-1 text-red-600 hover:bg-red-100 rounded"><X size={16} /></button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <h5 className={`text-sm font-medium text-gray-900 force-break ${quiz.hidden ? 'opacity-50' : ''}`} lang="de">
+                  {quiz.title}
+                </h5>
+                {/* Edit-Button für Umbenennen entfernt */}
+              </div>
+            )}
             <p className="text-xs text-gray-500">
               {quiz.questions?.length ?? 0} Fragen
             </p>
@@ -85,6 +118,8 @@ export function QuizItem({
           >
             <Edit2 className="w-3 h-3 text-blue-700" />
           </button>
+
+          {/* Edit-Button für Umbenennen entfernt */}
 
           <button
             onClick={onDelete}

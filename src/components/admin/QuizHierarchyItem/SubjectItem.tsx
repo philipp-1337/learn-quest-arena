@@ -1,4 +1,5 @@
-import { BookOpen, Plus, Trash2, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { BookOpen, Plus, Trash2, ChevronRight, Edit2, X, Check } from 'lucide-react';
 import type { Subject } from '../../../types/quizTypes';
 
 interface Props {
@@ -7,9 +8,25 @@ interface Props {
   onToggle(): void;
   onAddClass(): void;
   onDelete(): void;
+  onRename?: (newName: string) => void;
 }
 
-export function SubjectItem({ subject, expanded, onToggle, onAddClass, onDelete }: Props) {
+export function SubjectItem({ subject, expanded, onToggle, onAddClass, onDelete, onRename }: Props) {
+  const [editMode, setEditMode] = useState(false);
+  const [name, setName] = useState(subject.name);
+
+  const handleRename = () => {
+    if (onRename && name.trim() && name !== subject.name) {
+      onRename(name.trim());
+    }
+    setEditMode(false);
+  };
+
+  const handleCancel = () => {
+    setName(subject.name);
+    setEditMode(false);
+  };
+
   return (
     <div
       className="group backdrop-blur-xl bg-white/50 hover:bg-white/60 rounded-xl border border-white/40 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
@@ -21,11 +38,44 @@ export function SubjectItem({ subject, expanded, onToggle, onAddClass, onDelete 
             <BookOpen className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h2 className="font-semibold text-gray-900 force-break" lang="de">{subject.name}</h2>
+            {editMode ? (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center bg-white border border-gray-300 rounded px-1 py-1 max-w-[128px] sm:max-w-[265px] w-full">
+                  <input
+                    className="font-semibold text-gray-900 force-break bg-transparent outline-none text-sm flex-1 min-w-0"
+                    style={{ minWidth: 0 }}
+                    value={name}
+                    autoFocus
+                    onChange={e => setName(e.target.value)}
+                    onClick={e => e.stopPropagation()}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') handleRename();
+                      if (e.key === 'Escape') handleCancel();
+                    }}
+                  />
+                  <button onClick={e => { e.stopPropagation(); handleRename(); }} title="Speichern" className="p-1 text-green-600 hover:bg-green-100 rounded"><Check size={16} /></button>
+                  <button onClick={e => { e.stopPropagation(); handleCancel(); }} title="Abbrechen" className="p-1 text-red-600 hover:bg-red-100 rounded"><X size={16} /></button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <h2 className="font-semibold text-gray-900 force-break" lang="de">{subject.name}</h2>
+              </div>
+            )}
             <p className="text-xs text-gray-500">{subject.classes.length} Klassen</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {onRename && !editMode && (
+            <button
+              onClick={e => { e.stopPropagation(); setEditMode(true); }}
+              className="p-1 text-gray-500 hover:bg-gray-100 rounded"
+              title="Fach umbenennen"
+              aria-label="Fach umbenennen"
+            >
+              <Edit2 size={16} />
+            </button>
+          )}
           <button
             onClick={e => {
               e.stopPropagation();

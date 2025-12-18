@@ -211,6 +211,43 @@ export function useQuizHierarchy(
     });
   };
 
+  /* ---------- Rename/Update ---------- */
+
+  const updateSubjectName = async (subjectId: string, newName: string) => {
+    const subject = subjects.find(s => s.id === subjectId);
+    if (!subject) return;
+    await persistSubject({ ...subject, name: newName });
+  };
+
+  const updateClassName = async (subjectId: string, classId: string, newName: string) => {
+    const subject = subjects.find(s => s.id === subjectId);
+    if (!subject) return;
+    await persistSubject({
+      ...subject,
+      classes: subject.classes.map(c =>
+        c.id === classId ? { ...c, name: newName } : c
+      ),
+    });
+  };
+
+  const updateTopicName = async (subjectId: string, classId: string, topicId: string, newName: string) => {
+    const subject = subjects.find(s => s.id === subjectId);
+    if (!subject) return;
+    await persistSubject({
+      ...subject,
+      classes: subject.classes.map(c =>
+        c.id === classId
+          ? {
+              ...c,
+              topics: c.topics.map(t =>
+                t.id === topicId ? { ...t, name: newName } : t
+              ),
+            }
+          : c
+      ),
+    });
+  };
+
   /* ---------- Public API ---------- */
 
   return {
@@ -225,5 +262,8 @@ export function useQuizHierarchy(
     deleteQuiz,
 
     updateQuiz,
+    updateSubjectName,
+    updateClassName,
+    updateTopicName,
   };
 }
