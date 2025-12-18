@@ -68,12 +68,12 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
     if (!progressLoaded || !username) return;
     // questions-Objekt für Firestore erzeugen
     const questionsObj: UserQuizProgress['questions'] = {};
-    quiz.questions.forEach((q, idx) => {
-      // Annahme: questionProgress ist im quizPlayer vorhanden (über useQuizPlayer)
-      if (quizPlayer.questionProgress && quizPlayer.questionProgress[q.question]) {
-        questionsObj[q.question] = quizPlayer.questionProgress[q.question];
+    quiz.questions.forEach((_, idx) => {
+      const key = String(idx);
+      if (quizPlayer.questionProgress && quizPlayer.questionProgress[key]) {
+        questionsObj[key] = quizPlayer.questionProgress[key];
       } else {
-        questionsObj[q.question] = {
+        questionsObj[key] = {
           answered: answers[idx] ?? false,
           attempts: answers[idx] !== undefined ? 1 : 0,
           lastAnswerCorrect: answers[idx] ?? false,
