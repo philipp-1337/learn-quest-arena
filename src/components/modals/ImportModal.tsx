@@ -270,6 +270,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
           const newQuiz = {
             id: `${topic.id}-${Date.now()}-${Math.random()}`,
             title: quiz.title,
+            shortTitle: quiz.title.substring(0, 20),
             questions: quiz.questions
           };
           topic.quizzes.push(newQuiz);
