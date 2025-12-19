@@ -100,12 +100,12 @@ export default function QuizEditorModal({
         toast.error(
           `Bild zu groß! Max. 500 KB. Dein Bild: ${(file.size / 1024).toFixed(1)} KB`
         );
-        
+
         // Ask user if they want compression help
         const shouldCompress = window.confirm(
           `Dein Bild ist zu groß (${(file.size / 1024).toFixed(1)} KB, max. 500 KB).\n\nMöchtest du eine Anleitung zur Bildkomprimierung?\n\nEmpfohlen:\n• Online: tinypng.com oder imagecompressor.com\n• Desktop: ImageMagick, GIMP oder Preview (macOS)`
         );
-        
+
         if (shouldCompress) {
           toast.info(
             'Komprimiere dein Bild online oder mit einem Tool und lade es erneut hoch.'
@@ -182,8 +182,8 @@ export default function QuizEditorModal({
     const newQuestions =
       currentQuestion.isEditing && typeof currentQuestion.editIndex === 'number'
         ? editedQuiz.questions.map((q, i) =>
-            i === currentQuestion.editIndex ? currentQuestion : q
-          )
+          i === currentQuestion.editIndex ? currentQuestion : q
+        )
         : [...editedQuiz.questions, currentQuestion];
 
     setEditedQuiz({ ...editedQuiz, questions: newQuestions });
@@ -221,14 +221,14 @@ export default function QuizEditorModal({
               lang="de"
             />
           </div>
-          <button
+          {/* <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
             title="Schließen"
             aria-label="Schließen"
           >
             <X className="w-6 h-6" />
-          </button>
+          </button> */}
         </div>
 
         {/* Question List */}
@@ -368,21 +368,19 @@ export default function QuizEditorModal({
               <div className="flex gap-3">
                 <button
                   onClick={() => handleAnswerTypeChange('text')}
-                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
-                    currentQuestion.answerType === 'text'
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${currentQuestion.answerType === 'text'
                       ? 'bg-indigo-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
+                    }`}
                 >
                   Text
                 </button>
                 <button
                   onClick={() => handleAnswerTypeChange('image')}
-                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
-                    currentQuestion.answerType === 'image'
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${currentQuestion.answerType === 'image'
                       ? 'bg-indigo-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
+                    }`}
                 >
                   Bilder
                 </button>
@@ -422,11 +420,10 @@ export default function QuizEditorModal({
                             correctAnswerIndex: i,
                           })
                         }
-                        className={`px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                          currentQuestion.correctAnswerIndex === i
+                        className={`px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap ${currentQuestion.correctAnswerIndex === i
                             ? 'bg-green-600 text-white'
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        }`}
+                          }`}
                       >
                         {currentQuestion.correctAnswerIndex === i ? (
                           <span className="flex items-center gap-1">
@@ -462,20 +459,41 @@ export default function QuizEditorModal({
                     >
                       <div className="flex gap-3">
                         <div className="flex-1">
-                          <label className="block text-xs font-medium text-gray-600 mb-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
                             Bild {i + 1}
                           </label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                handleImageUpload(i, e.target.files[0]);
-                              }
-                            }}
-                            disabled={false}
-                            className="w-full text-sm"
-                          />
+
+                          {answer.content && (
+                            <img
+                              src={answer.content}
+                              alt="Vorschau"
+                              className="w-full h-32 object-cover rounded-md mt-2 mb-2"
+                            />
+                          )}
+
+                          <label
+                            htmlFor={`file-upload-${i}`}
+                            className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          >
+                            <span>
+                              {answer.content
+                                ? 'Bild ändern'
+                                : 'Bild auswählen'}
+                            </span>
+                            <input
+                              id={`file-upload-${i}`}
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  handleImageUpload(i, e.target.files[0]);
+                                }
+                              }}
+                              disabled={false}
+                              className="sr-only"
+                            />
+                          </label>
+
                           <input
                             type="text"
                             value={answer.alt || ''}
@@ -490,16 +508,9 @@ export default function QuizEditorModal({
                                 answers: newAnswers,
                               });
                             }}
-                            className="w-full px-3 py-2 mt-2 border border-gray-300 rounded text-sm"
+                            className="w-full px-3 py-2 mt-2 border border-gray-300 rounded-md text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                             placeholder="Beschreibung (optional)"
                           />
-                          {answer.content && (
-                            <img
-                              src={answer.content}
-                              alt="Preview"
-                              className="w-full h-32 object-cover rounded mt-2"
-                            />
-                          )}
                         </div>
                         <button
                           onClick={() =>
@@ -508,18 +519,19 @@ export default function QuizEditorModal({
                               correctAnswerIndex: i,
                             })
                           }
-                          className={`px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap self-start ${
-                            currentQuestion.correctAnswerIndex === i
+                          className={`px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap self-start ${currentQuestion.correctAnswerIndex === i
                               ? 'bg-green-600 text-white'
                               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                          }`}
+                            }`}
                         >
                           {currentQuestion.correctAnswerIndex === i ? (
                             <span className="flex items-center gap-1">
-                              <Check className="w-4 h-4 inline text-white" /> Richtig
+                              <Check className="w-4 h-4 inline text-white" />
                             </span>
                           ) : (
-                            'Richtig'
+                            <span className="flex items-center gap-1 text-gray-700">
+                              <Check className="w-4 h-4 inline text-gray-500" />
+                            </span>
                           )}
                         </button>
                       </div>
