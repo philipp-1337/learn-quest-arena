@@ -21,7 +21,9 @@ export interface Topic {
 
 export interface Quiz {
   id: string;
+  uuid?: string;
   title: string;
+  shortTitle: string;
   questions: Question[];
   hidden?: boolean; // Wenn true, ist das Quiz ausgeblendet
 }

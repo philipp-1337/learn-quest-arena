@@ -14,7 +14,7 @@ export function generateQuizUrl(
   const subjectSlug = slugify(subject.name);
   const classSlug = slugify(classItem.name);
   const topicSlug = slugify(topic.name);
-  const quizSlug = slugify(quiz.title);
+  const quizSlug = slugify(quiz.shortTitle || quiz.title);
 
   return `/quiz/${subjectSlug}/${classSlug}/${topicSlug}/${quizSlug}`;
 }

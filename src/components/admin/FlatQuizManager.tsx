@@ -1,6 +1,7 @@
-import { copyQuizUrlToClipboard } from "../../utils/quizUrlHelper";
+import { copyQuizUrlToClipboard, generateQuizUrl } from "../../utils/quizUrlHelper";
 import { toast } from "sonner";
 import { CustomToast } from "../CustomToast";
+import { Clipboard } from "lucide-react";
 import type { Subject, Class, Topic, Quiz } from "../../types/quizTypes";
 
 import { useExpandedState } from "../../hooks/useExpandedState";
@@ -44,9 +45,20 @@ export default function FlatQuizManager({
     );
 
     if (success) {
-      toast.custom(() => <CustomToast message="Link kopiert!" type="success" />, { duration: 4000 });
+      const quizUrl = window.location.origin + generateQuizUrl(subject, classItem, topic, quiz);
+      toast.custom((_) => (
+        <CustomToast
+          message={
+            <div className="flex items-center gap-2">
+              <Clipboard className="w-5 h-5 flex-shrink-0" />
+              <div className="break-all text-sm">Link kopiert: <div className="font-semibold"></div>{quizUrl}</div>
+            </div>
+          }
+          type="success"
+        />
+      ), { duration: 2000 });
     } else {
-      toast.custom(() => <CustomToast message="Fehler beim Kopieren des Links" type="error" />, { duration: 4000 });
+      toast.custom((_) => <CustomToast message="Fehler beim Kopieren des Links" type="error" />, { duration: 4000 });
     }
   };
 
@@ -85,7 +97,7 @@ export default function FlatQuizManager({
                 const classExpanded = expanded.expandedClasses.has(cls.id);
 
                 return (
-                  <div key={cls.id} className="ml-6 space-y-2">
+                  <div key={cls.id} className="ml-3 space-y-2">
                     <ClassItem
                       classItem={cls}
                       expanded={classExpanded}
@@ -117,7 +129,7 @@ export default function FlatQuizManager({
                         );
 
                         return (
-                          <div key={topic.id} className="ml-6 space-y-2">
+                          <div key={topic.id} className="ml-3 space-y-2">
                             <TopicItem
                               topic={topic}
                               expanded={topicExpanded}

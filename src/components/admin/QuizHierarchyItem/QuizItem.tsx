@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Play,
   Edit2,
@@ -31,7 +31,11 @@ export function QuizItem({
 }: QuizItemProps) {
   const [isTogglingHidden, setIsTogglingHidden] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [title, setTitle] = useState(quiz.title);
+  const [title, setTitle] = useState(quiz.shortTitle || quiz.title);
+
+  useEffect(() => {
+    setTitle(quiz.shortTitle || quiz.title);
+  }, [quiz.shortTitle, quiz.title]);
 
   const handleToggleHidden = async () => {
     if (!onToggleHidden) return;
@@ -51,13 +55,13 @@ export function QuizItem({
   };
 
   const handleCancel = () => {
-    setTitle(quiz.title);
+    setTitle(quiz.shortTitle || quiz.title);
     setEditMode(false);
   };
 
   return (
     <div
-      className={`ml-6 backdrop-blur-xl bg-gradient-to-r from-white/30 to-white/20 hover:from-white/40 hover:to-white/30 rounded-lg border border-white/30 shadow-sm hover:shadow-md transition-all duration-300 group`}
+      className={`ml-3 backdrop-blur-xl bg-gradient-to-r from-white/30 to-white/20 hover:from-white/40 hover:to-white/30 rounded-lg border border-white/30 shadow-sm hover:shadow-md transition-all duration-300 group`}
     >
       <div className="p-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -113,7 +117,7 @@ export function QuizItem({
                   }`}
                   lang="de"
                 >
-                  {quiz.title}
+                  {title}
                 </h5>
                 {/* Edit-Button für Umbenennen entfernt */}
               </div>

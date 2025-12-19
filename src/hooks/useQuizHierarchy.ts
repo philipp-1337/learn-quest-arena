@@ -94,7 +94,9 @@ export function useQuizHierarchy(
 
     const newQuiz: Quiz = {
       id: `${topicId}-${Date.now()}`,
+      uuid: crypto.randomUUID(),
       title,
+      shortTitle: title,
       questions: [],
       hidden,
     };
@@ -190,6 +192,10 @@ export function useQuizHierarchy(
   ) => {
     const subject = subjects.find(s => s.id === subjectId);
     if (!subject) return;
+
+    if (!updatedQuiz.uuid) {
+      updatedQuiz.uuid = crypto.randomUUID();
+    }
 
     await persistSubject({
       ...subject,
