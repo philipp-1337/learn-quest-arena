@@ -11,7 +11,7 @@ export default function AdminHeader({ onLogout }: AdminHeaderProps) {
     <div className="bg-white rounded-2xl shadow-lg p-5 mb-5">
       <div className="flex justify-between items-center">
         <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Quiz Verwaltung</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Administration</h1>
         <p className="text-gray-600">
           Für Lehrerkräfte von morgen.
         </p>
