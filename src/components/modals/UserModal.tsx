@@ -30,6 +30,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
         const { loadAllUserProgress } = await import('../../utils/loadAllUserProgress');
         const progressObj: Record<string, UserQuizProgress> = await loadAllUserProgress(username);
         const allProgress: UserQuizProgress[] = Object.values(progressObj);
+        allProgress.sort((a, b) => b.lastUpdated - a.lastUpdated);
         setProgressList(allProgress);
       } catch (e) {
         setProgressList([]);
