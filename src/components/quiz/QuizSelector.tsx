@@ -1,4 +1,4 @@
-import { Play } from 'lucide-react';
+import { Play, CheckCircle2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { Quiz } from '../../types/quizTypes';
 import type { UserQuizProgress } from '../../types/userProgress';
@@ -45,7 +45,7 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
     <div className="space-y-4">
       {[...visibleQuizzes].sort((a, b) => a.title.localeCompare(b.title)).map((quiz: Quiz) => {
         const progress = progressMap[quiz.id];
-        let progressText = '';
+        let progressElement: React.ReactNode = null;
         let triesText = '';
         if (username && progress) {
           // Fortschritt aus neuem Modell berechnen
@@ -56,9 +56,14 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
           }
           const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
           if (progress.completed) {
-            progressText = `✅ Abgeschlossen (${solved}/${total})`;
+            progressElement = (
+              <span className="flex items-center">
+                <CheckCircle2 className="w-4 h-4 mr-1 text-green-300" />
+                Abgeschlossen ({solved}/{total})
+              </span>
+            );
           } else {
-            progressText = `${solved}/${total} gelöst (${percent}%)`;
+            progressElement = `${solved}/${total} gelöst (${percent}%)`;
           }
           if (typeof progress.totalTries === 'number') {
             triesText = `Versuche: ${progress.totalTries}`;
@@ -87,9 +92,9 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
                   {username && username !== "Gast" ? (
                     loading ? (
                       <span className="text-xs text-indigo-200">Lade Fortschritt...</span>
-                    ) : progressText ? (
+                    ) : progressElement ? (
                       <>
-                        <span className="text-xs text-green-200">Fortschritt: {progressText}</span>
+                        <span className="text-xs text-green-200">Fortschritt: {progressElement}</span>
                         {triesText && (
                           <span className="text-xs text-indigo-100 ml-2">{triesText}</span>
                         )}

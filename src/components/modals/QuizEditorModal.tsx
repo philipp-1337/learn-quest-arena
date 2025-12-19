@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit2, Trash2, Check, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, X, Lightbulb, MessageCircleWarning } from 'lucide-react';
 import type { Quiz, Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 
@@ -444,11 +444,15 @@ export default function QuizEditorModal({
               ) : (
                 <div className="space-y-3">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                    <p className="text-xs font-medium text-blue-900">
-                      💡 Bildgröße max. 500 KB. Größere Bilder werden automatisch komprimiert.
+                    <p className="text-xs font-medium text-blue-900 flex items-center gap-1.5">
+                      <MessageCircleWarning className="w-4 h-4 text-blue-600" />
+                      <span>Bildgröße max. 500 KB. Größere Bilder werden automatisch komprimiert.</span>
                     </p>
-                    <p className="text-xs text-blue-700 mt-1">
-                      Tipp: Nutze tinypng.com oder imagecompressor.com zur Optimierung.
+                    <p className="text-xs text-blue-700 mt-2 flex items-center gap-1.5">
+                      <Lightbulb className="w-4 h-4 text-blue-600" />
+                      <span>
+                        Tipp: Nutze tinypng.com oder imagecompressor.com zur Optimierung.
+                      </span>
                     </p>
                   </div>
                   {currentQuestion.answers.map((answer: Answer, i: number) => (

@@ -1,6 +1,7 @@
 import { useState,type FormEvent, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useFirebaseAuth from '../hooks/useFirebaseAuth';
+import { ArrowLeft } from 'lucide-react';
 
 // ============================================
 // LOGIN VIEW - Modern Implementation
@@ -54,7 +55,7 @@ export default function LoginView({ onLogin, onBack }: LoginViewProps) {
           aria-label="Zurück zur Startseite"
           title="Zurück zur Startseite"
         >
-          <span className="group-hover:-translate-x-1 transition-transform">←</span>
+          <ArrowLeft className="group-hover:-translate-x-1 transition-transform w-4 h-4" />
           Zurück
         </button>
         

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, AlertCircle, CheckCircle, X, Download } from "lucide-react";
+import { Upload, AlertCircle, CheckCircle, X, Download, ClipboardList } from "lucide-react";
 import type { Subject } from "../../types/quizTypes";
 
 // ============================================
@@ -173,7 +173,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
         onImport(result.subjects);
         setImportResult({
           success: true,
-          message: `✅ Import erfolgreich!`,
+          message: `Import erfolgreich!`,
           details: result.details
         });
       } else {
@@ -186,7 +186,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
     } catch (error: any) {
       setImportResult({
         success: false,
-        message: `❌ Import fehlgeschlagen: ${error.message}`,
+        message: `Import fehlgeschlagen: ${error.message}`,
       });
     } finally {
       setIsProcessing(false);
@@ -216,7 +216,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             classes: []
           };
           newSubjects.push(subject);
-          details.push(`➕ Neues Fach erstellt: ${item.subject}`);
+          details.push(`Neues Fach erstellt: ${item.subject}`);
         }
 
         // Find or create class
@@ -229,7 +229,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             topics: []
           };
           subject.classes.push(classItem);
-          details.push(`➕ Neue Klasse erstellt: ${item.class}`);
+          details.push(`Neue Klasse erstellt: ${item.class}`);
         }
 
         // Find or create topic
@@ -241,7 +241,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             quizzes: []
           };
           classItem.topics.push(topic);
-          details.push(`➕ Neues Thema erstellt: ${item.topic}`);
+          details.push(`Neues Thema erstellt: ${item.topic}`);
         }
 
         // Add quizzes
@@ -253,7 +253,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
           // Check for duplicate quiz
           const existingQuiz = topic.quizzes.find(q => q.title.toLowerCase() === quiz.title.toLowerCase());
           if (existingQuiz) {
-            details.push(`⚠️ Quiz "${quiz.title}" existiert bereits und wurde übersprungen`);
+            details.push(`Quiz "${quiz.title}" existiert bereits und wurde übersprungen`);
             continue;
           }
 
@@ -275,7 +275,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
           topic.quizzes.push(newQuiz);
           quizzesAdded++;
           questionsAdded += quiz.questions.length;
-          details.push(`✅ Quiz hinzugefügt: "${quiz.title}" (${quiz.questions.length} Fragen)`);
+          details.push(`Quiz hinzugefügt: "${quiz.title}" (${quiz.questions.length} Fragen)`);
         }
       }
 
@@ -284,7 +284,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
         subjects: newSubjects,
         message: `Import erfolgreich!`,
         details: [
-          `📊 ${quizzesAdded} Quiz(ze) mit ${questionsAdded} Fragen importiert`,
+          `${quizzesAdded} Quiz(ze) mit ${questionsAdded} Fragen importiert`,
           ...details
         ]
       };
@@ -316,7 +316,10 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
         {/* Instructions */}
         <div className="mb-6 space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-900 mb-2">📋 Anleitung</h4>
+            <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+              <ClipboardList className="w-5 h-5" />
+              Anleitung
+            </h4>
             <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
               <li>Lade eine Vorlage herunter (JSON oder CSV)</li>
               <li>Fülle die Vorlage mit deinen Quiz-Daten</li>

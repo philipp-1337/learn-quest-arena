@@ -1,3 +1,4 @@
+import { Trophy, PartyPopper, ThumbsUp, Award } from 'lucide-react';
 import type { Question } from '../../types/quizTypes';
 
 interface QuizResultsProps {
@@ -30,8 +31,16 @@ export default function QuizResults({
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl w-full text-center">
-        <div className="mb-6 text-6xl">
-          {allSolved && wrongQuestions.length === 0 ? '🏆' : percentage >= 80 ? '🎉' : percentage >= 60 ? '👍' : '💪'}
+        <div className="mb-6">
+          {allSolved && wrongQuestions.length === 0 ? (
+            <Trophy className="w-16 h-16 text-yellow-400 mx-auto" />
+          ) : percentage >= 80 ? (
+            <PartyPopper className="w-16 h-16 text-green-500 mx-auto" />
+          ) : percentage >= 60 ? (
+            <ThumbsUp className="w-16 h-16 text-blue-500 mx-auto" />
+          ) : (
+            <Award className="w-16 h-16 text-orange-500 mx-auto" />
+          )}
         </div>
         <h2 className="text-4xl font-bold text-gray-900 mb-4">
           Quiz beendet!

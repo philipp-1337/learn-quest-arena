@@ -28,16 +28,16 @@ export default function FlashcardQuizApp() {
   useEffect(() => {
     const loadSubjects = async () => {
       try {
-        console.log('🔄 Loading subjects from Firestore...');
+        console.log('Loading subjects from Firestore...');
         setIsLoading(true);
         setError(null);
         
         const subjectsData = await fetchCollection("subjects");
-        console.log('📦 Subjects data received:', subjectsData);
+        console.log('Received subjects data:', subjectsData);
         
         // Handle empty collection
         if (!subjectsData || subjectsData.length === 0) {
-          console.log('⚠️ No subjects found in Firestore - using empty array');
+          console.warn('No subjects found in Firestore - using empty array');
           setSubjects([]);
           setIsLoading(false);
           return;
@@ -50,16 +50,16 @@ export default function FlashcardQuizApp() {
           classes: subject.classes || [],
         }));
         
-        console.log('✅ Subjects loaded successfully:', formattedSubjects);
+        console.log('Success: Subjects loaded successfully:', formattedSubjects);
         setSubjects(formattedSubjects);
       } catch (error) {
-        console.error('❌ Error loading subjects:', error);
+        console.error('Error loading subjects:', error);
         setError(error instanceof Error ? error.message : 'Fehler beim Laden der Daten');
         // Set empty array on error so app can still load
         setSubjects([]);
       } finally {
         setIsLoading(false);
-        console.log('✅ Loading complete');
+        console.log('Success: Loading complete');
       }
     };
     

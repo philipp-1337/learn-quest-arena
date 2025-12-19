@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pencil } from 'lucide-react';
+import { Pencil, ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import type { UserQuizProgress } from '../../types/userProgress';
 import type { Subject } from '../../types/quizTypes';
@@ -63,7 +63,9 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
             return (
               <div key={progress.quizId} className="border rounded-lg p-4 bg-gray-50">
                 <div className="font-semibold text-lg mb-2">Quiz: {quizTitle}</div>
-                <div className="mb-1">Abgeschlossen: {progress.completed ? '✅' : '❌'}</div>
+                <div className="mb-1 flex items-center">
+                  Abgeschlossen: {progress.completed ? <CheckCircle2 className="w-5 h-5 text-green-600 ml-2" /> : <XCircle className="w-5 h-5 text-red-600 ml-2" />}
+                </div>
                 <div className="mb-1">Versuche: {progress.totalTries}</div>
                 <div className="mb-1">Zuletzt bearbeitet: {new Date(progress.lastUpdated).toLocaleString()}</div>
                 <div className="mb-1">
@@ -97,7 +99,7 @@ const UserModal: React.FC<UserModalProps> = ({ username, onClose, onChooseName, 
           aria-label="Zurück zur Startseite"
           title="Zurück zur Startseite"
         >
-          <span className="group-hover:-translate-x-1 transition-transform">←</span>
+          <ArrowLeft className="group-hover:-translate-x-1 transition-transform w-4 h-4" />
           Zurück
         </button>
 

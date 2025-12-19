@@ -1,3 +1,4 @@
+import { ChevronRight } from 'lucide-react';
 import type { Subject, Class, Topic } from '../../types/quizTypes';
 
 interface BreadcrumbProps {
@@ -33,7 +34,7 @@ export default function Breadcrumb({
       </button>
       {selectedSubject && (
         <>
-          <span className="text-gray-400">→</span>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
           <button
             onClick={onNavigateToSubject}
             className="text-indigo-600 hover:text-indigo-800 font-medium"
@@ -46,7 +47,7 @@ export default function Breadcrumb({
       )}
       {selectedClass && (
         <>
-          <span className="text-gray-400">→</span>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
           <button
             onClick={onNavigateToClass}
             className="text-indigo-600 hover:text-indigo-800 font-medium"
@@ -59,7 +60,7 @@ export default function Breadcrumb({
       )}
       {selectedTopic && (
         <>
-          <span className="text-gray-400">→</span>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
           <span className="text-gray-700 font-medium">
             {selectedTopic.name}
           </span>
