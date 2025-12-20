@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Pencil, ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { loadAllUserProgress } from '../../utils/loadAllUserProgress';
 import type { UserQuizProgress } from '../../types/userProgress';
 import type { Subject } from '../../types/quizTypes';
 
@@ -27,7 +28,6 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
     async function fetchProgress() {
       setLoading(true);
       try {
-        const { loadAllUserProgress } = await import('../../utils/loadAllUserProgress');
         const progressObj: Record<string, UserQuizProgress> = await loadAllUserProgress(username);
         const allProgress: UserQuizProgress[] = Object.values(progressObj);
         allProgress.sort((a, b) => b.lastUpdated - a.lastUpdated);
@@ -119,7 +119,6 @@ const UserView: React.FC<UserViewProps> = ({ username, onClose, onChooseName, su
               // Fortschritt laden
               let hasProgress = false;
               try {
-                const { loadAllUserProgress } = await import('../../utils/loadAllUserProgress');
                 const progressObj = await loadAllUserProgress(username);
                 hasProgress = Object.keys(progressObj).length > 0;
               } catch (e) {

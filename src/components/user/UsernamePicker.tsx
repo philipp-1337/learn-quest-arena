@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CustomToast } from "../misc/CustomToast";
 import { toast } from "sonner";
 import { UserPlus, Briefcase } from "lucide-react";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { generateUniqueUsernames } from "../../utils/usernameGenerator";
 
 interface UsernamePickerProps {
@@ -96,7 +97,6 @@ export default function UsernamePicker({
                 onClick={async () => {
                   toast.dismiss(t);
                   try {
-                    const { getFirestore, doc, setDoc } = await import("firebase/firestore");
                     const db = getFirestore();
                     await setDoc(
                       doc(db, "users", name),
