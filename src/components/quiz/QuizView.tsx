@@ -11,6 +11,7 @@ import ClassSelector from "./ClassSelector";
 import TopicSelector from "./TopicSelector";
 import { QuizSelector } from "./QuizSelector";
 import QuizPlayer from "./QuizPlayer";
+import Footer from "../footer/Footer";
 import type { Subject, Quiz } from "../../types/quizTypes";
 
 interface QuizViewProps {
@@ -250,8 +251,8 @@ export default function QuizView({
     : [];
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="flex flex-col min-h-screen p-4">
+      <div className="max-w-4xl mx-auto w-full flex-1">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-5 mb-5">
           <div className="flex justify-between items-center">
@@ -345,6 +346,7 @@ export default function QuizView({
             />
           ))}
       </div>
+      <Footer />
     </div>
   );
 }

@@ -5,9 +5,12 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import LoginView from './components/login/LoginView';
 import QuizView from './components/quiz/QuizView';
 import AdminView from './components/admin/AdminView';
+import Dataprotection from './components/footer/Dataprotection';
+import Imprint from './components/footer/Imprint';
 import type { Subject } from './types/quizTypes';
 import useFirestore from "./hooks/useFirestore";
 import ProtectedRoute from './utils/ProtectedRoute';
+import useScrollToTop from './hooks/useScrollToTop';
 
 
 // ============================================
@@ -22,6 +25,9 @@ export default function FlashcardQuizApp() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  
+  // Scroll to top when route changes
+  useScrollToTop();
 
 
   // Load subjects from Firestore
@@ -159,6 +165,14 @@ export default function FlashcardQuizApp() {
         <Route
           path="/quiz/:subjectSlug/:classSlug/:topicSlug/:quizSlug"
           element={<QuizView subjects={subjects} onAdminClick={handleAdminClick} />}
+        />
+        <Route
+          path="/datenschutz"
+          element={<Dataprotection />}
+        />
+        <Route
+          path="/impressum"
+          element={<Imprint />}
         />
       </Routes>
     </div>
