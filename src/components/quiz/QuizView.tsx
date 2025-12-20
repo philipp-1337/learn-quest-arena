@@ -1,7 +1,7 @@
-import UserModal from "../modals/UserModal";
+import UserView from "../user/UserView";
 import { useEffect, useState } from "react";
-import UsernamePicker from "../UsernamePicker";
-import UsernameManualEntry from "../UsernameManualEntry";
+import UsernamePicker from "../user/UsernamePicker";
+import UsernameManualEntry from "../user/UsernameManualEntry";
 import { Cog, Sword, User } from "lucide-react";
 import { useQuizState } from "../../hooks/useQuizState";
 import { useQuizNavigation } from "../../hooks/useQuizNavigation";
@@ -32,7 +32,7 @@ export default function QuizView({
   // Zeige Username-Auswahl nur, wenn explizit gewünscht
   const [showUsernamePicker, setShowUsernamePicker] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
-  const [showUserModal, setShowUserModal] = useState(false);
+  const [showUserView, setShowUserView] = useState(false);
 
   const {
     selectedSubject,
@@ -188,13 +188,13 @@ export default function QuizView({
   }
 
   // User Modal anzeigen, wenn gewünscht
-  if (showUserModal) {
+  if (showUserView) {
     return (
-      <UserModal
+      <UserView
         username={username}
-        onClose={() => setShowUserModal(false)}
+        onClose={() => setShowUserView(false)}
         onChooseName={() => {
-          setShowUserModal(false);
+          setShowUserView(false);
           setShowUsernamePicker(true);
           setShowManualEntry(false);
         }}
@@ -288,7 +288,7 @@ export default function QuizView({
               </button>
               {/* User Icon */}
               <button
-                onClick={() => setShowUserModal(true)}
+                onClick={() => setShowUserView(true)}
                 className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                 aria-label="Nutzername anzeigen"
                 title="Nutzername anzeigen"

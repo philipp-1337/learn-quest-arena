@@ -1,6 +1,6 @@
 import { copyQuizUrlToClipboard, generateQuizUrl } from "../../utils/quizUrlHelper";
 import { toast } from "sonner";
-import { CustomToast } from "../CustomToast";
+import { CustomToast } from "../misc/CustomToast";
 import { Clipboard } from "lucide-react";
 import type { Subject, Class, Topic, Quiz } from "../../types/quizTypes";
 

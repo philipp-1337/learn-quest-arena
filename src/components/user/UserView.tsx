@@ -4,10 +4,10 @@ import { toast } from 'sonner';
 import type { UserQuizProgress } from '../../types/userProgress';
 import type { Subject } from '../../types/quizTypes';
 
-import { CustomToast } from '../CustomToast';
+import { CustomToast } from '../misc/CustomToast';
 
 
-interface UserModalProps {
+interface UserViewProps {
   username: string;
   onClose: () => void;
   onChooseName: () => void;
@@ -88,7 +88,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
 };
 
 
-const UserModal: React.FC<UserModalProps> = ({ username, onClose, onChooseName, subjects }) => {
+const UserView: React.FC<UserViewProps> = ({ username, onClose, onChooseName, subjects }) => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50 backdrop-blur-sm z-50">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl border border-gray-100 relative">
@@ -175,4 +175,4 @@ const UserModal: React.FC<UserModalProps> = ({ username, onClose, onChooseName, 
   );
 };
 
-export default UserModal;
+export default UserView;

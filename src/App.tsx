@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import LoadingScreen from './components/LoadingScreen';
-import Toaster from './ToasterProvider';
+import LoadingScreen from './components/misc/LoadingScreen';
+import Toaster from './utils/ToasterProvider';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
-import LoginView from './components/loginView';
+import LoginView from './components/login/LoginView';
 import QuizView from './components/quiz/QuizView';
 import AdminView from './components/admin/AdminView';
 import type { Subject } from './types/quizTypes';
