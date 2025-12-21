@@ -11,6 +11,7 @@ import type { Subject } from './types/quizTypes';
 import useFirestore from "./hooks/useFirestore";
 import ProtectedRoute from './utils/ProtectedRoute';
 import useScrollToTop from './hooks/useScrollToTop';
+import { getAuth } from 'firebase/auth';
 
 
 // ============================================
@@ -21,7 +22,7 @@ import useScrollToTop from './hooks/useScrollToTop';
 export default function FlashcardQuizApp() {
   const { fetchCollection } = useFirestore();
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // Entfernt: isLoggedIn, stattdessen Firebase-Auth nutzen
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -75,7 +76,8 @@ export default function FlashcardQuizApp() {
 
 
   const handleAdminClick = () => {
-    if (!isLoggedIn) {
+    const auth = getAuth();
+    if (!auth.currentUser) {
       navigate('/login');
     } else {
       navigate('/admin');
@@ -92,14 +94,16 @@ export default function FlashcardQuizApp() {
 
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    const auth = getAuth();
+    if (auth.currentUser) {
+      auth.signOut();
+    }
     navigate('/');
   };
 
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
+  // handleLogin wird nicht mehr benötigt, da Auth-Status direkt von Firebase kommt
+  const handleLogin = () => {};
 
 
   if (isLoading) {
