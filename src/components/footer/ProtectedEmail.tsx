@@ -14,6 +14,7 @@ export default function ProtectedEmail() {
   const [isVerified, setIsVerified] = useState(false);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [decodedEmail, setDecodedEmail] = useState<string | null>(null);
 
   useEffect(() => {
     if (showCaptcha) {
@@ -32,19 +33,34 @@ export default function ProtectedEmail() {
     }
   };
 
-  const revealContact = () => {
-    const emailParts = [
-      String.fromCharCode(112, 104, 105, 108, 105, 112, 112),
-      String.fromCharCode(64),
-      String.fromCharCode(99, 104, 97, 110, 103, 101, 107, 114, 97, 102, 116),
-      String.fromCharCode(46),
-      String.fromCharCode(100, 101),
+  // Die E-Mail-Fragmente werden zusammengesetzt und base64-encodiert
+  const getEncodedEmail = () => {
+    const fragments = [
+      [112, 104, 105, 108, 105, 112, 112], // philipp
+      [64], // @
+      [99, 104, 97, 110, 103, 101, 107, 114, 97, 102, 116], // changekraft
+      [46], // .
+      [100, 101], // de
     ];
-    return emailParts.join("");
+    const email = fragments.map(arr => String.fromCharCode(...arr)).join("");
+    // base64-encode
+    return btoa(email);
   };
 
+  // Decodiert die base64-E-Mail
+  const decodeEmail = (encoded: string) => {
+    return atob(encoded);
+  };
+
+  // Nach erfolgreichem CAPTCHA decodiere die E-Mail
   if (isVerified) {
-    const email = revealContact();
+    // Nur beim ersten Verifizieren decodieren
+    if (!decodedEmail) {
+      const encoded = getEncodedEmail();
+      setDecodedEmail(decodeEmail(encoded));
+      return null; // Render wird nach setState erneut ausgeführt
+    }
+    const email = decodedEmail;
     return (
       <button
         type="button"
