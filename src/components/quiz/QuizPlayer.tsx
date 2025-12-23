@@ -59,7 +59,9 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
     getWrongQuestions,
     getStatistics,
     solvedQuestions,
-    totalTries
+    totalTries,
+    elapsedTime,
+    setCompletedTime
   } = quizPlayer;
 
 
@@ -81,6 +83,12 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
       }
     });
     const completed = Object.values(questionsObj).every(q => q.answered);
+    
+    // Wenn gerade abgeschlossen, Zeit speichern
+    if (completed && !quizPlayer.completedTime) {
+      setCompletedTime(elapsedTime);
+    }
+    
     const progress: UserQuizProgress = {
       username: username as string,
       quizId: quiz.id,
@@ -88,6 +96,7 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
       totalTries: typeof totalTries === 'function' ? 1 : totalTries,
       completed,
       lastUpdated: Date.now(),
+      completedTime: completed ? (quizPlayer.completedTime || elapsedTime) : undefined,
     };
     saveUserQuizProgress(progress);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -127,6 +136,7 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
       onAnswerSelect={handleAnswerSelect}
       onNext={handleNext}
       onHome={onHome}
+      elapsedTime={elapsedTime}
     />
   );
 }

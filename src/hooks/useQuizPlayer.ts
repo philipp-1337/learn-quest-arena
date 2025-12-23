@@ -58,6 +58,27 @@ export function useQuizPlayer(
     initialState?.solvedQuestions ? new Set(initialState.solvedQuestions) : new Set()
   );
 
+  // Zeit-Tracking
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [completedTime, setCompletedTime] = useState<number | null>(null);
+
+  // Starte Timer beim ersten Laden des Hooks
+  useEffect(() => {
+    if (startTime === null) {
+      setStartTime(Date.now());
+    }
+  }, []);
+
+  // Update elapsed time
+  useEffect(() => {
+    if (startTime === null || completedTime !== null) return;
+    const interval = setInterval(() => {
+      setElapsedTime(Date.now() - startTime);
+    }, 100);
+    return () => clearInterval(interval);
+  }, [startTime, completedTime]);
+
   // Shuffle answers when question changes
   useEffect(() => {
     const questions = repeatQuestions || shuffledQuestions;
@@ -132,6 +153,9 @@ export function useQuizPlayer(
     setRepeatQuestions(null);
     setTotalTries(1);
     setSolvedQuestions(new Set());
+    setStartTime(Date.now());
+    setElapsedTime(0);
+    setCompletedTime(null);
   };
 
   const handleRepeatWrong = () => {
@@ -195,6 +219,7 @@ export function useQuizPlayer(
       solvedCount: solvedQuestions.size,
       allSolved,
       totalTries,
+      elapsedTime,
     };
   };
 
@@ -208,6 +233,9 @@ export function useQuizPlayer(
     solvedQuestions,
     totalTries,
     questionProgress,
+    elapsedTime,
+    completedTime,
+    setCompletedTime,
     handleAnswerSelect,
     handleNext,
     handleRestart,

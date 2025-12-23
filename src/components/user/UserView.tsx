@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Pencil, ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
+import { 
+  Pencil, 
+  ArrowLeft, 
+  CheckCircle2, 
+  XCircle, 
+  // Timer 
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { loadAllUserProgress } from '../../utils/loadAllUserProgress';
 import type { UserQuizProgress } from '../../types/userProgress';
@@ -23,6 +29,14 @@ interface UserDashboardProps {
 const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => {
   const [progressList, setProgressList] = useState<UserQuizProgress[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Format time from milliseconds
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     async function fetchProgress() {
@@ -68,7 +82,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
                   Abgeschlossen: {progress.completed ? <CheckCircle2 className="w-5 h-5 text-green-600 ml-2" /> : <XCircle className="w-5 h-5 text-red-600 ml-2" />}
                 </div>
                 <div className="mb-1">Versuche: {progress.totalTries}</div>
-                <div className="mb-1">Zuletzt bearbeitet: {new Date(progress.lastUpdated).toLocaleString()}</div>
+                <div className="mb-1">Datum: {new Date(progress.lastUpdated).toLocaleString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
                 <div className="mb-1">
                   Fragen: {
                     (() => {
@@ -78,6 +92,12 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
                     })()
                   }
                 </div>
+                {progress.completed && progress.completedTime && (
+                  <div className="mb-1 text-indigo-600 font-semibold">
+                    Zeit zum 100% Lösen: {formatTime(progress.completedTime)}
+                    {/* <Timer className="w-4 h-4 inline-block ml-1" /> */}
+                  </div>
+                )}
               </div>
             );
           })}

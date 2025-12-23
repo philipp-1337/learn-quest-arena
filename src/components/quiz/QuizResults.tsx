@@ -1,5 +1,12 @@
-import { Trophy, PartyPopper, ThumbsUp, Award } from 'lucide-react';
+import { 
+  Trophy, 
+  PartyPopper, 
+  ThumbsUp, 
+  Award, 
+  // Timer
+} from 'lucide-react';
 import type { Question } from '../../types/quizTypes';
+import { showCompletedQuizWarning } from '../../utils/showCompletedQuizWarning';
 
 interface QuizResultsProps {
   statistics: {
@@ -10,6 +17,7 @@ interface QuizResultsProps {
     solvedCount: number;
     allSolved: boolean;
     totalTries: number;
+    elapsedTime: number;
   };
   wrongQuestions: Array<Question & { index: number; wasCorrect: boolean }>;
   onRestart: () => void;
@@ -26,7 +34,14 @@ export default function QuizResults({
   onBack,
   onHome,
 }: QuizResultsProps) {
-  const { correctCount, totalAnswered, percentage, totalQuestions, allSolved, totalTries } = statistics;
+  const { correctCount, totalAnswered, percentage, totalQuestions, allSolved, totalTries, elapsedTime } = statistics;
+
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -53,6 +68,10 @@ export default function QuizResults({
               </div>
               <div className="text-lg text-gray-700 mb-2">
                 Benötigte Durchläufe: {totalTries}
+              </div>
+              <div className="text-lg font-semibold text-indigo-600">
+                {/* <Timer /> */}
+                Zeit: {formatTime(elapsedTime)}
               </div>
             </>
           ) : (
@@ -88,7 +107,13 @@ export default function QuizResults({
         )}
         <div className="flex flex-col sm:flex-row gap-4">
           <button
-            onClick={onRestart}
+            onClick={() => {
+              if (allSolved && wrongQuestions.length === 0) {
+                showCompletedQuizWarning(onRestart);
+              } else {
+                onRestart();
+              }
+            }}
             className="flex-1 bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
             title="Nochmal spielen"
             aria-label="Nochmal spielen"

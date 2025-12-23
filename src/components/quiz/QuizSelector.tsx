@@ -1,8 +1,9 @@
-import { Play, CheckCircle2 } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { Quiz } from '../../types/quizTypes';
 import type { UserQuizProgress } from '../../types/userProgress';
 import { loadAllUserProgress } from '../../utils/loadAllUserProgress';
+import { showCompletedQuizWarning } from '../../utils/showCompletedQuizWarning';
 
 
 interface QuizSelectorProps {
@@ -57,8 +58,7 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
           const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
           if (progress.completed) {
             progressElement = (
-              <span className="flex items-center">
-                <CheckCircle2 className="w-4 h-4 mr-1 text-green-300" />
+              <span className="inline-flex items-center">
                 Abgeschlossen ({solved}/{total})
               </span>
             );
@@ -74,7 +74,11 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
             <button
               onClick={() => {
                 try {
-                  onSelect(quiz);
+                  if (progress?.completed) {
+                    showCompletedQuizWarning(() => onSelect(quiz));
+                  } else {
+                    onSelect(quiz);
+                  }
                 } catch (error) {
                   console.error('Error selecting quiz:', error);
                 }
@@ -93,12 +97,12 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
                     loading ? (
                       <span className="text-xs text-indigo-200">Lade Fortschritt...</span>
                     ) : progressElement ? (
-                      <>
+                      <div className="flex flex-wrap gap-2">
                         <span className="text-xs text-green-200">Fortschritt: {progressElement}</span>
                         {triesText && (
-                          <span className="text-xs text-indigo-100 ml-2">{triesText}</span>
+                          <span className="text-xs text-indigo-100">{triesText}</span>
                         )}
-                      </>
+                      </div>
                     ) : (
                       <span className="text-xs text-indigo-200">Noch nicht gestartet</span>
                     )

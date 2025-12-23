@@ -11,6 +11,7 @@ interface QuizQuestionProps {
   onAnswerSelect: (answer: Answer & { originalIndex: number }) => void;
   onNext: () => void;
   onHome: () => void;
+  elapsedTime: number;
 }
 
 export default function QuizQuestion({
@@ -23,16 +24,26 @@ export default function QuizQuestion({
   onAnswerSelect,
   onNext,
   onHome,
+  elapsedTime,
 }: QuizQuestionProps) {
   const showFeedback = selectedAnswer !== null;
+
+  // Format elapsed time
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl w-full">
-        {/* Progress */}
+        {/* Progress and Timer */}
         <div className="mb-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>Frage {currentQuestion + 1} von {totalQuestions}</span>
+            <span className="font-mono text-indigo-600 font-semibold">{formatTime(elapsedTime)}</span>
             <span>{Math.round(((currentQuestion + 1) / totalQuestions) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
