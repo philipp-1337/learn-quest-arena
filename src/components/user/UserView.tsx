@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { 
   Pencil, 
   ArrowLeft, 
-  CheckCircle2, 
-  XCircle, 
+  CheckCircle2,
+  ChevronDown,
+  Zap,
   // Timer 
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { loadAllUserProgress } from '../../utils/loadAllUserProgress';
 import type { UserQuizProgress } from '../../types/userProgress';
-import type { Subject } from '../../types/quizTypes';
+import type { Subject, Quiz } from '../../types/quizTypes';
 
 import { CustomToast } from '../misc/CustomToast';
 
@@ -26,16 +27,140 @@ interface UserDashboardProps {
   subjects: Subject[];
 }
 
-const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => {
-  const [progressList, setProgressList] = useState<UserQuizProgress[]>([]);
-  const [loading, setLoading] = useState(true);
+interface ProgressItemWithQuiz extends UserQuizProgress {
+  quiz?: Quiz;
+}
 
-  // Format time from milliseconds
+const ProgressAccordionItem: React.FC<{
+  progress: ProgressItemWithQuiz;
+  isOpen: boolean;
+  onToggle: () => void;
+}> = ({ progress, isOpen, onToggle }) => {
+  const quiz = progress.quiz;
+  const displayTitle = quiz?.shortTitle || quiz?.title || progress.quizId;
+  const isCompleted = progress.completed;
+  const totalQuestions = Object.keys(progress.questions).length;
+  const correctAnswers = Object.values(progress.questions).filter(q => q.answered).length;
+  const completionPercentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-colors">
+      <button
+        onClick={onToggle}
+        className={`w-full px-4 py-4 flex items-center justify-between transition-colors ${
+          isCompleted 
+            ? 'bg-green-50 hover:bg-green-100' 
+            : completionPercentage > 0
+            ? 'bg-yellow-50 hover:bg-yellow-100'
+            : 'bg-gray-50 hover:bg-gray-100'
+        }`}
+      >
+        <div className="flex items-center gap-3 flex-1 text-left">
+          {/* Status Icon */}
+          {isCompleted ? (
+            <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+          ) : (
+            <Zap className="w-5 h-5 text-yellow-500 flex-shrink-0" />
+          )}
+          
+          {/* Title */}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-gray-900 truncate">{displayTitle}</h3>
+            <p className="text-xs text-gray-500 mt-1">
+              {correctAnswers}/{totalQuestions} korrekt ({completionPercentage}%)
+            </p>
+          </div>
+
+          {/* Status Badge */}
+          {isCompleted && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-200 text-green-800 text-xs font-medium flex-shrink-0">
+              100%
+            </span>
+          )}
+        </div>
+
+        {/* Chevron */}
+        <ChevronDown
+          className={`w-5 h-5 text-gray-600 flex-shrink-0 ml-2 transition-transform ${
+            isOpen ? 'transform rotate-180' : ''
+          }`}
+        />
+      </button>
+
+      {/* Accordion Content */}
+      {isOpen && (
+        <div className="px-4 py-4 bg-white border-t border-gray-200 space-y-3">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Versuche</p>
+              <p className="text-lg font-semibold text-gray-900 mt-1">{progress.totalTries}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Fortschritt</p>
+              <p className="text-lg font-semibold text-gray-900 mt-1">{correctAnswers}/{totalQuestions}</p>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Letzte Aktivität</p>
+            <p className="text-sm text-gray-700">
+              {new Date(progress.lastUpdated).toLocaleString('de-DE', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>
+          </div>
+
+          {isCompleted && progress.completedTime && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs text-green-700 uppercase tracking-wide font-semibold">Zeit zum 100% Lösen</p>
+              <p className="text-sm font-semibold text-green-900 mt-1">{formatTime(progress.completedTime)}</p>
+            </div>
+          )}
+
+          {/* Progress Bar */}
+          <div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className={`h-2 rounded-full transition-all ${
+                  isCompleted ? 'bg-green-500' : 'bg-yellow-500'
+                }`}
+                style={{ width: `${completionPercentage}%` }}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-2 text-right">{completionPercentage}%</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => {
+  const [progressList, setProgressList] = useState<ProgressItemWithQuiz[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+
+  const findQuizById = (quizId: string): Quiz | undefined => {
+    for (const subject of subjects) {
+      for (const cls of subject.classes) {
+        for (const topic of cls.topics) {
+          const quiz = topic.quizzes.find(q => q.id === quizId);
+          if (quiz) return quiz;
+        }
+      }
+    }
+    return undefined;
   };
 
   useEffect(() => {
@@ -44,8 +169,22 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
       try {
         const progressObj: Record<string, UserQuizProgress> = await loadAllUserProgress(username);
         const allProgress: UserQuizProgress[] = Object.values(progressObj);
-        allProgress.sort((a, b) => b.lastUpdated - a.lastUpdated);
-        setProgressList(allProgress);
+        allProgress.sort((a, b) => {
+          // Zuerst incomplete nach oben (false > true = -1)
+          if (a.completed !== b.completed) {
+            return a.completed ? 1 : -1;
+          }
+          // Dann nach lastUpdated absteigend
+          return b.lastUpdated - a.lastUpdated;
+        });
+
+        // Quiz-Daten enrichen
+        const enrichedProgress: ProgressItemWithQuiz[] = allProgress.map(progress => ({
+          ...progress,
+          quiz: findQuizById(progress.quizId),
+        }));
+
+        setProgressList(enrichedProgress);
       } catch (e) {
         setProgressList([]);
       } finally {
@@ -53,54 +192,39 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
       }
     }
     fetchProgress();
-  }, [username]);
+  }, [username, subjects]);
+
+  const toggleItem = (quizId: string) => {
+    const newOpenItems = new Set(openItems);
+    if (newOpenItems.has(quizId)) {
+      newOpenItems.delete(quizId);
+    } else {
+      newOpenItems.add(quizId);
+    }
+    setOpenItems(newOpenItems);
+  };
 
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Dein Fortschritt</h1>
       {loading ? (
-        <div>Lade Fortschritt...</div>
+        <div className="text-gray-600">Lade Fortschritt...</div>
       ) : progressList.length === 0 ? (
-        <div>{username === "Gast" ? "Wähle deinen Namen, wenn du Fortschritt speichern willst." : "Kein Fortschritt vorhanden."}</div>
+        <div className="text-gray-600">
+          {username === "Gast"
+            ? "Wähle deinen Namen, wenn du Fortschritt speichern willst."
+            : "Kein Fortschritt vorhanden."}
+        </div>
       ) : (
-        <div className="space-y-6">
-          {progressList.map((progress) => {
-            // Quiz-Titel anhand quizId suchen
-            let quizTitle = progress.quizId;
-            subjects.forEach(subject => {
-              subject.classes.forEach(cls => {
-                cls.topics.forEach(topic => {
-                  const quiz = topic.quizzes.find(q => q.id === progress.quizId);
-                  if (quiz) quizTitle = quiz.title;
-                });
-              });
-            });
-            return (
-              <div key={progress.quizId} className="border rounded-lg p-4 bg-gray-50">
-                <div className="font-semibold text-lg mb-2">Quiz: {quizTitle}</div>
-                <div className="mb-1 flex items-center">
-                  Abgeschlossen: {progress.completed ? <CheckCircle2 className="w-5 h-5 text-green-600 ml-2" /> : <XCircle className="w-5 h-5 text-red-600 ml-2" />}
-                </div>
-                <div className="mb-1">Versuche: {progress.totalTries}</div>
-                <div className="mb-1">Datum: {new Date(progress.lastUpdated).toLocaleString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
-                <div className="mb-1">
-                  Fragen: {
-                    (() => {
-                      const total = Object.keys(progress.questions).length;
-                      const correct = Object.values(progress.questions).filter(q => q.answered).length;
-                      return `${correct}/${total} korrekt`;
-                    })()
-                  }
-                </div>
-                {progress.completed && progress.completedTime && (
-                  <div className="mb-1 text-indigo-600 font-semibold">
-                    Zeit zum 100% Lösen: {formatTime(progress.completedTime)}
-                    {/* <Timer className="w-4 h-4 inline-block ml-1" /> */}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+        <div className="space-y-2">
+          {progressList.map((progress) => (
+            <ProgressAccordionItem
+              key={progress.quizId}
+              progress={progress}
+              isOpen={openItems.has(progress.quizId)}
+              onToggle={() => toggleItem(progress.quizId)}
+            />
+          ))}
         </div>
       )}
     </div>
