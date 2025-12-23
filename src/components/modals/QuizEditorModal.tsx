@@ -79,6 +79,36 @@ export default function QuizEditorModal({
     });
   };
 
+  const handleAddAnswer = () => {
+    if (!currentQuestion || currentQuestion.answers.length >= 5) return;
+    const newAnswers = [
+      ...currentQuestion.answers,
+      {
+        type: currentQuestion.answerType,
+        content: '',
+        alt: currentQuestion.answerType === 'image' ? '' : undefined,
+      },
+    ];
+    setCurrentQuestion({
+      ...currentQuestion,
+      answers: newAnswers,
+    });
+  };
+
+  const handleRemoveAnswer = (index: number) => {
+    if (!currentQuestion || currentQuestion.answers.length <= 2) return;
+    const newAnswers = currentQuestion.answers.filter((_, i) => i !== index);
+    let newCorrectIndex = currentQuestion.correctAnswerIndex;
+    if (newCorrectIndex >= newAnswers.length) {
+      newCorrectIndex = newAnswers.length - 1;
+    }
+    setCurrentQuestion({
+      ...currentQuestion,
+      answers: newAnswers,
+      correctAnswerIndex: newCorrectIndex,
+    });
+  };
+
   const handleAnswerTypeChange = (type: string) => {
     if (!currentQuestion) return;
     setCurrentQuestion({
@@ -165,6 +195,16 @@ export default function QuizEditorModal({
   const handleSaveQuestion = () => {
     if (!currentQuestion || !currentQuestion.question.trim()) {
       alert('Bitte gib eine Frage ein!');
+      return;
+    }
+
+    if (currentQuestion.answers.length < 2) {
+      alert('Mindestens 2 Antworten erforderlich!');
+      return;
+    }
+
+    if (currentQuestion.answers.length > 5) {
+      alert('Maximal 5 Antworten erlaubt!');
       return;
     }
 
@@ -395,9 +435,20 @@ export default function QuizEditorModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Antworten (3 Stück)
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Antworten ({currentQuestion.answers.length}/5)
+                </label>
+                <button
+                  onClick={handleAddAnswer}
+                  disabled={currentQuestion.answers.length >= 5}
+                  className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  title="Antwort hinzufügen"
+                  aria-label="Antwort hinzufügen"
+                >
+                  + Hinzufügen
+                </button>
+              </div>
 
               {currentQuestion.answerType === 'text' ? (
                 <div className="space-y-2">
@@ -431,6 +482,8 @@ export default function QuizEditorModal({
                             ? 'bg-green-600 text-white'
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                           }`}
+                        title={currentQuestion.correctAnswerIndex === i ? 'Korrekte Antwort' : 'Als korrekt markieren'}
+                        aria-label={currentQuestion.correctAnswerIndex === i ? 'Korrekte Antwort' : 'Als korrekt markieren'}
                       >
                         {currentQuestion.correctAnswerIndex === i ? (
                           <span className="flex items-center gap-1">
@@ -441,6 +494,15 @@ export default function QuizEditorModal({
                             <Check className="w-4 h-4 inline text-gray-500" />
                           </span>
                         )}
+                      </button>
+                      <button
+                        onClick={() => handleRemoveAnswer(i)}
+                        disabled={currentQuestion.answers.length <= 2}
+                        className="px-3 py-3 rounded-lg text-red-600 hover:bg-red-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                        title="Antwort löschen"
+                        aria-label="Antwort löschen"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
@@ -530,6 +592,8 @@ export default function QuizEditorModal({
                               ? 'bg-green-600 text-white'
                               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
+                          title={currentQuestion.correctAnswerIndex === i ? 'Korrekte Antwort' : 'Als korrekt markieren'}
+                          aria-label={currentQuestion.correctAnswerIndex === i ? 'Korrekte Antwort' : 'Als korrekt markieren'}
                         >
                           {currentQuestion.correctAnswerIndex === i ? (
                             <span className="flex items-center gap-1">
@@ -540,6 +604,15 @@ export default function QuizEditorModal({
                               <Check className="w-4 h-4 inline text-gray-500" />
                             </span>
                           )}
+                        </button>
+                        <button
+                          onClick={() => handleRemoveAnswer(i)}
+                          disabled={currentQuestion.answers.length <= 2}
+                          className="px-3 py-3 rounded-lg text-red-600 hover:bg-red-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap self-start"
+                          title="Antwort löschen"
+                          aria-label="Antwort löschen"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>

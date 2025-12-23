@@ -57,7 +57,6 @@ export const animalNames = [
   "Robbe",
   "Schaf",
   "Schlange",
-  "Leopard",
   "Seehund",
   "Seelöwe",
   "Skorpion",

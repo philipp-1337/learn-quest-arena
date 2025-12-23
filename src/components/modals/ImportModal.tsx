@@ -100,8 +100,8 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
       const [subject, classLevel, topic, quiz, question, ans1, ans2, ans3, correctStr] = values;
       const correctAnswer = parseInt(correctStr) - 1; // Convert 1-based to 0-based
 
-      if (correctAnswer < 0 || correctAnswer > 2) {
-        throw new Error(`Zeile ${i + 1}: CorrectAnswer muss 1, 2 oder 3 sein`);
+      if (correctAnswer < 0 || correctAnswer > 4) {
+        throw new Error(`Zeile ${i + 1}: CorrectAnswer muss zwischen 1 und 5 sein`);
       }
 
       if (!grouped[subject]) grouped[subject] = {};
@@ -259,11 +259,11 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
 
           // Validate questions
           for (const q of quiz.questions) {
-            if (!q.question || !q.answers || q.answers.length !== 3) {
-              throw new Error(`Ungültige Frage in Quiz "${quiz.title}": Jede Frage braucht Text und genau 3 Antworten`);
+            if (!q.question || !q.answers || q.answers.length < 2 || q.answers.length > 5) {
+              throw new Error(`Ungültige Frage in Quiz "${quiz.title}": Jede Frage braucht Text und 2-5 Antworten`);
             }
-            if (q.correctAnswerIndex < 0 || q.correctAnswerIndex > 2) {
-              throw new Error(`Ungültiger correctAnswerIndex in Quiz "${quiz.title}": Muss 0, 1 oder 2 sein`);
+            if (q.correctAnswerIndex < 0 || q.correctAnswerIndex >= q.answers.length) {
+              throw new Error(`Ungültiger correctAnswerIndex in Quiz "${quiz.title}": Muss zwischen 0 und ${q.answers.length - 1} sein`);
             }
           }
 
@@ -459,7 +459,7 @@ Mathematik,Klasse 3,Multiplikation,Einmaleins,Was ist 3 × 4?,12,10,15,1
 Mathematik,Klasse 3,Multiplikation,Einmaleins,Was ist 5 × 2?,10,12,8,1`}
                 </pre>
                 <p className="text-xs text-gray-600 mt-2">
-                  <strong>Hinweis:</strong> CorrectAnswer ist 1-basiert (1, 2 oder 3)
+                  <strong>Hinweis:</strong> CorrectAnswer ist 1-basiert (1 bis 5)
                 </p>
               </div>
             </div>
