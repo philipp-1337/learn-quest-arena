@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Trophy, Home, ArrowLeft, Shield } from 'lucide-react';
-import type { QuizChallenge, Question, Answer } from '../../types/quizTypes';
+import type { QuizChallenge, Question, Answer, Subject } from '../../types/quizTypes';
 import type { UserQuizChallengeProgress } from '../../types/userProgress';
 import QuizQuestion from './QuizQuestion';
 import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
+import useFirestore from '../../hooks/useFirestore';
 
 interface QuizChallengePlayerProps {
   challenge: QuizChallenge;
@@ -22,6 +23,7 @@ export default function QuizChallengePlayer({
   initialProgress,
   onProgressUpdate,
 }: QuizChallengePlayerProps) {
+  const { fetchCollection } = useFirestore();
   const [currentLevel, setCurrentLevel] = useState(initialProgress?.currentLevel || 1);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [shuffledAnswers, setShuffledAnswers] = useState<Array<Answer & { originalIndex: number }>>([]);
@@ -33,6 +35,37 @@ export default function QuizChallengePlayer({
   const [safetyPrize, setSafetyPrize] = useState(0);
   const [startTime] = useState(() => Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [questionMap, setQuestionMap] = useState<Map<string, Question>>(new Map());
+
+  // Load all questions from subjects and create a map
+  useEffect(() => {
+    const loadQuestions = async () => {
+      try {
+        const subjects = await fetchCollection('subjects');
+        const qMap = new Map<string, Question>();
+        
+        subjects.forEach((subjectData: { id: string; name?: string; classes?: unknown[] }) => {
+          const subject = subjectData as Subject;
+          subject.classes?.forEach((cls) => {
+            cls.topics?.forEach((topic) => {
+              topic.quizzes?.forEach((quiz) => {
+                quiz.questions?.forEach((question, index) => {
+                  const questionId = question.id || `${quiz.id}_q${index}`;
+                  qMap.set(questionId, question);
+                });
+              });
+            });
+          });
+        });
+        
+        setQuestionMap(qMap);
+      } catch (error) {
+        console.error('Error loading questions:', error);
+      }
+    };
+    
+    loadQuestions();
+  }, [fetchCollection]);
 
   // Update elapsed time
   useEffect(() => {
@@ -60,16 +93,26 @@ export default function QuizChallengePlayer({
 
   // Load a random question for the current level
   useEffect(() => {
-    if (gameOver) return;
+    if (gameOver || questionMap.size === 0) return;
     
     const levelData = challenge.levels.find(l => l.level === currentLevel);
-    if (!levelData || levelData.questions.length === 0) {
+    if (!levelData || !levelData.questionIds || levelData.questionIds.length === 0) {
       console.error(`No questions found for level ${currentLevel}`);
       return;
     }
 
+    // Get actual questions from IDs
+    const levelQuestions = levelData.questionIds
+      .map(id => questionMap.get(id))
+      .filter((q): q is Question => q !== undefined);
+
+    if (levelQuestions.length === 0) {
+      console.error(`No valid questions found for level ${currentLevel}`);
+      return;
+    }
+
     // Select a random question from this level
-    const randomQuestion = levelData.questions[Math.floor(Math.random() * levelData.questions.length)];
+    const randomQuestion = levelQuestions[Math.floor(Math.random() * levelQuestions.length)];
     setCurrentQuestion(randomQuestion);
     
     // Shuffle answers
@@ -83,7 +126,7 @@ export default function QuizChallengePlayer({
     setShuffledAnswers(shuffled);
     setSelectedAnswer(null);
     setShowResult(false);
-  }, [currentLevel, gameOver, challenge]);
+  }, [currentLevel, gameOver, challenge, questionMap]);
 
   const handleAnswerSelect = (answer: Answer & { originalIndex: number }) => {
     if (selectedAnswer !== null || !currentQuestion) return;
