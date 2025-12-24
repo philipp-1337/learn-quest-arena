@@ -4,6 +4,8 @@
 
 Der Quiz-Challenge Modus ist eine neue Spielvariante, die dem bekannten TV-Format "Wer wird Millionär?" nachempfunden ist. Aus urheberrechtlichen Gründen wurde ein eigener Name verwendet.
 
+**Wichtig:** Admins erstellen keine neuen Fragen für Challenges. Stattdessen wählen sie aus dem Pool der bereits vorhandenen Quiz-Fragen aus.
+
 ## Features
 
 ### 15 Gewinnstufen
@@ -50,7 +52,7 @@ interface QuizChallengeLevel {
   level: number;
   prize: number;
   isSafetyLevel: boolean;
-  questions: Question[];
+  questionIds: string[];  // References to questions by ID
 }
 
 interface QuizChallenge {
@@ -60,6 +62,11 @@ interface QuizChallenge {
   hidden?: boolean;
 }
 ```
+
+**Wichtig**: Challenges speichern nur Referenzen (`questionIds`) zu Fragen, nicht die vollständigen Fragen. Dies:
+- Vermeidet Datenduplikation
+- Ermöglicht zentrale Verwaltung von Fragen
+- Aktualisierungen an Fragen wirken sich automatisch auf Challenges aus
 
 #### User Progress
 ```typescript
@@ -86,13 +93,15 @@ interface UserQuizChallengeProgress {
 #### QuizChallengeManager
 - Admin-Interface zur Verwaltung der Quiz-Challenges
 - Ermöglicht das Erstellen von Challenges
-- Erlaubt das Hinzufügen/Bearbeiten von Fragen pro Level
+- **Fragen-Selektor** zeigt alle verfügbaren Fragen aus dem Quiz-Pool
+- Erlaubt Auswahl von Fragen pro Level (mit Checkboxen)
 - Visualisiert die Gewinnstufen
+- Speichert nur Fragen-IDs (keine Duplikation)
 
 ### Firestore Collections
 
 #### quizChallenges
-Speichert die Quiz-Challenge-Definitionen mit allen 15 Levels und deren Fragen.
+Speichert die Quiz-Challenge-Definitionen mit Referenzen zu Fragen.
 
 ```javascript
 {
@@ -103,13 +112,15 @@ Speichert die Quiz-Challenge-Definitionen mit allen 15 Levels und deren Fragen.
       level: 1,
       prize: 50,
       isSafetyLevel: false,
-      questions: [...]
+      questionIds: ["quiz123_q0", "quiz456_q2", "quiz789_q1"]
     },
     // ... weitere Levels
   ],
   hidden: false
 }
 ```
+
+**Hinweis**: `questionIds` enthält IDs im Format `${quiz.id}_q${index}` die auf Fragen in der subjects-Collection verweisen.
 
 #### quizChallengeProgress
 Speichert den Fortschritt der Benutzer.
@@ -133,15 +144,22 @@ Speichert den Fortschritt der Benutzer.
 
 1. **Admin-Bereich öffnen**: Klicke auf das Zahnrad-Symbol und melde dich an
 2. **Quiz-Challenge Tab wählen**: Im Admin-Bereich zum "Quiz-Challenge" Tab wechseln
-3. **Neue Challenge erstellen**: Auf "Neue Challenge" klicken und einen Namen eingeben
-4. **Fragen hinzufügen**: 
+3. **Neue Challenge erstellen**: 
+   - Auf "Neue Challenge" klicken
+   - Namen eingeben (z.B. "Wissens-Challenge 2024")
+   - Challenge wird mit 15 leeren Levels erstellt
+4. **Fragen pro Level auswählen**: 
    - Ein Level auswählen (1-15)
-   - "Frage hinzufügen" klicken
-   - Frage und 4 Antwortmöglichkeiten eingeben
-   - Richtige Antwort markieren
-   - Speichern
+   - "Fragen auswählen" klicken
+   - Aus dem Pool vorhandener Fragen mit Checkboxen auswählen
+   - "Auswahl speichern" klicken
 
-**Empfehlung**: Füge mindestens 5-10 Fragen pro Level hinzu, damit Spieler bei mehreren Durchgängen unterschiedliche Fragen erhalten.
+**Fragen-Pool**: Alle Fragen aus den bestehenden Standard-Quizzes stehen zur Auswahl. Der Fragen-Selektor zeigt:
+- Die Frage selbst
+- Aus welchem Quiz/Thema sie stammt
+- Checkbox zum Auswählen
+
+**Empfehlung**: Wähle 5-10 Fragen pro Level, damit Spieler bei mehreren Durchgängen unterschiedliche Fragen erhalten.
 
 ### Für Spieler
 
@@ -170,11 +188,14 @@ Speichert den Fortschritt der Benutzer.
 ## Best Practices
 
 ### Fragen erstellen
-- **Level 1-3**: Einfache Wissensfragen, Allgemeinwissen
-- **Level 4-6**: Mittelschwere Fragen, spezifischeres Wissen
-- **Level 7-9**: Schwierigere Fragen, Detailwissen
-- **Level 10-12**: Sehr schwierige Fragen
-- **Level 13-15**: Expertenwissen, sehr spezifische Fragen
+- **Erstelle zuerst Standard-Quizzes** im "Standard Quiz" Tab des Admin-Bereichs
+- Diese Fragen stehen dann automatisch im Quiz-Challenge Pool zur Verfügung
+- Kategorisiere Fragen nach Schwierigkeit in verschiedenen Quizzes:
+  - **Einfache Fragen**: Für Levels 1-3
+  - **Mittelschwere Fragen**: Für Levels 4-6
+  - **Schwierige Fragen**: Für Levels 7-9
+  - **Sehr schwierige Fragen**: Für Levels 10-12
+  - **Expertenfragen**: Für Levels 13-15
 
 ### Kategorien
 Empfohlene Kategorien für ausgewogene Challenges:
@@ -212,13 +233,19 @@ Zukünftige Features könnten beinhalten:
 
 ### Challenge wird nicht angezeigt
 - Prüfe ob die Challenge als `hidden: false` markiert ist
-- Stelle sicher, dass mindestens ein Level Fragen enthält
+- Stelle sicher, dass **mindestens ein Level Fragen-IDs enthält**
 - Überprüfe die Firebase-Verbindung
 
 ### Fragen werden nicht geladen
+- **Stelle sicher, dass Standard-Quizzes mit Fragen existieren**
 - Überprüfe die Firestore-Regeln
-- Stelle sicher, dass die Questions-Array für das Level nicht leer ist
+- Prüfe ob die Fragen-IDs im Format `${quiz.id}_q${index}` korrekt sind
 - Prüfe die Browser-Konsole auf Fehler
+
+### Fragen-Pool ist leer
+- **Erstelle zuerst Standard-Quizzes** im "Standard Quiz" Tab
+- Jedes Quiz mit Fragen erscheint automatisch im Pool
+- Lade die Seite neu, falls kürzlich Quizzes hinzugefügt wurden
 
 ### Fortschritt wird nicht gespeichert
 - Benutzer muss eingeloggt sein (nicht "Gast")
