@@ -12,6 +12,7 @@ interface QuizQuestionProps {
   onNext: () => void;
   onHome: () => void;
   elapsedTime: number;
+  showResultOverride?: boolean; // For Quiz Challenge mode
 }
 
 export default function QuizQuestion({
@@ -25,8 +26,9 @@ export default function QuizQuestion({
   onNext,
   onHome,
   elapsedTime,
+  showResultOverride,
 }: QuizQuestionProps) {
-  const showFeedback = selectedAnswer !== null;
+  const showFeedback = showResultOverride !== undefined ? showResultOverride : selectedAnswer !== null;
 
   // Format elapsed time
   const formatTime = (ms: number) => {
