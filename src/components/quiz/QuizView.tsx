@@ -2,7 +2,7 @@ import UserView from "../user/UserView";
 import { useEffect, useState } from "react";
 import UsernamePicker from "../user/UsernamePicker";
 import UsernameManualEntry from "../user/UsernameManualEntry";
-import { Cog, Sword, User } from "lucide-react";
+import { Cog, Sword, User, Trophy } from "lucide-react";
 import { useQuizState } from "../../hooks/useQuizState";
 import { useQuizNavigation } from "../../hooks/useQuizNavigation";
 import Breadcrumb from "./Breadcrumb";
@@ -11,8 +11,11 @@ import ClassSelector from "./ClassSelector";
 import TopicSelector from "./TopicSelector";
 import { QuizSelector } from "./QuizSelector";
 import QuizPlayer from "./QuizPlayer";
+import QuizChallengePlayer from "./QuizChallengePlayer";
 import Footer from "../footer/Footer";
-import type { Subject, Quiz } from "../../types/quizTypes";
+import type { Subject, Quiz, QuizChallenge } from "../../types/quizTypes";
+import type { UserQuizChallengeProgress } from "../../types/userProgress";
+import useFirestore from "../../hooks/useFirestore";
 
 interface QuizViewProps {
   subjects: Subject[];
@@ -23,8 +26,12 @@ export default function QuizView({
   subjects: initialSubjects,
   onAdminClick,
 }: QuizViewProps) {
+  const { fetchCollection, saveDocument } = useFirestore();
   const [subjects, setSubjects] = useState(initialSubjects);
   const [loading, setLoading] = useState(true);
+  const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
+  const [selectedChallenge, setSelectedChallenge] = useState<QuizChallenge | null>(null);
+  const [challengeProgress, setChallengeProgress] = useState<UserQuizChallengeProgress | null>(null);
   // Username ist standardmäßig "Gast", außer es ist ein anderer im LocalStorage gespeichert
   const [username, setUsername] = useState<string>(() => {
     const stored = localStorage.getItem("lqa_username");
@@ -66,6 +73,25 @@ export default function QuizView({
       setLoading(false);
     }
   }, [initialSubjects]);
+
+  // Load quiz challenges
+  useEffect(() => {
+    const loadChallenges = async () => {
+      try {
+        const loadedChallenges = await fetchCollection("quizChallenges");
+        const formattedChallenges: QuizChallenge[] = loadedChallenges.map((challenge: any) => ({
+          id: challenge.id,
+          title: challenge.title || "",
+          levels: challenge.levels || [],
+          hidden: challenge.hidden || false,
+        }));
+        setChallenges(formattedChallenges.filter(c => !c.hidden));
+      } catch (error) {
+        console.error('Error loading challenges:', error);
+      }
+    };
+    loadChallenges();
+  }, [fetchCollection]);
 
   const handleReset = () => {
     resetSelection();
@@ -130,6 +156,7 @@ export default function QuizView({
 
   const handleBackFromQuiz = () => {
     selectQuiz(null as any); // Explicit cast to satisfy TypeScript
+    setSelectedChallenge(null);
     navigateToHome();
   };
 
@@ -146,6 +173,31 @@ export default function QuizView({
     // Ensure selectTopic can handle null
     selectTopic(null as any); // Explicit cast to satisfy TypeScript
     navigateToClass(selectedSubject, selectedClass);
+  };
+
+  const handleChallengeSelect = async (challenge: QuizChallenge) => {
+    setSelectedChallenge(challenge);
+    // Load progress for this challenge
+    if (username && username !== "Gast") {
+      try {
+        const progress = await fetchCollection("quizChallengeProgress");
+        const userProgress = progress.find(
+          (p: any) => p.username === username && p.challengeId === challenge.id
+        );
+        if (userProgress) {
+          setChallengeProgress(userProgress as unknown as UserQuizChallengeProgress);
+        }
+      } catch (error) {
+        console.error('Error loading challenge progress:', error);
+      }
+    }
+  };
+
+  const handleChallengeProgressUpdate = async (progress: UserQuizChallengeProgress) => {
+    setChallengeProgress(progress);
+    if (username && username !== "Gast") {
+      await saveDocument(`quizChallengeProgress/${username}_${progress.challengeId}`, progress);
+    }
   };
 
   if (loading) {
@@ -222,6 +274,20 @@ export default function QuizView({
         onBack={handleBackFromQuiz}
         onHome={handleReset}
         username={username}
+      />
+    );
+  }
+
+  // Show Quiz Challenge Player if a challenge is selected
+  if (selectedChallenge) {
+    return (
+      <QuizChallengePlayer
+        challenge={selectedChallenge}
+        onBack={handleBackFromQuiz}
+        onHome={handleReset}
+        username={username !== "Gast" ? username : undefined}
+        initialProgress={challengeProgress || undefined}
+        onProgressUpdate={handleChallengeProgressUpdate}
       />
     );
   }
@@ -312,6 +378,38 @@ export default function QuizView({
             onNavigateToClass={handleNavigateToClass}
           />
         </div>
+
+        {/* Quiz Challenge Section - Show before subject selection */}
+        {!selectedSubject && challenges.length > 0 && (
+          <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl shadow-lg p-6 mb-5">
+            <div className="flex items-center gap-3 mb-4">
+              <Trophy className="w-8 h-8 text-yellow-600" />
+              <h2 className="text-2xl font-bold text-gray-900">Quiz-Challenge</h2>
+            </div>
+            <p className="text-gray-700 mb-4">
+              Stelle dich der ultimativen Herausforderung! Beantworte Fragen auf 15 verschiedenen Schwierigkeitsstufen und gewinne bis zu 1 Million Euro!
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {challenges.map((challenge) => (
+                <button
+                  key={challenge.id}
+                  onClick={() => handleChallengeSelect(challenge)}
+                  className="p-4 bg-white rounded-xl shadow hover:shadow-lg transition-shadow border-2 border-yellow-200 hover:border-yellow-400"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="text-left">
+                      <h3 className="text-lg font-bold text-gray-900">{challenge.title}</h3>
+                      <p className="text-sm text-gray-600">
+                        15 Levels • 2 Sicherheitsstufen
+                      </p>
+                    </div>
+                    <Trophy className="w-8 h-8 text-yellow-500" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Content - Conditional Rendering based on selection */}
         {!selectedSubject && (

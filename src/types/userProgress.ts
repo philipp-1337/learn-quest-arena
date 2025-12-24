@@ -26,3 +26,15 @@ export interface UserQuizProgress {
   lastUpdated: number;           // Timestamp
   completedTime?: number;        // Zeit in Millisekunden, die benötigt wurde um das Quiz zu 100% zu lösen
 }
+
+// Quiz Challenge Progress
+export interface UserQuizChallengeProgress {
+  username: string;
+  challengeId: string;
+  currentLevel: number;           // Aktuelles Level (1-15)
+  highestLevel: number;           // Höchstes erreichtes Level
+  highestPrize: number;           // Höchster erreichter Gewinn
+  safetyPrize: number;            // Gesicherter Gewinn (durch Sicherheitsstufe)
+  completed: boolean;             // Wurde die Challenge komplett abgeschlossen?
+  lastUpdated: number;            // Timestamp
+}

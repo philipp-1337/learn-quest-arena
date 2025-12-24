@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAuth, signOut } from "firebase/auth";
 import { Plus, Upload } from "lucide-react";
-import type { Subject } from "../../types/quizTypes";
+import type { Subject, QuizChallenge } from "../../types/quizTypes";
 import useFirestore from "../../hooks/useFirestore";
 import { useStatsCalculation } from "../../hooks/useStatsCalculation";
 import { useSubjectOperations } from "../../hooks/useSubjectOperations";
@@ -12,6 +12,7 @@ import QRCodeInfo from "./QRCodeInfo";
 import AddModal from "../modals/AddModal";
 import ImportModal from "../modals/ImportModal";
 import FlatQuizManager from "./FlatQuizManager";
+import QuizChallengeManager from "./QuizChallengeManager";
 
 // ============================================
 // ADMIN VIEW COMPONENT
@@ -32,6 +33,8 @@ export default function AdminView({
   const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
+  const [activeTab, setActiveTab] = useState<'quiz' | 'challenge'>('quiz');
   const auth = getAuth();
 
   // Custom Hooks
@@ -58,8 +61,21 @@ export default function AdminView({
 
   useEffect(() => {
     handleLoadSubjects();
+    handleLoadChallenges();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Load quiz challenges from Firestore on mount
+  const handleLoadChallenges = async () => {
+    const loadedChallenges = await fetchCollection("quizChallenges");
+    const formattedChallenges: QuizChallenge[] = loadedChallenges.map((challenge: any) => ({
+      id: challenge.id,
+      title: challenge.title || "",
+      levels: challenge.levels || [],
+      hidden: challenge.hidden || false,
+    }));
+    setChallenges(formattedChallenges);
+  };
 
   const handleLogout = () => {
     signOut(auth)
@@ -93,36 +109,71 @@ export default function AdminView({
 
           {/* Content Management */}
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 force-break" lang="de">Quiz verwalten</h2>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowImportModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-100 border border-green-300 rounded-md text-green-600 hover:text-green-700 hover:bg-green-200"
-                  title="Quiz importieren"
-                  aria-label="Quiz importieren"
-                >
-                  <Upload className="w-4 h-4" />
-                  <span className="max-[640px]:hidden">Quiz importieren</span>
-                </button>
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-100 border border-indigo-300 rounded-md text-indigo-600 hover:text-indigo-700 hover:bg-indigo-200"
-                  title="Fach hinzufügen"
-                  aria-label="Fach hinzufügen"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="max-[640px]:hidden">Fach hinzufügen</span>
-                </button>
-              </div>
+            {/* Tab Navigation */}
+            <div className="flex gap-4 mb-6 border-b">
+              <button
+                onClick={() => setActiveTab('quiz')}
+                className={`pb-3 px-4 font-semibold transition-colors ${
+                  activeTab === 'quiz'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Standard Quiz
+              </button>
+              <button
+                onClick={() => setActiveTab('challenge')}
+                className={`pb-3 px-4 font-semibold transition-colors ${
+                  activeTab === 'challenge'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Quiz-Challenge
+              </button>
             </div>
 
-            <div className="space-y-4">
-              <FlatQuizManager
-                subjects={subjects}
-                onSubjectsChange={setSubjects}
+            {activeTab === 'quiz' && (
+              <>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 force-break" lang="de">Quiz verwalten</h2>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowImportModal(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-100 border border-green-300 rounded-md text-green-600 hover:text-green-700 hover:bg-green-200"
+                      title="Quiz importieren"
+                      aria-label="Quiz importieren"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span className="max-[640px]:hidden">Quiz importieren</span>
+                    </button>
+                    <button
+                      onClick={() => setShowAddModal(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-indigo-100 border border-indigo-300 rounded-md text-indigo-600 hover:text-indigo-700 hover:bg-indigo-200"
+                      title="Fach hinzufügen"
+                      aria-label="Fach hinzufügen"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span className="max-[640px]:hidden">Fach hinzufügen</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <FlatQuizManager
+                    subjects={subjects}
+                    onSubjectsChange={setSubjects}
+                  />
+                </div>
+              </>
+            )}
+
+            {activeTab === 'challenge' && (
+              <QuizChallengeManager
+                challenges={challenges}
+                onChallengesChange={setChallenges}
               />
-            </div>
+            )}
           </div>
 
           {/* QR Code Info */}

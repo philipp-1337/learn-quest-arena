@@ -40,3 +40,18 @@ export interface Answer {
   content: string;
   alt?: string;
 }
+
+// Quiz Challenge Mode (similar to "Who Wants to Be a Millionaire")
+export interface QuizChallengeLevel {
+  level: number;
+  prize: number;
+  isSafetyLevel: boolean;
+  questions: Question[];
+}
+
+export interface QuizChallenge {
+  id: string;
+  title: string;
+  levels: QuizChallengeLevel[];
+  hidden?: boolean;
+}
