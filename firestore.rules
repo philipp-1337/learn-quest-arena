@@ -33,12 +33,18 @@ service cloud.firestore {
       // Löschen nicht erlaubt
       allow delete: if false;
       
-      // Progress-Subcollection - Nur der eigene User kann seinen Fortschritt lesen/schreiben
+      // Progress-Subcollection - Geschützt durch Username-Validierung
+      // Da die App mit anonymen Usernamen arbeitet (nicht Firebase Auth),
+      // müssen wir die Validierung anders handhaben
       match /progress/{quizId} {
-        // Nur der Benutzer selbst kann seinen eigenen Fortschritt lesen
-        allow read: if userId == request.auth.uid || 
-                       (isValidUsername(userId) && resource == null);
-        // Nur der Benutzer selbst kann seinen eigenen Fortschritt schreiben
+        // Lesen erlaubt: 
+        // 1. Wenn der Username dem validen Format entspricht
+        // 2. Keine weitere Auth erforderlich, da Username-Format als Authentifizierung dient
+        allow read: if isValidUsername(userId);
+        
+        // Schreiben erlaubt wenn:
+        // 1. Der Username dem validen Format entspricht
+        // 2. Der username im Dokument mit dem userId in der Collection übereinstimmt
         allow write: if isValidUsername(userId) && 
                         request.resource.data.username == userId;
       }

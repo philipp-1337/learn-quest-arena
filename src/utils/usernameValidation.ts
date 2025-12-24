@@ -4,7 +4,15 @@ import { getFirestore, collection, doc, getDoc } from "firebase/firestore";
 // Sanitize username input to prevent injection attacks
 export function sanitizeUsername(username: string): string {
   // Remove any characters that are not alphanumeric, hyphens, or German umlauts
-  return username.replace(/[^A-Za-z0-9äöüßÄÖÜ-]/g, '');
+  const cleaned = username.replace(/[^A-Za-z0-9äöüßÄÖÜ-]/g, '');
+  
+  // Ensure the sanitized username still matches the expected format
+  // This prevents edge cases where sanitization creates invalid usernames
+  if (!cleaned.includes('-')) {
+    return '';
+  }
+  
+  return cleaned;
 }
 
 // Prüft, ob ein Username dem Generator-Format entspricht (Tiername + _ + 6 Zeichen)
@@ -13,7 +21,8 @@ export function isValidGeneratedUsername(username: string): boolean {
   const sanitized = sanitizeUsername(username);
   
   // Prevent excessively long usernames (max 50 characters)
-  if (sanitized.length > 50 || sanitized.length < 8) {
+  // Minimum is 10 characters: shortest animal name (3 chars) + hyphen + 6 chars
+  if (sanitized.length > 50 || sanitized.length < 10) {
     return false;
   }
   
