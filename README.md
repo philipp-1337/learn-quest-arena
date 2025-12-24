@@ -74,21 +74,31 @@ export default defineConfig([
 
 ## FIREBASE INTEGRATION INSTRUCTIONS
 
-WICHTIG: Diese Version verwendet Mock-Daten für Demo-Zwecke.
+### Security Setup (WICHTIG!)
+
+**Vor dem ersten Deployment:**
+
+1. Erstelle eine `.env.local` Datei basierend auf `.env.example`
+2. Füge deine echten Firebase Credentials ein
+3. Stelle sicher, dass `.env.local` NICHT in Git committed wird
+
+Siehe `SECURITY_ANALYSIS.md` für eine vollständige Sicherheitsanalyse und Empfehlungen.
+
+### Firebase Setup
 
 Für die Produktion mit Firebase:
 
 1. Exportiere diesen Code in dein eigenes Projekt
 2. Installiere Firebase: npm install firebase
-3. Erstelle firebase.js mit deiner Config
-4. Ersetze alle Mock-Funktionen mit Firebase-Aufrufen
-5. Implementiere Firestore Security Rules
+3. Erstelle `.env.local` mit deiner Config (siehe `.env.example`)
+4. Deploye Firestore Security Rules: `firebase deploy --only firestore:rules`
+5. Implementiere optionale Sicherheitsmaßnahmen (siehe SECURITY_ANALYSIS.md)
 
 Detaillierte Anleitung für Firebase-Integration:
 
 - Authentication: signInWithEmailAndPassword für Login
 - Firestore: collection/doc/getDocs für Datenzugriff
-- Security Rules: Lesezugriff für alle, Schreibzugriff nur für authentifizierte User
+- Security Rules: Siehe `firestore.rules` für aktuelle Rules
 - Storage: getStorage/uploadBytes/getDownloadURL für Bilder
 
 ROUTING:

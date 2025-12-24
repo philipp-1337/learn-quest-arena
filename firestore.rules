@@ -33,9 +33,14 @@ service cloud.firestore {
       // Löschen nicht erlaubt
       allow delete: if false;
       
-      // Progress-Subcollection - Lesen/Schreiben erlaubt (geschützt durch Username-Validierung)
+      // Progress-Subcollection - Nur der eigene User kann seinen Fortschritt lesen/schreiben
       match /progress/{quizId} {
-        allow read, write: if true;
+        // Nur der Benutzer selbst kann seinen eigenen Fortschritt lesen
+        allow read: if userId == request.auth.uid || 
+                       (isValidUsername(userId) && resource == null);
+        // Nur der Benutzer selbst kann seinen eigenen Fortschritt schreiben
+        allow write: if isValidUsername(userId) && 
+                        request.resource.data.username == userId;
       }
     }
     
