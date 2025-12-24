@@ -69,9 +69,8 @@ export default function QuizView({
 
   // Check if data is loaded
   useEffect(() => {
-    if (initialSubjects.length > 0) {
-      setLoading(false);
-    }
+    // Set loading to false once we have received the initial subjects (even if empty)
+    setLoading(false);
   }, [initialSubjects]);
 
   // Load quiz challenges
