@@ -4,6 +4,7 @@ import type { QuizChallenge, Question, Subject } from '../../types/quizTypes';
 import useFirestore from '../../hooks/useFirestore';
 import { toast } from 'sonner';
 import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
+import { getQuestionId } from '../../utils/questionIdHelper';
 
 interface QuizChallengeManagerProps {
   challenges: QuizChallenge[];
@@ -34,8 +35,7 @@ export default function QuizChallengeManager({
             cls.topics?.forEach((topic) => {
               topic.quizzes?.forEach((quiz) => {
                 quiz.questions?.forEach((question, index) => {
-                  // Generate ID if not present
-                  const questionId = question.id || `${quiz.id}_q${index}`;
+                  const questionId = getQuestionId(question, quiz.id, index);
                   allQuestions.push({
                     ...question,
                     id: questionId,
@@ -264,34 +264,38 @@ export default function QuizChallengeManager({
                   </div>
 
                   <div className="max-h-96 overflow-y-auto space-y-2 mb-4">
-                    {availableQuestions.map((question) => (
-                      <div
-                        key={question.id}
-                        className={`p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                          selectedQuestions.has(question.id!)
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                        onClick={() => handleToggleQuestion(question.id!)}
-                      >
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="checkbox"
-                            checked={selectedQuestions.has(question.id!)}
-                            onChange={() => handleToggleQuestion(question.id!)}
-                            className="mt-1"
-                          />
-                          <div className="flex-1">
-                            <p className="font-medium text-gray-900 mb-1">
-                              {question.question}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {question.topicName} • {question.quizTitle}
-                            </p>
+                    {availableQuestions.map((question) => {
+                      if (!question.id) return null; // Guard clause for safety
+                      
+                      return (
+                        <div
+                          key={question.id}
+                          className={`p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                            selectedQuestions.has(question.id)
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => handleToggleQuestion(question.id!)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <input
+                              type="checkbox"
+                              checked={selectedQuestions.has(question.id)}
+                              onChange={() => handleToggleQuestion(question.id!)}
+                              className="mt-1"
+                            />
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-900 mb-1">
+                                {question.question}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {question.topicName} • {question.quizTitle}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   <div className="flex gap-2">
