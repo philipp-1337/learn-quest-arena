@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
-import type { QuizChallenge, Question } from '../../types/quizTypes';
+import { useState, useEffect } from 'react';
+import { Plus, Trash2, X } from 'lucide-react';
+import type { QuizChallenge, Question, Subject } from '../../types/quizTypes';
 import useFirestore from '../../hooks/useFirestore';
 import { toast } from 'sonner';
 import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
@@ -14,11 +14,58 @@ export default function QuizChallengeManager({
   challenges,
   onChallengesChange,
 }: QuizChallengeManagerProps) {
-  const { saveDocument, deleteDocument } = useFirestore();
+  const { saveDocument, deleteDocument, fetchCollection } = useFirestore();
   const [selectedChallenge, setSelectedChallenge] = useState<QuizChallenge | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
-  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-  const [isNewQuestion, setIsNewQuestion] = useState(false);
+  const [availableQuestions, setAvailableQuestions] = useState<(Question & { quizTitle?: string; topicName?: string })[]>([]);
+  const [showQuestionSelector, setShowQuestionSelector] = useState(false);
+  const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set());
+
+  // Load all questions from existing quizzes
+  useEffect(() => {
+    const loadQuestions = async () => {
+      try {
+        const subjects = await fetchCollection('subjects');
+        const allQuestions: (Question & { quizTitle?: string; topicName?: string })[] = [];
+        
+        subjects.forEach((subjectData: { id: string; name?: string; classes?: unknown[] }) => {
+          const subject = subjectData as Subject;
+          subject.classes?.forEach((cls) => {
+            cls.topics?.forEach((topic) => {
+              topic.quizzes?.forEach((quiz) => {
+                quiz.questions?.forEach((question, index) => {
+                  // Generate ID if not present
+                  const questionId = question.id || `${quiz.id}_q${index}`;
+                  allQuestions.push({
+                    ...question,
+                    id: questionId,
+                    quizTitle: quiz.title,
+                    topicName: topic.name,
+                  });
+                });
+              });
+            });
+          });
+        });
+        
+        setAvailableQuestions(allQuestions);
+      } catch (error) {
+        console.error('Error loading questions:', error);
+      }
+    };
+    
+    loadQuestions();
+  }, [fetchCollection]);
+
+  // Load selected questions when level changes
+  useEffect(() => {
+    if (selectedChallenge && selectedLevel !== null) {
+      const levelData = selectedChallenge.levels.find(l => l.level === selectedLevel);
+      if (levelData) {
+        setSelectedQuestions(new Set(levelData.questionIds || []));
+      }
+    }
+  }, [selectedChallenge, selectedLevel]);
 
   const handleCreateChallenge = async () => {
     const title = prompt('Name für die Quiz-Challenge:');
@@ -31,7 +78,7 @@ export default function QuizChallengeManager({
         level: level.level,
         prize: level.prize,
         isSafetyLevel: level.isSafety,
-        questions: [],
+        questionIds: [],
       })),
       hidden: false,
     };
@@ -49,73 +96,51 @@ export default function QuizChallengeManager({
     toast.success('Quiz-Challenge gelöscht');
   };
 
-  const handleAddQuestion = () => {
-    if (!selectedChallenge || selectedLevel === null) return;
-
-    setEditingQuestion({
-      question: '',
-      answerType: 'text',
-      answers: [
-        { type: 'text', content: '' },
-        { type: 'text', content: '' },
-        { type: 'text', content: '' },
-        { type: 'text', content: '' },
-      ],
-      correctAnswerIndex: 0,
-    });
-    setIsNewQuestion(true);
-  };
-
-  const handleSaveQuestion = async () => {
-    if (!selectedChallenge || selectedLevel === null || !editingQuestion) return;
-
-    const updatedChallenge = { ...selectedChallenge };
-    const levelData = updatedChallenge.levels.find(l => l.level === selectedLevel);
-    
-    if (!levelData) return;
-
-    if (isNewQuestion) {
-      levelData.questions.push(editingQuestion);
+  const handleToggleQuestion = (questionId: string) => {
+    const newSelected = new Set(selectedQuestions);
+    if (newSelected.has(questionId)) {
+      newSelected.delete(questionId);
     } else {
-      // Find question by comparing all properties (more reliable than just question text)
-      const questionIndex = levelData.questions.findIndex(
-        q => q.question === editingQuestion.question && 
-             q.correctAnswerIndex === editingQuestion.correctAnswerIndex &&
-             q.answers.length === editingQuestion.answers.length
-      );
-      if (questionIndex >= 0) {
-        levelData.questions[questionIndex] = editingQuestion;
-      }
+      newSelected.add(questionId);
     }
-
-    await saveDocument(`quizChallenges/${updatedChallenge.id}`, updatedChallenge);
-    onChallengesChange(
-      challenges.map(c => c.id === updatedChallenge.id ? updatedChallenge : c)
-    );
-    setSelectedChallenge(updatedChallenge);
-    setEditingQuestion(null);
-    setIsNewQuestion(false);
-    toast.success(isNewQuestion ? 'Frage hinzugefügt' : 'Frage aktualisiert');
+    setSelectedQuestions(newSelected);
   };
 
-  const handleDeleteQuestion = async (question: Question) => {
+  const handleSaveQuestionSelection = async () => {
     if (!selectedChallenge || selectedLevel === null) return;
-    if (!confirm('Möchtest du diese Frage wirklich löschen?')) return;
 
     const updatedChallenge = { ...selectedChallenge };
     const levelData = updatedChallenge.levels.find(l => l.level === selectedLevel);
     
     if (!levelData) return;
 
-    // More reliable deletion using reference equality
-    levelData.questions = levelData.questions.filter(q => q !== question);
+    levelData.questionIds = Array.from(selectedQuestions);
 
     await saveDocument(`quizChallenges/${updatedChallenge.id}`, updatedChallenge);
     onChallengesChange(
       challenges.map(c => c.id === updatedChallenge.id ? updatedChallenge : c)
     );
     setSelectedChallenge(updatedChallenge);
-    toast.success('Frage gelöscht');
+    setShowQuestionSelector(false);
+    toast.success('Fragen gespeichert');
+  };
+
+  const handleRemoveQuestion = async (questionId: string) => {
+    if (!selectedChallenge || selectedLevel === null) return;
+
+    const updatedChallenge = { ...selectedChallenge };
+    const levelData = updatedChallenge.levels.find(l => l.level === selectedLevel);
+    
+    if (!levelData) return;
+
+    levelData.questionIds = levelData.questionIds.filter(id => id !== questionId);
+
+    await saveDocument(`quizChallenges/${updatedChallenge.id}`, updatedChallenge);
+    onChallengesChange(
+      challenges.map(c => c.id === updatedChallenge.id ? updatedChallenge : c)
+    );
+    setSelectedChallenge(updatedChallenge);
+    toast.success('Frage entfernt');
   };
 
   return (
@@ -145,7 +170,7 @@ export default function QuizChallengeManager({
               onClick={() => {
                 setSelectedChallenge(challenge);
                 setSelectedLevel(null);
-                setEditingQuestion(null);
+                setShowQuestionSelector(false);
               }}
             >
               <div className="flex justify-between items-center">
@@ -154,7 +179,7 @@ export default function QuizChallengeManager({
                     {challenge.title}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    {challenge.levels.reduce((sum, level) => sum + level.questions.length, 0)} Fragen insgesamt
+                    {challenge.levels.reduce((sum, level) => sum + (level.questionIds?.length || 0), 0)} Fragen insgesamt
                   </p>
                 </div>
                 <button
@@ -172,7 +197,7 @@ export default function QuizChallengeManager({
         </div>
       </div>
 
-      {/* Level and Question Editor */}
+      {/* Level and Question Selector */}
       {selectedChallenge && (
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-xl font-bold text-gray-900 mb-4">
@@ -188,7 +213,7 @@ export default function QuizChallengeManager({
                   key={level.level}
                   onClick={() => {
                     setSelectedLevel(level.level);
-                    setEditingQuestion(null);
+                    setShowQuestionSelector(false);
                   }}
                   className={`
                     px-3 py-2 rounded-lg text-center text-sm font-medium transition-all
@@ -201,13 +226,13 @@ export default function QuizChallengeManager({
                 >
                   <div className="text-xs">Level {level.level}</div>
                   <div className="font-bold">{formatPrize(level.prize)}</div>
-                  <div className="text-xs mt-1">{level.questions.length} Fragen</div>
+                  <div className="text-xs mt-1">{level.questionIds?.length || 0} Fragen</div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Question List */}
+          {/* Question Management */}
           {selectedLevel !== null && (
             <div>
               <div className="flex justify-between items-center mb-4">
@@ -215,137 +240,124 @@ export default function QuizChallengeManager({
                   Fragen für Level {selectedLevel}
                 </h4>
                 <button
-                  onClick={handleAddQuestion}
+                  onClick={() => setShowQuestionSelector(true)}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
                 >
                   <Plus className="w-5 h-5" />
-                  Frage hinzufügen
+                  Fragen auswählen
                 </button>
               </div>
 
-              {/* Question Editor */}
-              {editingQuestion && (
+              {/* Question Selector Modal */}
+              {showQuestionSelector && (
                 <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Frage
-                      </label>
-                      <textarea
-                        value={editingQuestion.question}
-                        onChange={(e) =>
-                          setEditingQuestion({ ...editingQuestion, question: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        rows={3}
-                      />
-                    </div>
+                  <div className="flex justify-between items-center mb-4">
+                    <h5 className="text-md font-semibold text-gray-800">
+                      Wähle Fragen aus dem Pool ({availableQuestions.length} verfügbar)
+                    </h5>
+                    <button
+                      onClick={() => setShowQuestionSelector(false)}
+                      className="p-2 text-gray-600 hover:bg-gray-200 rounded-lg"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Antworten
-                      </label>
-                      {editingQuestion.answers.map((answer, idx) => (
-                        <div key={idx} className="flex gap-2 mb-2">
+                  <div className="max-h-96 overflow-y-auto space-y-2 mb-4">
+                    {availableQuestions.map((question) => (
+                      <div
+                        key={question.id}
+                        className={`p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                          selectedQuestions.has(question.id!)
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => handleToggleQuestion(question.id!)}
+                      >
+                        <div className="flex items-start gap-3">
                           <input
-                            type="text"
-                            value={answer.content}
-                            onChange={(e) => {
-                              const newAnswers = [...editingQuestion.answers];
-                              newAnswers[idx] = { ...answer, content: e.target.value };
-                              setEditingQuestion({ ...editingQuestion, answers: newAnswers });
-                            }}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            placeholder={`Antwort ${idx + 1}`}
+                            type="checkbox"
+                            checked={selectedQuestions.has(question.id!)}
+                            onChange={() => handleToggleQuestion(question.id!)}
+                            className="mt-1"
                           />
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="correctAnswer"
-                              checked={editingQuestion.correctAnswerIndex === idx}
-                              onChange={() =>
-                                setEditingQuestion({ ...editingQuestion, correctAnswerIndex: idx })
-                              }
-                            />
-                            <span className="text-sm">Richtig</span>
-                          </label>
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900 mb-1">
+                              {question.question}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {question.topicName} • {question.quizTitle}
+                            </p>
+                          </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
+                  </div>
 
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleSaveQuestion}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-                      >
-                        <Save className="w-5 h-5" />
-                        Speichern
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingQuestion(null);
-                          setIsNewQuestion(false);
-                        }}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors flex items-center gap-2"
-                      >
-                        <X className="w-5 h-5" />
-                        Abbrechen
-                      </button>
-                    </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSaveQuestionSelection}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      Auswahl speichern ({selectedQuestions.size} Fragen)
+                    </button>
+                    <button
+                      onClick={() => setShowQuestionSelector(false)}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                    >
+                      Abbrechen
+                    </button>
                   </div>
                 </div>
               )}
 
-              {/* Existing Questions */}
+              {/* Selected Questions List */}
               <div className="space-y-2">
                 {selectedChallenge.levels
                   .find(l => l.level === selectedLevel)
-                  ?.questions.map((question, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 bg-white border border-gray-200 rounded-lg"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900 mb-2">
-                            {question.question}
-                          </p>
-                          <div className="space-y-1">
-                            {question.answers.map((answer, ansIdx) => (
-                              <p
-                                key={ansIdx}
-                                className={`text-sm ${
-                                  ansIdx === question.correctAnswerIndex
-                                    ? 'text-green-600 font-semibold'
-                                    : 'text-gray-600'
-                                }`}
-                              >
-                                {ansIdx === question.correctAnswerIndex && '✓ '}
-                                {answer.content}
-                              </p>
-                            ))}
+                  ?.questionIds?.map((questionId) => {
+                    const question = availableQuestions.find(q => q.id === questionId);
+                    if (!question) return null;
+                    
+                    return (
+                      <div
+                        key={questionId}
+                        className="p-3 bg-white border border-gray-200 rounded-lg"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900 mb-1">
+                              {question.question}
+                            </p>
+                            <p className="text-xs text-gray-500 mb-2">
+                              {question.topicName} • {question.quizTitle}
+                            </p>
+                            <div className="space-y-1">
+                              {question.answers.map((answer, ansIdx) => (
+                                <p
+                                  key={ansIdx}
+                                  className={`text-sm ${
+                                    ansIdx === question.correctAnswerIndex
+                                      ? 'text-green-600 font-semibold'
+                                      : 'text-gray-600'
+                                  }`}
+                                >
+                                  {ansIdx === question.correctAnswerIndex && '✓ '}
+                                  {answer.content}
+                                </p>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex gap-2">
                           <button
-                            onClick={() => {
-                              setEditingQuestion(question);
-                              setIsNewQuestion(false);
-                            }}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteQuestion(question)}
+                            onClick={() => handleRemoveQuestion(questionId)}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
               </div>
             </div>
           )}

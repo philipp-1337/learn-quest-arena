@@ -29,6 +29,7 @@ export interface Quiz {
 }
 
 export interface Question {
+  id?: string;  // Unique identifier for the question
   question: string;
   answerType: string;
   answers: Answer[];
@@ -46,7 +47,7 @@ export interface QuizChallengeLevel {
   level: number;
   prize: number;
   isSafetyLevel: boolean;
-  questions: Question[];
+  questionIds: string[];  // References to questions by their IDs
 }
 
 export interface QuizChallenge {
