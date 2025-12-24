@@ -5,6 +5,7 @@ import type { UserQuizChallengeProgress } from '../../types/userProgress';
 import QuizQuestion from './QuizQuestion';
 import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
 import useFirestore from '../../hooks/useFirestore';
+import { getQuestionId } from '../../utils/questionIdHelper';
 
 interface QuizChallengePlayerProps {
   challenge: QuizChallenge;
@@ -50,7 +51,7 @@ export default function QuizChallengePlayer({
             cls.topics?.forEach((topic) => {
               topic.quizzes?.forEach((quiz) => {
                 quiz.questions?.forEach((question, index) => {
-                  const questionId = question.id || `${quiz.id}_q${index}`;
+                  const questionId = getQuestionId(question, quiz.id, index);
                   qMap.set(questionId, question);
                 });
               });
