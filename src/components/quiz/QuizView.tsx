@@ -13,7 +13,7 @@ import { QuizSelector } from "./QuizSelector";
 import QuizPlayer from "./QuizPlayer";
 import QuizChallengePlayer from "./QuizChallengePlayer";
 import Footer from "../footer/Footer";
-import type { Subject, Quiz, QuizChallenge } from "../../types/quizTypes";
+import type { Subject, Quiz, QuizChallenge, QuizChallengeLevel } from "../../types/quizTypes";
 import type { UserQuizChallengeProgress } from "../../types/userProgress";
 import useFirestore from "../../hooks/useFirestore";
 
@@ -78,7 +78,12 @@ export default function QuizView({
     const loadChallenges = async () => {
       try {
         const loadedChallenges = await fetchCollection("quizChallenges");
-        const formattedChallenges: QuizChallenge[] = loadedChallenges.map((challenge: any) => ({
+        const formattedChallenges: QuizChallenge[] = loadedChallenges.map((challenge: { 
+          id: string; 
+          title?: string; 
+          levels?: QuizChallengeLevel[]; 
+          hidden?: boolean 
+        }) => ({
           id: challenge.id,
           title: challenge.title || "",
           levels: challenge.levels || [],
@@ -181,7 +186,8 @@ export default function QuizView({
       try {
         const progress = await fetchCollection("quizChallengeProgress");
         const userProgress = progress.find(
-          (p: any) => p.username === username && p.challengeId === challenge.id
+          (p: { id: string; username?: string; challengeId?: string }) => 
+            p.username === username && p.challengeId === challenge.id
         );
         if (userProgress) {
           setChallengeProgress(userProgress as unknown as UserQuizChallengeProgress);

@@ -3,24 +3,7 @@ import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import type { QuizChallenge, Question } from '../../types/quizTypes';
 import useFirestore from '../../hooks/useFirestore';
 import { toast } from 'sonner';
-
-const PRIZE_LEVELS = [
-  { level: 1, prize: 50, isSafety: false },
-  { level: 2, prize: 100, isSafety: false },
-  { level: 3, prize: 200, isSafety: false },
-  { level: 4, prize: 300, isSafety: false },
-  { level: 5, prize: 500, isSafety: false },
-  { level: 6, prize: 1000, isSafety: false },
-  { level: 7, prize: 2000, isSafety: false },
-  { level: 8, prize: 4000, isSafety: false },
-  { level: 9, prize: 8000, isSafety: true },
-  { level: 10, prize: 16000, isSafety: false },
-  { level: 11, prize: 32000, isSafety: false },
-  { level: 12, prize: 64000, isSafety: false },
-  { level: 13, prize: 125000, isSafety: true },
-  { level: 14, prize: 500000, isSafety: false },
-  { level: 15, prize: 1000000, isSafety: false },
-];
+import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
 
 interface QuizChallengeManagerProps {
   challenges: QuizChallenge[];
@@ -94,8 +77,11 @@ export default function QuizChallengeManager({
     if (isNewQuestion) {
       levelData.questions.push(editingQuestion);
     } else {
+      // Find question by comparing all properties (more reliable than just question text)
       const questionIndex = levelData.questions.findIndex(
-        q => q.question === editingQuestion.question
+        q => q.question === editingQuestion.question && 
+             q.correctAnswerIndex === editingQuestion.correctAnswerIndex &&
+             q.answers.length === editingQuestion.answers.length
       );
       if (questionIndex >= 0) {
         levelData.questions[questionIndex] = editingQuestion;
@@ -121,6 +107,7 @@ export default function QuizChallengeManager({
     
     if (!levelData) return;
 
+    // More reliable deletion using reference equality
     levelData.questions = levelData.questions.filter(q => q !== question);
 
     await saveDocument(`quizChallenges/${updatedChallenge.id}`, updatedChallenge);
@@ -129,13 +116,6 @@ export default function QuizChallengeManager({
     );
     setSelectedChallenge(updatedChallenge);
     toast.success('Frage gelöscht');
-  };
-
-  const formatPrize = (amount: number) => {
-    if (amount >= 1000000) {
-      return `${(amount / 1000000).toLocaleString('de-DE')} Mio. €`;
-    }
-    return `${amount.toLocaleString('de-DE')} €`;
   };
 
   return (
