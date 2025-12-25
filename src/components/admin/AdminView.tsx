@@ -65,6 +65,15 @@ export default function AdminView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Reload challenges whenever they change to ensure consistency
+  const handleChallengesChange = (updatedChallenges: QuizChallenge[]) => {
+    setChallenges(updatedChallenges);
+    // Trigger a reload after a short delay to ensure Firestore is updated
+    setTimeout(() => {
+      handleLoadChallenges();
+    }, 500);
+  };
+
   // Load quiz challenges from Firestore on mount
   const handleLoadChallenges = async () => {
     const loadedChallenges = await fetchCollection("quizChallenges");
@@ -171,7 +180,7 @@ export default function AdminView({
             {activeTab === 'challenge' && (
               <QuizChallengeManager
                 challenges={challenges}
-                onChallengesChange={setChallenges}
+                onChallengesChange={handleChallengesChange}
               />
             )}
           </div>

@@ -39,6 +39,15 @@ service cloud.firestore {
       }
     }
     
+    // Quiz Challenges - Lesen für alle, Schreiben nur für Admins
+    match /quizChallenges/{challengeId} {
+      // Jeder kann Challenges lesen (für Quiz-Teilnehmer)
+      allow read: if true;
+      
+      // Nur eingeloggte Admins können Challenges erstellen/ändern/löschen
+      allow create, update, delete: if request.auth != null;
+    }
+    
     // Quiz Results / Progress (falls du das später trackst)
     match /quizResults/{resultId} {
       allow read, write: if request.auth != null;

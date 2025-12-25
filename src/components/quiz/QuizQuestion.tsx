@@ -11,6 +11,7 @@ interface QuizQuestionProps {
   onAnswerSelect: (answer: Answer & { originalIndex: number }) => void;
   onNext: () => void;
   onHome: () => void;
+  onBack?: () => void; // For Quiz Challenge mode
   elapsedTime: number;
   showResultOverride?: boolean; // For Quiz Challenge mode
 }
@@ -25,6 +26,7 @@ export default function QuizQuestion({
   onAnswerSelect,
   onNext,
   onHome,
+  onBack,
   elapsedTime,
   showResultOverride,
 }: QuizQuestionProps) {
@@ -94,7 +96,7 @@ export default function QuizQuestion({
         )}
 
         <button
-          onClick={onHome}
+          onClick={onBack || onHome}
           className="w-full mt-4 text-gray-600 hover:text-gray-900"
           title="Quiz abbrechen"
           aria-label="Quiz abbrechen"
