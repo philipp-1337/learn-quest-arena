@@ -323,6 +323,7 @@ export default function QuizChallengePlayer({
           onAnswerSelect={handleAnswerSelect}
           onNext={handleNext}
           onHome={onHome}
+          onBack={onBack}
           elapsedTime={elapsedTime}
           showResultOverride={showResult}
         />
