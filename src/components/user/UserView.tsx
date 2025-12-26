@@ -62,7 +62,7 @@ const ProgressAccordionItem: React.FC<{
             : 'bg-gray-50 hover:bg-gray-100'
         }`}
       >
-        <div className="flex items-center gap-3 flex-1 text-left">
+        <div className="flex items-center gap-3 flex-1 text-left min-w-0">
           {/* Status Icon */}
           {isCompleted ? (
             <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
@@ -71,27 +71,27 @@ const ProgressAccordionItem: React.FC<{
           )}
           
           {/* Title */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">{displayTitle}</h3>
+          <div className="flex-1 min-w-0 max-w-xs">
+            <h3 className="font-semibold text-gray-900 truncate block">{displayTitle}</h3>
             <p className="text-xs text-gray-500 mt-1">
               {correctAnswers}/{totalQuestions} korrekt ({completionPercentage}%)
             </p>
           </div>
+        </div>
 
-          {/* Status Badge */}
+        {/* Status Badge & Chevron */}
+        <div className="flex items-center gap-2 flex-shrink-0 ml-2">
           {isCompleted && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-200 text-green-800 text-xs font-medium flex-shrink-0">
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-200 text-green-800 text-xs font-medium">
               100%
             </span>
           )}
+          <ChevronDown
+            className={`w-5 h-5 text-gray-600 transition-transform ${
+              isOpen ? 'transform rotate-180' : ''
+            }`}
+          />
         </div>
-
-        {/* Chevron */}
-        <ChevronDown
-          className={`w-5 h-5 text-gray-600 flex-shrink-0 ml-2 transition-transform ${
-            isOpen ? 'transform rotate-180' : ''
-          }`}
-        />
       </button>
 
       {/* Accordion Content */}
