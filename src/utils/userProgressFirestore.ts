@@ -1,18 +1,6 @@
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import type { UserProgress, UserQuizProgress, QuestionSRSData } from "../types/userProgress";
-
-// Stellt sicher, dass alle SRS-Felder vorhanden sind (für Abwärtskompatibilität)
-function ensureSRSFields(questionData: Partial<QuestionSRSData>): QuestionSRSData {
-  return {
-    answered: questionData.answered ?? false,
-    attempts: questionData.attempts ?? 0,
-    lastAnswerCorrect: questionData.lastAnswerCorrect ?? false,
-    correctStreak: questionData.correctStreak ?? 0,
-    lastAttemptDate: questionData.lastAttemptDate,
-    nextReviewDate: questionData.nextReviewDate,
-    difficultyLevel: questionData.difficultyLevel ?? 0,
-  };
-}
+import type { UserProgress, UserQuizProgress } from "../types/userProgress";
+import { ensureSRSFields } from "./srsHelpers";
 
 // Speichert den Fortschritt eines Users für ein Quiz (neues Modell)
 export async function saveUserQuizProgress(progress: UserQuizProgress) {

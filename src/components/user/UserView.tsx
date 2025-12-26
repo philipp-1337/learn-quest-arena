@@ -53,7 +53,7 @@ const ProgressAccordionItem: React.FC<{
       ).length,
       masteredQuestions: questionValues.filter(q => q.difficultyLevel >= 5).length,
       learningQuestions: questionValues.filter(q => q.difficultyLevel >= 1 && q.difficultyLevel < 5).length,
-      newQuestions: questionValues.filter(q => !q.difficultyLevel || q.difficultyLevel === 0).length,
+      newQuestions: questionValues.filter(q => q.difficultyLevel === 0).length,
     };
   }, [progress.questions]);
   const { dueForReview, masteredQuestions, learningQuestions, newQuestions } = srsStats;
