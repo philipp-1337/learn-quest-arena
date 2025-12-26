@@ -10,16 +10,24 @@ export interface UserProgress {
   lastUpdated: number; // Timestamp
 }
 
+// Spaced Repetition System (SRS) Daten für eine Frage
+export interface QuestionSRSData {
+  answered: boolean;             // Wurde die Frage schon richtig beantwortet?
+  attempts: number;              // Wie viele Versuche wurden für diese Frage benötigt?
+  lastAnswerCorrect: boolean;    // War die letzte Antwort korrekt?
+  // SRS-spezifische Felder
+  correctStreak: number;         // Anzahl aufeinanderfolgender richtiger Antworten
+  lastAttemptDate?: number;      // Timestamp des letzten Versuchs
+  nextReviewDate?: number;       // Timestamp für die nächste Wiederholung (SRS)
+  difficultyLevel: number;       // Schwierigkeitsgrad 0-5 (0=neu, 5=gemeistert)
+}
+
 // Neues, verbessertes Modell für Quiz-Fortschritt
 export interface UserQuizProgress {
   username: string;
   quizId: string;
   questions: {
-    [questionId: string]: {
-      answered: boolean;         // Wurde die Frage schon richtig beantwortet?
-      attempts: number;          // Wie viele Versuche wurden für diese Frage benötigt?
-      lastAnswerCorrect: boolean;// War die letzte Antwort korrekt?
-    };
+    [questionId: string]: QuestionSRSData;
   };
   totalTries: number;            // Wie oft wurde das Quiz insgesamt gestartet?
   completed: boolean;            // Wurden alle Fragen richtig beantwortet?

@@ -1,6 +1,19 @@
 import '../firebaseConfig';
 import { getFirestore, collection, getDocs } from "firebase/firestore";
-import type { UserQuizProgress, UserProgress } from "../types/userProgress";
+import type { UserQuizProgress, UserProgress, QuestionSRSData } from "../types/userProgress";
+
+// Stellt sicher, dass alle SRS-Felder vorhanden sind (für Abwärtskompatibilität)
+function ensureSRSFields(questionData: Partial<QuestionSRSData>): QuestionSRSData {
+  return {
+    answered: questionData.answered ?? false,
+    attempts: questionData.attempts ?? 0,
+    lastAnswerCorrect: questionData.lastAnswerCorrect ?? false,
+    correctStreak: questionData.correctStreak ?? 0,
+    lastAttemptDate: questionData.lastAttemptDate,
+    nextReviewDate: questionData.nextReviewDate,
+    difficultyLevel: questionData.difficultyLevel ?? 0,
+  };
+}
 
 // Lädt den Fortschritt eines Users für alle Quizzes (neues Modell bevorzugt)
 export async function loadAllUserProgress(username: string): Promise<Record<string, UserQuizProgress>> {
@@ -17,6 +30,14 @@ export async function loadAllUserProgress(username: string): Promise<Record<stri
     if (data.questions) {
       const quizProgress = data as UserQuizProgress;
       if (!quizProgress.quizId) quizProgress.quizId = docSnap.id;
+      
+      // SRS-Felder für alle Fragen sicherstellen
+      const normalizedQuestions: UserQuizProgress['questions'] = {};
+      for (const [key, value] of Object.entries(quizProgress.questions)) {
+        normalizedQuestions[key] = ensureSRSFields(value);
+      }
+      quizProgress.questions = normalizedQuestions;
+      
       result[docSnap.id] = quizProgress;
     } else {
       // Fallback: altes Modell in neues Modell umwandeln

@@ -1,18 +1,36 @@
 import { useState, useEffect } from 'react';
 import type { Quiz, Question, Answer } from '../types/quizTypes';
+import type { QuestionSRSData } from '../types/userProgress';
+import { getQuestionId } from '../utils/questionIdHelper';
 
+// SRS Hilfsfunktionen
+function calculateNextReviewDate(correctStreak: number, isCorrect: boolean): number {
+  // Einfaches SRS: Intervall verdoppelt sich bei richtigen Antworten
+  // Intervalle: 1 Tag, 2 Tage, 4 Tage, 8 Tage, 16 Tage, 32 Tage
+  const baseInterval = 24 * 60 * 60 * 1000; // 1 Tag in Millisekunden
+  const streak = isCorrect ? correctStreak + 1 : 0;
+  const multiplier = Math.pow(2, Math.min(streak, 5));
+  return Date.now() + (baseInterval * multiplier);
+}
 
-// Akzeptiert jetzt auch das neue Modell
+function calculateDifficultyLevel(correctStreak: number, attempts: number): number {
+  // Schwierigkeitsstufe basierend auf Erfolgsstreak und Versuchen
+  // 0 = neu, 1-2 = lernend, 3-4 = bekannt, 5 = gemeistert
+  if (correctStreak >= 5) return 5;
+  if (correctStreak >= 3) return 4;
+  if (correctStreak >= 2) return 3;
+  if (correctStreak >= 1) return 2;
+  if (attempts > 0) return 1;
+  return 0;
+}
+
+// Akzeptiert jetzt auch das neue Modell mit SRS
 export type QuizPlayerInitialState = {
   answers?: boolean[];
   solvedQuestions?: string[];
   totalTries?: number;
   questions?: {
-    [questionId: string]: {
-      answered: boolean;
-      attempts: number;
-      lastAnswerCorrect: boolean;
-    };
+    [questionId: string]: QuestionSRSData;
   };
   completed?: boolean;
 };
@@ -32,10 +50,14 @@ export function useQuizPlayer(
   });
   // Finde die erste ungelöste Frage, falls Fortschritt vorhanden
 
-  // Neues Modell: Fragen-Fortschritt initialisieren
+  // Neues Modell: Fragen-Fortschritt mit Question IDs initialisieren
   function getFirstUnsolvedIndex() {
     if (initialState?.questions) {
-      const idx = shuffledQuestions.findIndex((_, i) => !initialState.questions?.[String(i)]?.answered);
+      // Verwende Question IDs statt Indizes
+      const idx = shuffledQuestions.findIndex((q) => {
+        const qId = getQuestionId(q, quiz.id, quiz.questions.indexOf(q));
+        return !initialState.questions?.[qId]?.answered;
+      });
       return idx === -1 ? 0 : idx;
     }
     if (!initialState?.answers || initialState.answers.length === 0) return 0;
@@ -70,14 +92,14 @@ export function useQuizPlayer(
     }
   }, []);
 
-  // Update elapsed time
+  // Update elapsed time - stoppt wenn showResults true oder completedTime gesetzt
   useEffect(() => {
-    if (startTime === null || completedTime !== null) return;
+    if (startTime === null || completedTime !== null || showResults) return;
     const interval = setInterval(() => {
       setElapsedTime(Date.now() - startTime);
     }, 100);
     return () => clearInterval(interval);
-  }, [startTime, completedTime]);
+  }, [startTime, completedTime, showResults]);
 
   // Shuffle answers when question changes
   useEffect(() => {
@@ -97,19 +119,36 @@ export function useQuizPlayer(
     if (selectedAnswer !== null) return;
     setSelectedAnswer(answer);
     const questions = repeatQuestions || shuffledQuestions;
-    const isCorrect = answer.originalIndex === questions[currentQuestion].correctAnswerIndex;
+    const currentQ = questions[currentQuestion];
+    const isCorrect = answer.originalIndex === currentQ.correctAnswerIndex;
+    
+    // Question ID für das Progress-Tracking ermitteln
+    const originalIndex = quiz.questions.indexOf(currentQ);
+    const questionId = getQuestionId(currentQ, quiz.id, originalIndex >= 0 ? originalIndex : currentQuestion);
+    
     setAnswers(prevAnswers => {
       const newAnswers = [...prevAnswers, isCorrect];
-      // Neues Modell: Frage-Fortschritt aktualisieren (Index als Key)
+      // Neues Modell: Frage-Fortschritt mit Question ID und SRS-Daten aktualisieren
       setQuestionProgress(prev => {
-        const qIdx = String(currentQuestion);
-        const prevQ = prev?.[qIdx] || { answered: false, attempts: 0, lastAnswerCorrect: false };
+        const prevQ = prev?.[questionId] || { 
+          answered: false, 
+          attempts: 0, 
+          lastAnswerCorrect: false,
+          correctStreak: 0,
+          difficultyLevel: 0
+        };
+        const newStreak = isCorrect ? prevQ.correctStreak + 1 : 0;
+        const newAttempts = prevQ.attempts + 1;
         return {
           ...prev,
-          [qIdx]: {
+          [questionId]: {
             answered: isCorrect ? true : prevQ.answered,
-            attempts: prevQ.attempts + 1,
+            attempts: newAttempts,
             lastAnswerCorrect: isCorrect,
+            correctStreak: newStreak,
+            lastAttemptDate: Date.now(),
+            nextReviewDate: calculateNextReviewDate(prevQ.correctStreak, isCorrect),
+            difficultyLevel: calculateDifficultyLevel(newStreak, newAttempts),
           }
         };
       });
@@ -117,7 +156,7 @@ export function useQuizPlayer(
       if (isCorrect) {
         setSolvedQuestions(prevSolved => {
           const newSolved = new Set(prevSolved);
-          newSolved.add(questions[currentQuestion].question);
+          newSolved.add(currentQ.question);
           return newSolved;
         });
       }
