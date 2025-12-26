@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAuth, signOut } from "firebase/auth";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, Sparkles, BadgeInfoIcon } from "lucide-react";
 import type { Subject, QuizChallenge } from "../../types/quizTypes";
 import useFirestore from "../../hooks/useFirestore";
 import { useStatsCalculation } from "../../hooks/useStatsCalculation";
@@ -132,13 +132,16 @@ export default function AdminView({
               </button>
               <button
                 onClick={() => setActiveTab('challenge')}
-                className={`pb-3 px-4 font-semibold transition-colors ${
+                className={`relative pb-3 px-4 font-semibold transition-colors ${
                   activeTab === 'challenge'
                     ? 'text-blue-600 border-b-2 border-blue-600'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
                 Quiz-Challenge
+                <span className="absolute -top-1 -right-2 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
+                  <Sparkles className="w-3 h-3 text-white" />
+                </span>
               </button>
             </div>
 
@@ -178,10 +181,31 @@ export default function AdminView({
             )}
 
             {activeTab === 'challenge' && (
-              <QuizChallengeManager
-                challenges={challenges}
-                onChallengesChange={handleChallengesChange}
-              />
+              <>
+                <div className="bg-purple-50 rounded-lg border border-purple-200 p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <BadgeInfoIcon className="w-5 h-5 text-purple-600 mt-0.5" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-purple-900 mb-1 flex items-center gap-2">
+                        BETA Feature
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                          <Sparkles className="w-3 h-3" />
+                          BETA
+                        </span>
+                      </h3>
+                      <p className="text-sm text-purple-800">
+                        Dieses Feature befindet sich in der Beta-Phase.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <QuizChallengeManager
+                  challenges={challenges}
+                  onChallengesChange={handleChallengesChange}
+                />
+              </>
             )}
           </div>
 
