@@ -4,8 +4,9 @@ import QuizQuestion from './QuizQuestion';
 import QuizResults from './QuizResults';
 import type { Quiz } from '../../types/quizTypes';
 import { saveUserQuizProgress, loadUserQuizProgress } from '../../utils/userProgressFirestore';
-import type { UserQuizProgress, QuestionSRSData } from '../../types/userProgress';
+import type { UserQuizProgress } from '../../types/userProgress';
 import { getQuestionId } from '../../utils/questionIdHelper';
+import { ensureSRSFields } from '../../utils/srsHelpers';
 
 import type { QuizPlayerInitialState } from '../../hooks/useQuizPlayer';
 
@@ -83,13 +84,7 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
     quiz.questions.forEach((q, idx) => {
       const questionId = getQuestionId(q, quiz.id, idx);
       if (!questionsObj[questionId]) {
-        questionsObj[questionId] = {
-          answered: false,
-          attempts: 0,
-          lastAnswerCorrect: false,
-          correctStreak: 0,
-          difficultyLevel: 0,
-        } as QuestionSRSData;
+        questionsObj[questionId] = ensureSRSFields({});
       }
     });
     
