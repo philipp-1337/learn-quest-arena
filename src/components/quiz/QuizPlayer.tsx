@@ -4,7 +4,10 @@ import QuizQuestion from './QuizQuestion';
 import QuizResults from './QuizResults';
 import type { Quiz } from '../../types/quizTypes';
 import { saveUserQuizProgress, loadUserQuizProgress } from '../../utils/userProgressFirestore';
-import type { UserQuizProgress } from '../../types/userProgress';
+import type { UserQuizProgress, QuestionSRSData } from '../../types/userProgress';
+import { getQuestionId } from '../../utils/questionIdHelper';
+
+import type { QuizPlayerInitialState } from '../../hooks/useQuizPlayer';
 
 
 
@@ -17,7 +20,7 @@ interface QuizPlayerProps {
 
 export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlayerProps) {
   // Fortschritt laden und an useQuizPlayer übergeben (nur wenn username gesetzt)
-  const [initialState, setInitialState] = useState<any>(undefined);
+  const [initialState, setInitialState] = useState<QuizPlayerInitialState | undefined>(undefined);
   const [progressLoaded, setProgressLoaded] = useState(!username);
 
   useEffect(() => {
@@ -38,11 +41,9 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
     }
     fetchProgress();
     return () => { mounted = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quiz.id, username]);
 
   // useQuizPlayer erst initialisieren, wenn Fortschritt geladen wurde (nur beim ersten Mount)
-  // TODO: useQuizPlayer muss auf das neue Modell angepasst werden!
   const quizPlayer = useQuizPlayer(quiz, progressLoaded ? initialState : undefined);
   const {
     currentQuestion,
@@ -65,23 +66,33 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
   } = quizPlayer;
 
 
-  // Fortschritt speichern nach jeder Aktion (neues Modell)
+  // Fortschritt speichern nach jeder Aktion (neues Modell mit Question IDs)
   useEffect(() => {
     if (!progressLoaded || !username) return;
-    // questions-Objekt für Firestore erzeugen
+    // questions-Objekt für Firestore erzeugen mit Question IDs
     const questionsObj: UserQuizProgress['questions'] = {};
-    quiz.questions.forEach((_, idx) => {
-      const key = String(idx);
-      if (quizPlayer.questionProgress && quizPlayer.questionProgress[key]) {
-        questionsObj[key] = quizPlayer.questionProgress[key];
-      } else {
-        questionsObj[key] = {
-          answered: answers[idx] ?? false,
-          attempts: answers[idx] !== undefined ? 1 : 0,
-          lastAnswerCorrect: answers[idx] ?? false,
-        };
+    
+    // Übernehme den questionProgress direkt, da dieser bereits Question IDs verwendet
+    if (quizPlayer.questionProgress) {
+      Object.entries(quizPlayer.questionProgress).forEach(([key, value]) => {
+        questionsObj[key] = value;
+      });
+    }
+    
+    // Füge fehlende Fragen als unbeantwortet hinzu (mit Default-SRS-Werten)
+    quiz.questions.forEach((q, idx) => {
+      const questionId = getQuestionId(q, quiz.id, idx);
+      if (!questionsObj[questionId]) {
+        questionsObj[questionId] = {
+          answered: false,
+          attempts: 0,
+          lastAnswerCorrect: false,
+          correctStreak: 0,
+          difficultyLevel: 0,
+        } as QuestionSRSData;
       }
     });
+    
     const completed = Object.values(questionsObj).every(q => q.answered);
     
     // Wenn gerade abgeschlossen, Zeit speichern

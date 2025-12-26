@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { 
   Pencil, 
   ArrowLeft, 
@@ -42,6 +42,21 @@ const ProgressAccordionItem: React.FC<{
   const totalQuestions = Object.keys(progress.questions).length;
   const correctAnswers = Object.values(progress.questions).filter(q => q.answered).length;
   const completionPercentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+
+  // SRS Statistiken berechnen - useMemo um Reinheit zu gewährleisten
+  const srsStats = useMemo(() => {
+    const now = Date.now();
+    const questionValues = Object.values(progress.questions);
+    return {
+      dueForReview: questionValues.filter(q => 
+        q.nextReviewDate && q.nextReviewDate <= now && q.answered
+      ).length,
+      masteredQuestions: questionValues.filter(q => q.difficultyLevel >= 5).length,
+      learningQuestions: questionValues.filter(q => q.difficultyLevel >= 1 && q.difficultyLevel < 5).length,
+      newQuestions: questionValues.filter(q => !q.difficultyLevel || q.difficultyLevel === 0).length,
+    };
+  }, [progress.questions]);
+  const { dueForReview, masteredQuestions, learningQuestions, newQuestions } = srsStats;
 
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -125,6 +140,39 @@ const ProgressAccordionItem: React.FC<{
             <div className="bg-green-50 border border-green-200 rounded-lg p-3">
               <p className="text-xs text-green-700 uppercase tracking-wide font-semibold">Zeit zum 100% Lösen</p>
               <p className="text-sm font-semibold text-green-900 mt-1">{formatTime(progress.completedTime)}</p>
+            </div>
+          )}
+
+          {/* SRS Status Anzeige */}
+          {(masteredQuestions > 0 || learningQuestions > 0 || dueForReview > 0) && (
+            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+              <p className="text-xs text-indigo-700 uppercase tracking-wide font-semibold mb-2">Lernfortschritt (SRS)</p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                {dueForReview > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                    <span className="text-orange-700">{dueForReview} zur Wiederholung</span>
+                  </div>
+                )}
+                {masteredQuestions > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span className="text-green-700">{masteredQuestions} gemeistert</span>
+                  </div>
+                )}
+                {learningQuestions > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <span className="text-blue-700">{learningQuestions} am Lernen</span>
+                  </div>
+                )}
+                {newQuestions > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+                    <span className="text-gray-600">{newQuestions} neu</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

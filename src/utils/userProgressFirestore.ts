@@ -1,5 +1,19 @@
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import type { UserProgress, UserQuizProgress } from "../types/userProgress";
+import type { UserProgress, UserQuizProgress, QuestionSRSData } from "../types/userProgress";
+
+// Stellt sicher, dass alle SRS-Felder vorhanden sind (für Abwärtskompatibilität)
+function ensureSRSFields(questionData: Partial<QuestionSRSData>): QuestionSRSData {
+  return {
+    answered: questionData.answered ?? false,
+    attempts: questionData.attempts ?? 0,
+    lastAnswerCorrect: questionData.lastAnswerCorrect ?? false,
+    correctStreak: questionData.correctStreak ?? 0,
+    lastAttemptDate: questionData.lastAttemptDate,
+    nextReviewDate: questionData.nextReviewDate,
+    difficultyLevel: questionData.difficultyLevel ?? 0,
+  };
+}
+
 // Speichert den Fortschritt eines Users für ein Quiz (neues Modell)
 export async function saveUserQuizProgress(progress: UserQuizProgress) {
   if (progress.username === "Gast") {
@@ -21,6 +35,16 @@ export async function loadUserQuizProgress(username: string, quizId: string): Pr
   if (snap.exists()) {
     const data = snap.data() as UserQuizProgress;
     if (!data.quizId) data.quizId = quizId;
+    
+    // SRS-Felder für alle Fragen sicherstellen
+    if (data.questions) {
+      const normalizedQuestions: UserQuizProgress['questions'] = {};
+      for (const [key, value] of Object.entries(data.questions)) {
+        normalizedQuestions[key] = ensureSRSFields(value);
+      }
+      data.questions = normalizedQuestions;
+    }
+    
     return data;
   }
   return null;
