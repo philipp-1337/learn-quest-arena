@@ -2,8 +2,9 @@ import UserView from "../user/UserView";
 import { useEffect, useState } from "react";
 import UsernamePicker from "../user/UsernamePicker";
 import UsernameManualEntry from "../user/UsernameManualEntry";
-import { Cog, Sword, User, Trophy } from "lucide-react";
+import { Cog, Sword, User, Trophy, Sparkles, BadgeInfoIcon } from "lucide-react";
 import { useQuizState } from "../../hooks/useQuizState";
+import { getAuth } from "firebase/auth";
 import { useQuizNavigation } from "../../hooks/useQuizNavigation";
 import Breadcrumb from "./Breadcrumb";
 import SubjectSelector from "./SubjectSelector";
@@ -41,6 +42,7 @@ export default function QuizView({
   const [showUsernamePicker, setShowUsernamePicker] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [showUserView, setShowUserView] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const {
     selectedSubject,
@@ -72,6 +74,15 @@ export default function QuizView({
     // Set loading to false once we have received the initial subjects (even if empty)
     setLoading(false);
   }, [initialSubjects]);
+
+  // Check Firebase Auth status
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsAuthenticated(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Load quiz challenges
   useEffect(() => {
@@ -348,27 +359,35 @@ export default function QuizView({
               {/* Admin Icon */}
               <button
                 onClick={onAdminClick}
-                className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                aria-label="Admin-Bereich"
-                title="Admin-Bereich"
+                className={`relative group p-2 rounded-full transition-all ${
+                  isAuthenticated
+                    ? "text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                }`}
+                aria-label={isAuthenticated ? "Admin eingeloggt" : "Admin-Bereich"}
+                title={isAuthenticated ? "Admin eingeloggt" : "Admin-Bereich"}
               >
                 <Cog className="w-6 h-6" />
                 {/* Tooltip */}
                 <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-                  Admin-Bereich
+                  {isAuthenticated ? "Admin eingeloggt" : "Admin-Bereich"}
                 </span>
               </button>
               {/* User Icon */}
               <button
                 onClick={() => setShowUserView(true)}
-                className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                aria-label="Nutzername anzeigen"
-                title="Nutzername anzeigen"
+                className={`relative group p-2 rounded-full transition-all ${
+                  username !== "Gast"
+                    ? "text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                }`}
+                aria-label={username !== "Gast" ? `${username}` : "Gast"}
+                title={username !== "Gast" ? `${username}` : "Gast"}
               >
                 <User className="w-6 h-6" />
                 {/* Tooltip */}
                 <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-                  {username}
+                  {username !== "Gast" ? `${username}` : "Gast"}
                 </span>
               </button>
             </div>
@@ -385,14 +404,21 @@ export default function QuizView({
         </div>
 
         {/* Quiz Challenge Section - Show before subject selection */}
-        {!selectedSubject && challenges.length > 0 && (
+        {!selectedSubject && challenges.length > 0 && isAuthenticated && (
           <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl shadow-lg p-6 mb-5">
             <div className="flex items-center gap-3 mb-4">
               <Trophy className="w-8 h-8 text-yellow-600" />
               <h2 className="text-2xl font-bold text-gray-900">Quiz-Challenge</h2>
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                <Sparkles className="w-3 h-3" />
+                BETA
+              </span>
             </div>
-            <p className="text-gray-700 mb-4">
+            <p className="text-gray-700 mb-2">
               Stelle dich der ultimativen Herausforderung! Beantworte Fragen auf 15 verschiedenen Schwierigkeitsstufen und gewinne bis zu 1 Million Euro!
+            </p>
+            <p className="text-sm text-purple-700 font-medium mb-4">
+              <BadgeInfoIcon className="w-4 h-4 inline-block mr-1 mb-1" /> Dieses Feature befindet sich in der Beta-Phase und ist nur für Lehrkräfte und Administration sichtbar.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {challenges.map((challenge) => (
