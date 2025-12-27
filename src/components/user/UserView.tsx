@@ -144,37 +144,69 @@ const ProgressAccordionItem: React.FC<{
           )}
 
           {/* SRS Status Anzeige */}
-          {(masteredQuestions > 0 || learningQuestions > 0 || dueForReview > 0) && (
-            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
-              <p className="text-xs text-indigo-700 uppercase tracking-wide font-semibold mb-2">Lernfortschritt (SRS)</p>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                {dueForReview > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                    <span className="text-orange-700">{dueForReview} zur Wiederholung</span>
+          {(() => {
+            // Bei abgeschlossenen Quizzen: nur "zur Wiederholung" und "gemeistert" anzeigen
+            if (isCompleted) {
+              const hasRelevantStats = dueForReview > 0 || masteredQuestions > 0;
+              if (!hasRelevantStats) return null;
+              
+              return (
+                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                  <p className="text-xs text-indigo-700 uppercase tracking-wide font-semibold mb-2">Lernfortschritt (SRS)</p>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    {dueForReview > 0 && (
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                        <span className="text-orange-700">{dueForReview} zur Wiederholung</span>
+                      </div>
+                    )}
+                    {masteredQuestions > 0 && (
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                        <span className="text-green-700">{masteredQuestions} gemeistert</span>
+                      </div>
+                    )}
                   </div>
-                )}
-                {masteredQuestions > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                    <span className="text-green-700">{masteredQuestions} gemeistert</span>
-                  </div>
-                )}
-                {learningQuestions > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                    <span className="text-blue-700">{learningQuestions} am Lernen</span>
-                  </div>
-                )}
-                {newQuestions > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-gray-400"></span>
-                    <span className="text-gray-600">{newQuestions} neu</span>
-                  </div>
-                )}
+                </div>
+              );
+            }
+            
+            // Bei unvollständigen Quizzen: alle 4 Kategorien anzeigen, wenn mindestens eine > 0
+            const hasAnyStats = masteredQuestions > 0 || learningQuestions > 0 || dueForReview > 0 || newQuestions > 0;
+            if (!hasAnyStats) return null;
+            
+            return (
+              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                <p className="text-xs text-indigo-700 uppercase tracking-wide font-semibold mb-2">Lernfortschritt (SRS)</p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  {dueForReview > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                      <span className="text-orange-700">{dueForReview} zur Wiederholung</span>
+                    </div>
+                  )}
+                  {masteredQuestions > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                      <span className="text-green-700">{masteredQuestions} gemeistert</span>
+                    </div>
+                  )}
+                  {learningQuestions > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                      <span className="text-blue-700">{learningQuestions} am Lernen</span>
+                    </div>
+                  )}
+                  {newQuestions > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+                      <span className="text-gray-600">{newQuestions} neu</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Progress Bar */}
           <div>

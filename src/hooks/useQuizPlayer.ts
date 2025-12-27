@@ -58,15 +58,17 @@ export function useQuizPlayer(
   startMode: QuizStartMode = 'fresh'
 ) {
   // Fragen einmalig mischen (gleiche Reihenfolge für die Session)
-  // Bei 'continue' Modus: Nur unbeantwortete Fragen anzeigen
+  // Bei 'continue' Modus: Nur falsch beantwortete Fragen anzeigen
   const [shuffledQuestions] = useState(() => {
     let questionsToUse = [...quiz.questions];
     
-    // In 'continue' mode, filter to only unanswered questions
+    // In 'continue' mode, filter to only incorrectly answered questions
     if (startMode === 'continue' && initialState?.questions) {
       questionsToUse = questionsToUse.filter((q, idx) => {
         const qId = getQuestionId(q, quiz.id, idx);
-        return !initialState.questions?.[qId]?.answered;
+        const questionData = initialState.questions?.[qId];
+        // Only include questions that were attempted but not answered correctly
+        return questionData && !questionData.answered && questionData.attempts > 0;
       });
     }
     
@@ -117,8 +119,10 @@ export function useQuizPlayer(
 
   // Zeit-Tracking
   const [startTime, setStartTime] = useState<number | null>(null);
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [previousElapsedTime] = useState<number>(initialState?.totalElapsedTime || 0);
+  const [elapsedTime, setElapsedTime] = useState<number>(previousElapsedTime);
   const [completedTime, setCompletedTime] = useState<number | null>(null);
+  const [isPageVisible, setIsPageVisible] = useState<boolean>(true);
 
   // Starte Timer beim ersten Laden des Hooks
   useEffect(() => {
@@ -127,14 +131,27 @@ export function useQuizPlayer(
     }
   }, []);
 
-  // Update elapsed time - stoppt wenn showResults true oder completedTime gesetzt
+  // Page Visibility API - pausiere Timer wenn Tab nicht sichtbar
   useEffect(() => {
-    if (startTime === null || completedTime !== null || showResults) return;
+    const handleVisibilityChange = () => {
+      setIsPageVisible(!document.hidden);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  // Update elapsed time - stoppt wenn showResults true, completedTime gesetzt oder Seite nicht sichtbar
+  // Addiert die aktuelle Session-Zeit zur bisherigen Gesamtzeit
+  useEffect(() => {
+    if (startTime === null || completedTime !== null || showResults || !isPageVisible) return;
     const interval = setInterval(() => {
-      setElapsedTime(Date.now() - startTime);
+      setElapsedTime(previousElapsedTime + (Date.now() - startTime));
     }, 100);
     return () => clearInterval(interval);
-  }, [startTime, completedTime, showResults]);
+  }, [startTime, completedTime, showResults, previousElapsedTime, isPageVisible]);
 
   // Shuffle answers when question changes
   useEffect(() => {
@@ -306,6 +323,7 @@ export function useQuizPlayer(
     repeatQuestions,
     solvedQuestions,
     totalTries,
+    totalQuestions: repeatQuestions ? repeatQuestions.length : shuffledQuestions.length,
     questionProgress,
     elapsedTime,
     completedTime,
