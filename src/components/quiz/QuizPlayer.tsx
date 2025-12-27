@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useQuizPlayer } from '../../hooks/useQuizPlayer';
+import { useQuizPlayer, type QuizStartMode, type QuizPlayerInitialState } from '../../hooks/useQuizPlayer';
 import QuizQuestion from './QuizQuestion';
 import QuizResults from './QuizResults';
 import type { Quiz } from '../../types/quizTypes';
@@ -8,18 +8,17 @@ import type { UserQuizProgress } from '../../types/userProgress';
 import { getQuestionId } from '../../utils/questionIdHelper';
 import { ensureSRSFields } from '../../utils/srsHelpers';
 
-import type { QuizPlayerInitialState } from '../../hooks/useQuizPlayer';
-
 
 
 interface QuizPlayerProps {
   quiz: Quiz;
   onBack: () => void;
   onHome: () => void;
-    username?: string;
-  }
+  username?: string;
+  startMode?: QuizStartMode;
+}
 
-export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlayerProps) {
+export default function QuizPlayer({ quiz, onBack, onHome, username, startMode = 'fresh' }: QuizPlayerProps) {
   // Fortschritt laden und an useQuizPlayer übergeben (nur wenn username gesetzt)
   const [initialState, setInitialState] = useState<QuizPlayerInitialState | undefined>(undefined);
   const [progressLoaded, setProgressLoaded] = useState(!username);
@@ -45,7 +44,7 @@ export default function QuizPlayer({ quiz, onBack, onHome, username }: QuizPlaye
   }, [quiz.id, username]);
 
   // useQuizPlayer erst initialisieren, wenn Fortschritt geladen wurde (nur beim ersten Mount)
-  const quizPlayer = useQuizPlayer(quiz, progressLoaded ? initialState : undefined);
+  const quizPlayer = useQuizPlayer(quiz, progressLoaded ? initialState : undefined, startMode);
   const {
     currentQuestion,
     selectedAnswer,
