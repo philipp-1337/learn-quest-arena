@@ -1,14 +1,17 @@
-import { Play } from 'lucide-react';
+import { Play, RotateCcw, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { Quiz } from '../../types/quizTypes';
 import type { UserQuizProgress } from '../../types/userProgress';
 import { loadAllUserProgress } from '../../utils/loadAllUserProgress';
 import { showCompletedQuizWarning } from '../../utils/showCompletedQuizWarning';
+import type { QuizStartMode } from '../../hooks/useQuizPlayer';
 
+// Re-export the type for convenience
+export type { QuizStartMode };
 
 interface QuizSelectorProps {
   quizzes: Quiz[];
-  onSelect: (quiz: Quiz) => void;
+  onSelect: (quiz: Quiz, mode?: QuizStartMode) => void;
   username?: string;
 }
 
@@ -48,12 +51,16 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
         const progress = progressMap[quiz.id];
         let progressElement: React.ReactNode = null;
         let triesText = '';
+        let wrongCount = 0;
+        let solved = 0;
+        const total = quiz.questions.length;
+        
         if (username && progress) {
           // Fortschritt aus neuem Modell berechnen
-          const total = quiz.questions.length;
-          let solved = 0;
           if (progress.questions) {
             solved = Object.values(progress.questions).filter(q => q.answered).length;
+            // Falsche Fragen = Fragen mit Versuchen aber nicht beantwortet
+            wrongCount = Object.values(progress.questions).filter(q => !q.answered && q.attempts > 0).length;
           }
           const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
           if (progress.completed) {
@@ -69,26 +76,16 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
             triesText = `Versuche: ${progress.totalTries}`;
           }
         }
+        
+        // Check if user has incomplete progress (has wrong or unanswered questions)
+        const hasIncompleteProgress = username && progress && !progress.completed && solved > 0;
+        const unansweredCount = total - solved;
+        
         return (
           <div key={quiz.id} className="relative">
-            <button
-              onClick={() => {
-                try {
-                  if (progress?.completed) {
-                    showCompletedQuizWarning(() => onSelect(quiz));
-                  } else {
-                    onSelect(quiz);
-                  }
-                } catch (error) {
-                  console.error('Error selecting quiz:', error);
-                }
-              }}
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
-              title={quiz.title}
-              aria-label={quiz.title}
-            >
-              <div className="flex items-center justify-between">
-                <div className="text-left">
+            <div className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-left flex-1">
                   <h3 className="text-2xl font-bold mb-2 force-break" lang="de">{quiz.title}</h3>
                   <p className="text-indigo-100">
                     {quiz.questions.length} Fragen
@@ -102,15 +99,78 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
                         {triesText && (
                           <span className="text-xs text-indigo-100">{triesText}</span>
                         )}
+                        {wrongCount > 0 && (
+                          <span className="text-xs text-orange-200">{wrongCount} falsch beantwortet</span>
+                        )}
                       </div>
                     ) : (
                       <span className="text-xs text-indigo-200">Noch nicht gestartet</span>
                     )
                   ) : null}
                 </div>
-                <Play className="w-12 h-12" />
               </div>
-            </button>
+              
+              {/* Action buttons */}
+              <div className="flex flex-wrap gap-2">
+                {hasIncompleteProgress ? (
+                  <>
+                    {/* Continue with wrong/unanswered questions */}
+                    <button
+                      onClick={() => {
+                        try {
+                          onSelect(quiz, 'continue');
+                        } catch (error) {
+                          console.error('Error selecting quiz:', error);
+                        }
+                      }}
+                      className="flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                      title="Mit falschen Fragen weitermachen"
+                      aria-label="Mit falschen Fragen weitermachen"
+                    >
+                      <RefreshCw className="w-5 h-5" />
+                      <span>Weiterlernen ({unansweredCount} Fragen)</span>
+                    </button>
+                    {/* Start fresh */}
+                    <button
+                      onClick={() => {
+                        try {
+                          onSelect(quiz, 'fresh');
+                        } catch (error) {
+                          console.error('Error selecting quiz:', error);
+                        }
+                      }}
+                      className="flex-1 min-w-[140px] bg-white/20 hover:bg-white/30 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                      title="Neu starten"
+                      aria-label="Neu starten"
+                    >
+                      <RotateCcw className="w-5 h-5" />
+                      <span>Neu starten</span>
+                    </button>
+                  </>
+                ) : (
+                  /* Default: single play button */
+                  <button
+                    onClick={() => {
+                      try {
+                        if (progress?.completed) {
+                          showCompletedQuizWarning(() => onSelect(quiz, 'fresh'));
+                        } else {
+                          onSelect(quiz, 'fresh');
+                        }
+                      } catch (error) {
+                        console.error('Error selecting quiz:', error);
+                      }
+                    }}
+                    className="w-full bg-white/20 hover:bg-white/30 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                    title={quiz.title}
+                    aria-label={quiz.title}
+                  >
+                    <Play className="w-6 h-6" />
+                    <span>{progress?.completed ? 'Nochmal spielen' : 'Quiz starten'}</span>
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         );
       })}

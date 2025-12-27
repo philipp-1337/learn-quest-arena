@@ -10,7 +10,7 @@ import Breadcrumb from "./Breadcrumb";
 import SubjectSelector from "./SubjectSelector";
 import ClassSelector from "./ClassSelector";
 import TopicSelector from "./TopicSelector";
-import { QuizSelector } from "./QuizSelector";
+import { QuizSelector, type QuizStartMode } from "./QuizSelector";
 import QuizPlayer from "./QuizPlayer";
 import QuizChallengePlayer from "./QuizChallengePlayer";
 import Footer from "../footer/Footer";
@@ -43,6 +43,7 @@ export default function QuizView({
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [showUserView, setShowUserView] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [quizStartMode, setQuizStartMode] = useState<QuizStartMode>('fresh');
 
   const {
     selectedSubject,
@@ -130,8 +131,11 @@ export default function QuizView({
     navigateToTopic(selectedSubject, selectedClass, topic);
   };
 
-  const handleQuizSelect = (quiz: Quiz) => {
-    console.log("Selected quiz:", quiz);
+  const handleQuizSelect = (quiz: Quiz, mode?: QuizStartMode) => {
+    console.log("Selected quiz:", quiz, "mode:", mode);
+    
+    // Set the start mode
+    setQuizStartMode(mode || 'fresh');
 
     // Find the subject, class, and topic for this quiz
     const subject = subjects.find((s) =>
@@ -172,6 +176,7 @@ export default function QuizView({
   const handleBackFromQuiz = () => {
     selectQuiz(null as any); // Explicit cast to satisfy TypeScript
     setSelectedChallenge(null);
+    setQuizStartMode('fresh'); // Reset the mode when going back
     navigateToHome();
   };
 
@@ -290,6 +295,7 @@ export default function QuizView({
         onBack={handleBackFromQuiz}
         onHome={handleReset}
         username={username}
+        startMode={quizStartMode}
       />
     );
   }

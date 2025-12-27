@@ -3,6 +3,23 @@ import type { Quiz, Question, Answer } from '../types/quizTypes';
 import type { QuestionSRSData } from '../types/userProgress';
 import { getQuestionId } from '../utils/questionIdHelper';
 
+// Quiz start mode - determines how to start the quiz
+export type QuizStartMode = 'fresh' | 'continue';
+
+// Helper function to find the original index of a question in the quiz
+function findOriginalQuestionIndex(question: Question, quiz: Quiz): number {
+  // First try direct reference match
+  const directIndex = quiz.questions.indexOf(question);
+  if (directIndex >= 0) return directIndex;
+  
+  // If direct match fails, try matching by question text and correct answer index
+  // This handles cases where question objects have been copied
+  return quiz.questions.findIndex(q => 
+    q.question === question.question && 
+    q.correctAnswerIndex === question.correctAnswerIndex
+  );
+}
+
 // SRS Hilfsfunktionen
 function calculateNextReviewDate(correctStreak: number, isCorrect: boolean): number {
   // Einfaches SRS: Intervall verdoppelt sich bei richtigen Antworten
@@ -37,16 +54,33 @@ export type QuizPlayerInitialState = {
 
 export function useQuizPlayer(
   quiz: Quiz,
-  initialState?: QuizPlayerInitialState
+  initialState?: QuizPlayerInitialState,
+  startMode: QuizStartMode = 'fresh'
 ) {
   // Fragen einmalig mischen (gleiche Reihenfolge für die Session)
+  // Bei 'continue' Modus: Nur unbeantwortete Fragen anzeigen
   const [shuffledQuestions] = useState(() => {
-    const arr = [...quiz.questions];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+    let questionsToUse = [...quiz.questions];
+    
+    // In 'continue' mode, filter to only unanswered questions
+    if (startMode === 'continue' && initialState?.questions) {
+      questionsToUse = questionsToUse.filter((q, idx) => {
+        const qId = getQuestionId(q, quiz.id, idx);
+        return !initialState.questions?.[qId]?.answered;
+      });
     }
-    return arr;
+    
+    // If no questions to continue with, fall back to all questions
+    if (questionsToUse.length === 0) {
+      questionsToUse = [...quiz.questions];
+    }
+    
+    // Shuffle the questions
+    for (let i = questionsToUse.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [questionsToUse[i], questionsToUse[j]] = [questionsToUse[j], questionsToUse[i]];
+    }
+    return questionsToUse;
   });
   // Finde die erste ungelöste Frage, falls Fortschritt vorhanden
 
@@ -55,7 +89,8 @@ export function useQuizPlayer(
     if (initialState?.questions) {
       // Verwende Question IDs statt Indizes
       const idx = shuffledQuestions.findIndex((q) => {
-        const qId = getQuestionId(q, quiz.id, quiz.questions.indexOf(q));
+        const originalIdx = findOriginalQuestionIndex(q, quiz);
+        const qId = getQuestionId(q, quiz.id, originalIdx >= 0 ? originalIdx : 0);
         return !initialState.questions?.[qId]?.answered;
       });
       return idx === -1 ? 0 : idx;
@@ -122,9 +157,9 @@ export function useQuizPlayer(
     const currentQ = questions[currentQuestion];
     const isCorrect = answer.originalIndex === currentQ.correctAnswerIndex;
     
-    // Question ID für das Progress-Tracking ermitteln
-    const originalIndex = quiz.questions.indexOf(currentQ);
-    const questionId = getQuestionId(currentQ, quiz.id, originalIndex >= 0 ? originalIndex : currentQuestion);
+    // Question ID für das Progress-Tracking ermitteln - verwende Helper-Funktion
+    const originalIndex = findOriginalQuestionIndex(currentQ, quiz);
+    const questionId = getQuestionId(currentQ, quiz.id, originalIndex >= 0 ? originalIndex : 0);
     
     setAnswers(prevAnswers => {
       const newAnswers = [...prevAnswers, isCorrect];
