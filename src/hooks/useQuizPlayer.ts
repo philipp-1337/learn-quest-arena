@@ -46,6 +46,7 @@ export type QuizPlayerInitialState = {
   answers?: boolean[];
   solvedQuestions?: string[];
   totalTries?: number;
+  totalElapsedTime?: number;
   questions?: {
     [questionId: string]: QuestionSRSData;
   };
