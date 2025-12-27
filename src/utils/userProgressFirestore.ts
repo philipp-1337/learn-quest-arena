@@ -2,6 +2,22 @@ import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import type { UserProgress, UserQuizProgress } from "../types/userProgress";
 import { ensureSRSFields } from "./srsHelpers";
 
+// Helper function to remove undefined values from an object (recursively)
+function removeUndefinedFields<T extends Record<string, any>>(obj: T): Partial<T> {
+  const cleaned: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      // Recursively clean nested objects
+      if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+        cleaned[key] = removeUndefinedFields(value);
+      } else {
+        cleaned[key] = value;
+      }
+    }
+  }
+  return cleaned;
+}
+
 // Speichert den Fortschritt eines Users für ein Quiz (neues Modell)
 export async function saveUserQuizProgress(progress: UserQuizProgress) {
   if (progress.username === "Gast") {
@@ -9,7 +25,8 @@ export async function saveUserQuizProgress(progress: UserQuizProgress) {
   }
   const db = getFirestore();
   const ref = doc(db, "users", progress.username, "progress", progress.quizId);
-  await setDoc(ref, { ...progress, quizId: progress.quizId }, { merge: true });
+  const cleanedProgress = removeUndefinedFields({ ...progress, quizId: progress.quizId });
+  await setDoc(ref, cleanedProgress, { merge: true });
 }
 
 // Lädt den Fortschritt eines Users für ein Quiz (neues Modell)
@@ -47,7 +64,8 @@ export async function saveUserProgress(progress: UserProgress) {
   const db = getFirestore();
   const ref = doc(db, "users", progress.username, "progress", progress.quizId);
   // quizId explizit im Dokument speichern
-  await setDoc(ref, { ...progress, quizId: progress.quizId }, { merge: true });
+  const cleanedProgress = removeUndefinedFields({ ...progress, quizId: progress.quizId });
+  await setDoc(ref, cleanedProgress, { merge: true });
 }
 
 // Lädt den Fortschritt eines Users für ein Quiz

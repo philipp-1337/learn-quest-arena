@@ -32,6 +32,7 @@ export interface UserQuizProgress {
   totalTries: number;            // Wie oft wurde das Quiz insgesamt gestartet?
   completed: boolean;            // Wurden alle Fragen richtig beantwortet?
   lastUpdated: number;           // Timestamp
+  totalElapsedTime?: number;     // Gesamt-Zeit in Millisekunden über alle Sessions hinweg
   completedTime?: number;        // Zeit in Millisekunden, die benötigt wurde um das Quiz zu 100% zu lösen
 }
 

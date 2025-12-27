@@ -79,7 +79,7 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
         
         // Check if user has incomplete progress (has wrong or unanswered questions)
         const hasIncompleteProgress = username && progress && !progress.completed && solved > 0;
-        const unansweredCount = total - solved;
+        // const unansweredCount = total - solved;
         
         return (
           <div key={quiz.id} className="relative">
@@ -94,13 +94,13 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
                     loading ? (
                       <span className="text-xs text-indigo-200">Lade Fortschritt...</span>
                     ) : progressElement ? (
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-xs text-green-200">Fortschritt: {progressElement}</span>
+                      <div className="flex flex-wrap gap-1">
+                        <span className="text-xs text-green-200 after:content-['–'] after:ml-1 after:text-indigo-100">Fortschritt: {progressElement}</span>
+                        {wrongCount > 0 && (
+                          <span className="text-xs text-orange-200 after:content-['–'] after:ml-1 after:text-indigo-100">{wrongCount} falsch beantwortet</span>
+                        )}
                         {triesText && (
                           <span className="text-xs text-indigo-100">{triesText}</span>
-                        )}
-                        {wrongCount > 0 && (
-                          <span className="text-xs text-orange-200">{wrongCount} falsch beantwortet</span>
                         )}
                       </div>
                     ) : (
@@ -128,7 +128,7 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
                       aria-label="Mit falschen Fragen weitermachen"
                     >
                       <RefreshCw className="w-5 h-5" />
-                      <span>Weiterlernen ({unansweredCount} Fragen)</span>
+                      <span>Weiterlernen</span>
                     </button>
                     {/* Start fresh */}
                     <button
