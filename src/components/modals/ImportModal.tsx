@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Upload, AlertCircle, CheckCircle, X, Download, ClipboardList } from "lucide-react";
-import type { Subject } from "../../types/quizTypes";
+import { getAuth } from "firebase/auth";
+import type { QuizDocument } from "../../types/quizTypes";
+import { saveQuizDocument, loadAllQuizDocuments } from "../../utils/quizzesCollection";
 
 // ============================================
 // IMPORT MODAL COMPONENT
 // ============================================
 
 interface ImportModalProps {
-  subjects: Subject[];
-  onImport: (updatedSubjects: Subject[]) => void;
   onClose: () => void;
+  onImportComplete: () => void;
 }
 
 interface ImportResult {
@@ -18,7 +19,7 @@ interface ImportResult {
   details?: string[];
 }
 
-export default function ImportModal({ subjects, onImport, onClose }: ImportModalProps) {
+export default function ImportModal({ onClose, onImportComplete }: ImportModalProps) {
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -150,6 +151,17 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
     const file = event.target.files?.[0];
     if (!file) return;
 
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      setImportResult({
+        success: false,
+        message: 'Nicht eingeloggt',
+      });
+      return;
+    }
+
     setIsProcessing(true);
     setImportResult(null);
 
@@ -166,22 +178,13 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
         throw new Error('Nur JSON oder CSV Dateien werden unterstützt');
       }
 
-      // Validate and merge data
-      const result = mergeImportData(importData, subjects);
+      // Import directly to the quizzes collection
+      const result = await importToQuizzesCollection(importData, user.uid, user.email || undefined);
+      
+      setImportResult(result);
       
       if (result.success) {
-        onImport(result.subjects);
-        setImportResult({
-          success: true,
-          message: `Import erfolgreich!`,
-          details: result.details
-        });
-      } else {
-        setImportResult({
-          success: false,
-          message: result.message,
-          details: result.details
-        });
+        onImportComplete();
       }
     } catch (error: any) {
       setImportResult({
@@ -193,11 +196,17 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
     }
   };
 
-  const mergeImportData = (importData: any[], existingSubjects: Subject[]) => {
+  const importToQuizzesCollection = async (
+    importData: any[], 
+    authorId: string, 
+    authorEmail?: string
+  ): Promise<ImportResult> => {
     const details: string[] = [];
-    let newSubjects = [...existingSubjects];
     let quizzesAdded = 0;
     let questionsAdded = 0;
+
+    // Load existing quizzes to check for duplicates
+    const existingQuizzes = await loadAllQuizDocuments();
 
     try {
       for (const item of importData) {
@@ -206,43 +215,28 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
           throw new Error('Fehlende erforderliche Felder (subject, class, topic, quizzes)');
         }
 
-        // Find or create subject
-        let subject = newSubjects.find(s => s.name.toLowerCase() === item.subject.toLowerCase());
-        if (!subject) {
-          subject = {
-            id: Date.now().toString() + Math.random(),
-            name: item.subject,
-            order: newSubjects.length + 1,
-            classes: []
-          };
-          newSubjects.push(subject);
-          details.push(`Neues Fach erstellt: ${item.subject}`);
-        }
+        // Generate IDs for subject, class, topic
+        const subjectId = `subject-${item.subject.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
+        const classId = `${subjectId}-class-${item.class.toLowerCase().replace(/\s+/g, '-')}`;
+        const topicId = `${classId}-topic-${item.topic.toLowerCase().replace(/\s+/g, '-')}`;
 
-        // Find or create class
-        let classItem = subject.classes.find(c => c.name.toLowerCase() === item.class.toLowerCase());
-        if (!classItem) {
-          classItem = {
-            id: `${subject.id}-${Date.now()}`,
-            name: item.class,
-            level: subject.classes.length + 1,
-            topics: []
-          };
-          subject.classes.push(classItem);
-          details.push(`Neue Klasse erstellt: ${item.class}`);
-        }
+        // Check existing quizzes to reuse IDs if they exist
+        const existingWithSameSubject = existingQuizzes.find(q => 
+          q.subjectName?.toLowerCase() === item.subject.toLowerCase()
+        );
+        const existingWithSameClass = existingQuizzes.find(q => 
+          q.subjectName?.toLowerCase() === item.subject.toLowerCase() &&
+          q.className?.toLowerCase() === item.class.toLowerCase()
+        );
+        const existingWithSameTopic = existingQuizzes.find(q => 
+          q.subjectName?.toLowerCase() === item.subject.toLowerCase() &&
+          q.className?.toLowerCase() === item.class.toLowerCase() &&
+          q.topicName?.toLowerCase() === item.topic.toLowerCase()
+        );
 
-        // Find or create topic
-        let topic = classItem.topics.find(t => t.name.toLowerCase() === item.topic.toLowerCase());
-        if (!topic) {
-          topic = {
-            id: `${classItem.id}-${Date.now()}`,
-            name: item.topic,
-            quizzes: []
-          };
-          classItem.topics.push(topic);
-          details.push(`Neues Thema erstellt: ${item.topic}`);
-        }
+        const finalSubjectId = existingWithSameSubject?.subjectId || subjectId;
+        const finalClassId = existingWithSameClass?.classId || classId;
+        const finalTopicId = existingWithSameTopic?.topicId || topicId;
 
         // Add quizzes
         for (const quiz of item.quizzes) {
@@ -251,7 +245,10 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
           }
 
           // Check for duplicate quiz
-          const existingQuiz = topic.quizzes.find(q => q.title.toLowerCase() === quiz.title.toLowerCase());
+          const existingQuiz = existingQuizzes.find(q => 
+            q.title.toLowerCase() === quiz.title.toLowerCase() &&
+            q.topicId === finalTopicId
+          );
           if (existingQuiz) {
             details.push(`Quiz "${quiz.title}" existiert bereits und wurde übersprungen`);
             continue;
@@ -267,23 +264,45 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             }
           }
 
-          const newQuiz = {
-            id: `${topic.id}-${Date.now()}-${Math.random()}`,
+          const now = Date.now();
+          const quizId = crypto.randomUUID();
+
+          const quizDoc: QuizDocument = {
+            id: quizId,
+            uuid: quizId,
             title: quiz.title,
             shortTitle: quiz.title.substring(0, 20),
-            questions: quiz.questions
+            questions: quiz.questions,
+            hidden: true, // Start hidden
+            createdAt: now,
+            updatedAt: now,
+            authorId,
+            authorEmail,
+            subjectId: finalSubjectId,
+            subjectName: item.subject,
+            classId: finalClassId,
+            className: item.class,
+            topicId: finalTopicId,
+            topicName: item.topic,
           };
-          topic.quizzes.push(newQuiz);
-          quizzesAdded++;
-          questionsAdded += quiz.questions.length;
-          details.push(`Quiz hinzugefügt: "${quiz.title}" (${quiz.questions.length} Fragen)`);
+
+          const result = await saveQuizDocument(quizDoc);
+          
+          if (result.success) {
+            quizzesAdded++;
+            questionsAdded += quiz.questions.length;
+            details.push(`Quiz hinzugefügt: "${quiz.title}" (${quiz.questions.length} Fragen)`);
+          } else {
+            details.push(`Fehler bei "${quiz.title}": ${result.error}`);
+          }
         }
       }
 
       return {
-        success: true,
-        subjects: newSubjects,
-        message: `Import erfolgreich!`,
+        success: quizzesAdded > 0,
+        message: quizzesAdded > 0 
+          ? `Import erfolgreich!` 
+          : 'Keine neuen Quizze importiert',
         details: [
           `${quizzesAdded} Quiz(ze) mit ${questionsAdded} Fragen importiert`,
           ...details
@@ -292,7 +311,6 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
     } catch (error: any) {
       return {
         success: false,
-        subjects: existingSubjects,
         message: error.message,
         details: details
       };
