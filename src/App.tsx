@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import LoadingScreen from './components/misc/LoadingScreen';
+import MaintenanceView from './components/misc/MaintenanceView';
 import Toaster from './utils/ToasterProvider';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import LoginView from './components/login/LoginView';
@@ -9,6 +10,7 @@ import Dataprotection from './components/footer/Dataprotection';
 import Imprint from './components/footer/Imprint';
 import type { Subject } from './types/quizTypes';
 import useFirestore from "./hooks/useFirestore";
+import useMaintenanceMode from './hooks/useMaintenanceMode';
 import ProtectedRoute from './utils/ProtectedRoute';
 import useScrollToTop from './hooks/useScrollToTop';
 import { getAuth } from 'firebase/auth';
@@ -21,6 +23,7 @@ import { getAuth } from 'firebase/auth';
 
 export default function FlashcardQuizApp() {
   const { fetchCollection } = useFirestore();
+  const { isMaintenanceMode, isLoading: maintenanceLoading } = useMaintenanceMode();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   // Entfernt: isLoggedIn, stattdessen Firebase-Auth nutzen
   const [isLoading, setIsLoading] = useState(true);
@@ -106,8 +109,13 @@ export default function FlashcardQuizApp() {
   const handleLogin = () => {};
 
 
-  if (isLoading) {
+  if (isLoading || maintenanceLoading) {
     return <LoadingScreen />;
+  }
+
+  // Zeige Wartungsseite, wenn Wartungsmodus aktiv ist
+  if (isMaintenanceMode) {
+    return <MaintenanceView />;
   }
 
 

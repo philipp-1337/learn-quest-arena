@@ -48,6 +48,15 @@ service cloud.firestore {
       allow create, update, delete: if request.auth != null;
     }
     
+    // System Config - Lesen für alle, Schreiben nur für Admins
+    match /systemConfig/{configId} {
+      // Jeder kann System-Config lesen (für Wartungsmodus-Check)
+      allow read: if true;
+      
+      // Nur eingeloggte Admins können Config ändern
+      allow create, update, delete: if request.auth != null;
+    }
+    
     // Quiz Results / Progress (falls du das später trackst)
     match /quizResults/{resultId} {
       allow read, write: if request.auth != null;
