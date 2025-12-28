@@ -1,11 +1,14 @@
-import type { Subject, Class, Topic, Quiz } from '../types/quizTypes';
+import type { Subject, Class, Topic, Quiz, QuizDocument } from '../types/quizTypes';
 import useFirestore from './useFirestore';
+import { getAuth } from 'firebase/auth';
+import { saveQuizDocument, updateQuizDocument, deleteQuizDocument } from '../utils/quizzesCollection';
 
 export function useQuizHierarchy(
   subjects: Subject[],
   onSubjectsChange: (subjects: Subject[]) => void
 ) {
   const { saveDocument, deleteDocument } = useFirestore();
+  const auth = getAuth();
 
   /* ---------- Helpers ---------- */
 
@@ -92,15 +95,20 @@ export function useQuizHierarchy(
     const topic = cls.topics.find(t => t.id === topicId);
     if (!topic) return;
 
+    const user = auth.currentUser;
+    const now = Date.now();
+    const quizUuid = crypto.randomUUID();
+
     const newQuiz: Quiz = {
-      id: `${topicId}-${Date.now()}`,
-      uuid: crypto.randomUUID(),
+      id: `${topicId}-${now}`,
+      uuid: quizUuid,
       title,
       shortTitle: title,
       questions: [],
       hidden,
     };
 
+    // Save to old embedded structure (for backward compatibility)
     await persistSubject({
       ...subject,
       classes: subject.classes.map(c =>
@@ -116,6 +124,26 @@ export function useQuizHierarchy(
           : c
       ),
     });
+
+    // Also save to new quizzes collection (dual-write for migration)
+    if (user) {
+      const quizDoc: QuizDocument = {
+        ...newQuiz,
+        id: quizUuid, // Use UUID as the document ID in new collection
+        createdAt: now,
+        updatedAt: now,
+        authorId: user.uid,
+        authorEmail: user.email || undefined,
+        subjectId: subject.id,
+        subjectName: subject.name,
+        classId: cls.id,
+        className: cls.name,
+        topicId: topic.id,
+        topicName: topic.name,
+        legacyQuizId: newQuiz.id,
+      };
+      await saveQuizDocument(quizDoc);
+    }
   };
 
   /* ---------- Delete ---------- */
@@ -162,6 +190,12 @@ export function useQuizHierarchy(
     const subject = subjects.find(s => s.id === subjectId);
     if (!subject) return;
 
+    // Find the quiz to get its UUID for deletion from new collection
+    const cls = subject.classes.find(c => c.id === classId);
+    const topic = cls?.topics.find(t => t.id === topicId);
+    const quiz = topic?.quizzes.find(q => q.id === quizId);
+
+    // Delete from old embedded structure
     await persistSubject({
       ...subject,
       classes: subject.classes.map(c =>
@@ -180,6 +214,11 @@ export function useQuizHierarchy(
           : c
       ),
     });
+
+    // Also delete from new quizzes collection (dual-write for migration)
+    if (quiz?.uuid) {
+      await deleteQuizDocument(quiz.uuid);
+    }
   };
 
   /* ---------- Update ---------- */
@@ -193,10 +232,14 @@ export function useQuizHierarchy(
     const subject = subjects.find(s => s.id === subjectId);
     if (!subject) return;
 
+    const cls = subject.classes.find(c => c.id === classId);
+    const topic = cls?.topics.find(t => t.id === topicId);
+
     if (!updatedQuiz.uuid) {
       updatedQuiz.uuid = crypto.randomUUID();
     }
 
+    // Save to old embedded structure (for backward compatibility)
     await persistSubject({
       ...subject,
       classes: subject.classes.map(c =>
@@ -217,6 +260,21 @@ export function useQuizHierarchy(
           : c
       ),
     });
+
+    // Also update in new quizzes collection (dual-write for migration)
+    if (updatedQuiz.uuid) {
+      await updateQuizDocument(updatedQuiz.uuid, {
+        title: updatedQuiz.title,
+        shortTitle: updatedQuiz.shortTitle,
+        questions: updatedQuiz.questions,
+        hidden: updatedQuiz.hidden,
+        updatedAt: Date.now(),
+        // Update denormalized names if available
+        subjectName: subject.name,
+        className: cls?.name,
+        topicName: topic?.name,
+      });
+    }
   };
 
   /* ---------- Rename/Update ---------- */

@@ -1,111 +1,104 @@
-# React + TypeScript + Vite
+# Learn Quest Arena
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Eine Quiz-Lern-Anwendung für Schulen, gebaut mit React, TypeScript und Firebase.
 
-Currently, two official plugins are available:
+## Funktionen
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Quiz-System**: Erstellen und Spielen von Quizzen mit verschiedenen Fragetypen (Text und Bilder)
+- **Hierarchische Struktur**: Fächer → Klassen → Themen → Quizze
+- **Fortschrittsverfolgung**: Speichert den Lernfortschritt für jeden Benutzer
+- **Spaced Repetition**: Intelligentes Wiederholungssystem für effektives Lernen
+- **Quiz-Challenge**: Beta-Feature im Stil von "Wer wird Millionär"
+- **Admin-Bereich**: Verwaltung von Quizzen durch authentifizierte Lehrkräfte
 
-## React Compiler
+## Datenstruktur
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Firestore Collections
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+#### subjects (Legacy - eingebettete Struktur)
+```
+subjects/{subjectId}
+  ├── name: string
+  ├── order: number
+  └── classes: [
+        {
+          id, name, level,
+          topics: [
+            {
+              id, name,
+              quizzes: [{ id, uuid, title, shortTitle, questions, hidden }]
+            }
+          ]
+        }
+      ]
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+#### quizzes (Neu - eigenständige Collection)
+```
+quizzes/{quizId}
+  ├── id: string (UUID)
+  ├── title: string
+  ├── shortTitle: string
+  ├── questions: Question[]
+  ├── hidden: boolean
+  ├── createdAt: timestamp
+  ├── updatedAt: timestamp
+  ├── authorId: string (Firebase Auth UID)
+  ├── authorEmail: string
+  ├── subjectId: string
+  ├── subjectName: string
+  ├── classId: string
+  ├── className: string
+  ├── topicId: string
+  └── topicName: string
 ```
 
-## FIREBASE INTEGRATION INSTRUCTIONS
+#### users
+```
+users/{username}
+  └── progress/{quizId}
+        ├── questions: { [questionId]: QuestionSRSData }
+        ├── totalTries: number
+        ├── completed: boolean
+        └── lastUpdated: timestamp
+```
 
-WICHTIG: Diese Version verwendet Mock-Daten für Demo-Zwecke.
+### Migration
 
-Für die Produktion mit Firebase:
+Die Anwendung unterstützt sowohl die alte eingebettete Struktur als auch die neue eigenständige Quiz-Collection. Neue Quizze werden automatisch in beide Strukturen geschrieben (Dual-Write).
 
-1. Exportiere diesen Code in dein eigenes Projekt
-2. Installiere Firebase: npm install firebase
-3. Erstelle firebase.js mit deiner Config
-4. Ersetze alle Mock-Funktionen mit Firebase-Aufrufen
-5. Implementiere Firestore Security Rules
+Um bestehende Quizze zu migrieren:
+1. Im Admin-Bereich einloggen
+2. Zum Tab "Migration" wechseln
+3. "Migration starten" klicken
 
-Detaillierte Anleitung für Firebase-Integration:
+## Entwicklung
 
-- Authentication: signInWithEmailAndPassword für Login
-- Firestore: collection/doc/getDocs für Datenzugriff
-- Security Rules: Lesezugriff für alle, Schreibzugriff nur für authentifizierte User
-- Storage: getStorage/uploadBytes/getDownloadURL für Bilder
+```bash
+# Abhängigkeiten installieren
+npm install
 
-ROUTING:
-Für direkten Zugriff auf Quizze kannst du URL-Parameter nutzen:
+# Entwicklungsserver starten
+npm run dev
 
-- /quiz/{subjectId}/{classId}/{topicId}/{quizId}
-- Die App prüft beim Start die URL und navigiert automatisch
+# Produktions-Build erstellen
+npm run build
 
-In Firebase Hosting kannst du rewrites in firebase.json konfigurieren:
-{
-  "hosting": {
-    "rewrites": [
-      {
-        "source": "/quiz/**",
-        "destination": "/index.html"
-      }
-    ]
-  }
-}
-*/
+# Linting
+npm run lint
+```
+
+## Firebase Setup
+
+1. Firebase-Projekt erstellen
+2. `src/firebaseConfig.ts` mit deiner Firebase-Konfiguration anpassen
+3. Firestore Security Rules aus `firestore.rules` deployen
+4. Firebase Authentication aktivieren (E-Mail/Passwort)
+
+## Routing
+
+Direkte Quiz-Links im Format:
+- `/quiz/{subject}/{class}/{topic}/{quiz}`
+
+Firebase Hosting Rewrites in `firebase.json` sind bereits konfiguriert.
+
