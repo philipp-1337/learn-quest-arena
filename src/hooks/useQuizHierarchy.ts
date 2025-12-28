@@ -1,38 +1,34 @@
 import type { Subject, Class, Topic, Quiz, QuizDocument } from '../types/quizTypes';
-import useFirestore from './useFirestore';
 import { getAuth } from 'firebase/auth';
 import { saveQuizDocument, updateQuizDocument, deleteQuizDocument } from '../utils/quizzesCollection';
 
 export function useQuizHierarchy(
   subjects: Subject[],
-  onSubjectsChange: (subjects: Subject[]) => void
+  onSubjectsChange: (subjects: Subject[]) => void,
+  onRefetch?: () => Promise<void>
 ) {
-  const { saveDocument, deleteDocument } = useFirestore();
   const auth = getAuth();
 
   /* ---------- Helpers ---------- */
 
-  const persistSubject = async (updated: Subject) => {
-    await saveDocument(`subjects/${updated.id}`, updated);
-    // Tiefe Kopie, um State-Referenz zu ändern und ein Re-Render zu erzwingen
-    const newSubjects = subjects.map(s =>
-      s.id === updated.id ? JSON.parse(JSON.stringify(updated)) : s
-    );
+  // Helper to update local state after changes
+  const updateLocalSubjects = (updater: (subjects: Subject[]) => Subject[]) => {
+    const newSubjects = updater(subjects);
     onSubjectsChange(newSubjects);
   };
 
   /* ---------- Add ---------- */
 
   const addSubject = async (name: string) => {
+    // Subjects are now just metadata derived from quizzes
+    // Creating a new "subject" means we'll add a quiz to it later
     const newSubject: Subject = {
       id: `subject-${Date.now()}`,
       name,
       order: subjects.length + 1,
       classes: [],
     };
-
-    await saveDocument(`subjects/${newSubject.id}`, newSubject);
-    onSubjectsChange([...subjects, newSubject]);
+    updateLocalSubjects(prev => [...prev, newSubject]);
   };
 
   const addClass = async (name: string, subjectId: string) => {
@@ -46,10 +42,11 @@ export function useQuizHierarchy(
       topics: [],
     };
 
-    await persistSubject({
-      ...subject,
-      classes: [...subject.classes, newClass],
-    });
+    updateLocalSubjects(prev => prev.map(s =>
+      s.id === subjectId
+        ? { ...s, classes: [...s.classes, newClass] }
+        : s
+    ));
   };
 
   const addTopic = async (
@@ -69,14 +66,18 @@ export function useQuizHierarchy(
       quizzes: [],
     };
 
-    await persistSubject({
-      ...subject,
-      classes: subject.classes.map(c =>
-        c.id === classId
-          ? { ...c, topics: [...c.topics, newTopic] }
-          : c
-      ),
-    });
+    updateLocalSubjects(prev => prev.map(s =>
+      s.id === subjectId
+        ? {
+            ...s,
+            classes: s.classes.map(c =>
+              c.id === classId
+                ? { ...c, topics: [...c.topics, newTopic] }
+                : c
+            ),
+          }
+        : s
+    ));
   };
 
   const addQuiz = async (
@@ -96,11 +97,16 @@ export function useQuizHierarchy(
     if (!topic) return;
 
     const user = auth.currentUser;
+    if (!user) {
+      console.error('User must be authenticated to create a quiz');
+      return;
+    }
+
     const now = Date.now();
     const quizUuid = crypto.randomUUID();
 
     const newQuiz: Quiz = {
-      id: `${topicId}-${now}`,
+      id: quizUuid,
       uuid: quizUuid,
       title,
       shortTitle: title,
@@ -108,59 +114,61 @@ export function useQuizHierarchy(
       hidden,
     };
 
-    // Save to old embedded structure (for backward compatibility)
-    await persistSubject({
-      ...subject,
-      classes: subject.classes.map(c =>
-        c.id === classId
-          ? {
-              ...c,
-              topics: c.topics.map(t =>
-                t.id === topicId
-                  ? { ...t, quizzes: [...t.quizzes, newQuiz] }
-                  : t
-              ),
-            }
-          : c
-      ),
-    });
+    // Save to quizzes collection only
+    const quizDoc: QuizDocument = {
+      ...newQuiz,
+      id: quizUuid,
+      createdAt: now,
+      updatedAt: now,
+      authorId: user.uid,
+      authorEmail: user.email || undefined,
+      subjectId: subject.id,
+      subjectName: subject.name,
+      classId: cls.id,
+      className: cls.name,
+      topicId: topic.id,
+      topicName: topic.name,
+    };
+    
+    await saveQuizDocument(quizDoc);
 
-    // Also save to new quizzes collection (dual-write for migration)
-    if (user) {
-      const quizDoc: QuizDocument = {
-        ...newQuiz,
-        id: quizUuid, // Use UUID as the document ID in new collection
-        createdAt: now,
-        updatedAt: now,
-        authorId: user.uid,
-        authorEmail: user.email || undefined,
-        subjectId: subject.id,
-        subjectName: subject.name,
-        classId: cls.id,
-        className: cls.name,
-        topicId: topic.id,
-        topicName: topic.name,
-        legacyQuizId: newQuiz.id,
-      };
-      await saveQuizDocument(quizDoc);
-    }
+    // Update local state
+    updateLocalSubjects(prev => prev.map(s =>
+      s.id === subjectId
+        ? {
+            ...s,
+            classes: s.classes.map(c =>
+              c.id === classId
+                ? {
+                    ...c,
+                    topics: c.topics.map(t =>
+                      t.id === topicId
+                        ? { ...t, quizzes: [...t.quizzes, newQuiz] }
+                        : t
+                    ),
+                  }
+                : c
+            ),
+          }
+        : s
+    ));
   };
 
   /* ---------- Delete ---------- */
 
   const deleteSubject = async (subjectId: string) => {
-    await deleteDocument(`subjects/${subjectId}`);
-    onSubjectsChange(subjects.filter(s => s.id !== subjectId));
+    // Subjects are now derived from quizzes, so we need to delete all quizzes for this subject
+    // For now, just remove from local state - actual quizzes can be deleted individually
+    updateLocalSubjects(prev => prev.filter(s => s.id !== subjectId));
   };
 
   const deleteClass = async (subjectId: string, classId: string) => {
-    const subject = subjects.find(s => s.id === subjectId);
-    if (!subject) return;
-
-    await persistSubject({
-      ...subject,
-      classes: subject.classes.filter(c => c.id !== classId),
-    });
+    // Classes are derived from quizzes, remove from local state
+    updateLocalSubjects(prev => prev.map(s =>
+      s.id === subjectId
+        ? { ...s, classes: s.classes.filter(c => c.id !== classId) }
+        : s
+    ));
   };
 
   const deleteTopic = async (
@@ -168,17 +176,19 @@ export function useQuizHierarchy(
     classId: string,
     topicId: string
   ) => {
-    const subject = subjects.find(s => s.id === subjectId);
-    if (!subject) return;
-
-    await persistSubject({
-      ...subject,
-      classes: subject.classes.map(c =>
-        c.id === classId
-          ? { ...c, topics: c.topics.filter(t => t.id !== topicId) }
-          : c
-      ),
-    });
+    // Topics are derived from quizzes, remove from local state
+    updateLocalSubjects(prev => prev.map(s =>
+      s.id === subjectId
+        ? {
+            ...s,
+            classes: s.classes.map(c =>
+              c.id === classId
+                ? { ...c, topics: c.topics.filter(t => t.id !== topicId) }
+                : c
+            ),
+          }
+        : s
+    ));
   };
 
   const deleteQuiz = async (
@@ -190,34 +200,42 @@ export function useQuizHierarchy(
     const subject = subjects.find(s => s.id === subjectId);
     if (!subject) return;
 
-    // Find the quiz to get its UUID for deletion from new collection
+    // Find the quiz to get its ID for deletion
     const cls = subject.classes.find(c => c.id === classId);
     const topic = cls?.topics.find(t => t.id === topicId);
     const quiz = topic?.quizzes.find(q => q.id === quizId);
 
-    // Delete from old embedded structure
-    await persistSubject({
-      ...subject,
-      classes: subject.classes.map(c =>
-        c.id === classId
-          ? {
-              ...c,
-              topics: c.topics.map(t =>
-                t.id === topicId
-                  ? {
-                      ...t,
-                      quizzes: t.quizzes.filter(q => q.id !== quizId),
-                    }
-                  : t
-              ),
-            }
-          : c
-      ),
-    });
+    // Delete from quizzes collection
+    const deleteId = quiz?.uuid || quiz?.id || quizId;
+    await deleteQuizDocument(deleteId);
 
-    // Also delete from new quizzes collection (dual-write for migration)
-    if (quiz?.uuid) {
-      await deleteQuizDocument(quiz.uuid);
+    // Update local state
+    updateLocalSubjects(prev => prev.map(s =>
+      s.id === subjectId
+        ? {
+            ...s,
+            classes: s.classes.map(c =>
+              c.id === classId
+                ? {
+                    ...c,
+                    topics: c.topics.map(t =>
+                      t.id === topicId
+                        ? {
+                            ...t,
+                            quizzes: t.quizzes.filter(q => q.id !== quizId),
+                          }
+                        : t
+                    ),
+                  }
+                : c
+            ),
+          }
+        : s
+    ));
+
+    // Refetch to ensure consistency
+    if (onRefetch) {
+      await onRefetch();
     }
   };
 
@@ -236,82 +254,144 @@ export function useQuizHierarchy(
     const topic = cls?.topics.find(t => t.id === topicId);
 
     if (!updatedQuiz.uuid) {
-      updatedQuiz.uuid = crypto.randomUUID();
+      updatedQuiz.uuid = updatedQuiz.id;
     }
 
-    // Save to old embedded structure (for backward compatibility)
-    await persistSubject({
-      ...subject,
-      classes: subject.classes.map(c =>
-        c.id === classId
-          ? {
-              ...c,
-              topics: c.topics.map(t =>
-                t.id === topicId
-                  ? {
-                      ...t,
-                      quizzes: t.quizzes.map(q =>
-                        q.id === updatedQuiz.id ? updatedQuiz : q
-                      ),
-                    }
-                  : t
-              ),
-            }
-          : c
-      ),
+    // Update in quizzes collection only
+    const updateId = updatedQuiz.uuid || updatedQuiz.id;
+    await updateQuizDocument(updateId, {
+      title: updatedQuiz.title,
+      shortTitle: updatedQuiz.shortTitle,
+      questions: updatedQuiz.questions,
+      hidden: updatedQuiz.hidden,
+      updatedAt: Date.now(),
+      // Update denormalized names if available
+      subjectName: subject.name,
+      className: cls?.name,
+      topicName: topic?.name,
     });
 
-    // Also update in new quizzes collection (dual-write for migration)
-    if (updatedQuiz.uuid) {
-      await updateQuizDocument(updatedQuiz.uuid, {
-        title: updatedQuiz.title,
-        shortTitle: updatedQuiz.shortTitle,
-        questions: updatedQuiz.questions,
-        hidden: updatedQuiz.hidden,
-        updatedAt: Date.now(),
-        // Update denormalized names if available
-        subjectName: subject.name,
-        className: cls?.name,
-        topicName: topic?.name,
-      });
-    }
+    // Update local state
+    updateLocalSubjects(prev => prev.map(s =>
+      s.id === subjectId
+        ? {
+            ...s,
+            classes: s.classes.map(c =>
+              c.id === classId
+                ? {
+                    ...c,
+                    topics: c.topics.map(t =>
+                      t.id === topicId
+                        ? {
+                            ...t,
+                            quizzes: t.quizzes.map(q =>
+                              q.id === updatedQuiz.id ? updatedQuiz : q
+                            ),
+                          }
+                        : t
+                    ),
+                  }
+                : c
+            ),
+          }
+        : s
+    ));
   };
 
   /* ---------- Rename/Update ---------- */
 
   const updateSubjectName = async (subjectId: string, newName: string) => {
+    // Update all quizzes with this subject to have the new name
     const subject = subjects.find(s => s.id === subjectId);
     if (!subject) return;
-    await persistSubject({ ...subject, name: newName });
+
+    // Update all quizzes with this subjectId
+    for (const cls of subject.classes) {
+      for (const topic of cls.topics) {
+        for (const quiz of topic.quizzes) {
+          const quizId = quiz.uuid || quiz.id;
+          await updateQuizDocument(quizId, {
+            subjectName: newName,
+            updatedAt: Date.now(),
+          });
+        }
+      }
+    }
+
+    // Update local state
+    updateLocalSubjects(prev => prev.map(s =>
+      s.id === subjectId ? { ...s, name: newName } : s
+    ));
   };
 
   const updateClassName = async (subjectId: string, classId: string, newName: string) => {
     const subject = subjects.find(s => s.id === subjectId);
     if (!subject) return;
-    await persistSubject({
-      ...subject,
-      classes: subject.classes.map(c =>
-        c.id === classId ? { ...c, name: newName } : c
-      ),
-    });
+
+    const cls = subject.classes.find(c => c.id === classId);
+    if (!cls) return;
+
+    // Update all quizzes with this classId
+    for (const topic of cls.topics) {
+      for (const quiz of topic.quizzes) {
+        const quizId = quiz.uuid || quiz.id;
+        await updateQuizDocument(quizId, {
+          className: newName,
+          updatedAt: Date.now(),
+        });
+      }
+    }
+
+    // Update local state
+    updateLocalSubjects(prev => prev.map(s =>
+      s.id === subjectId
+        ? {
+            ...s,
+            classes: s.classes.map(c =>
+              c.id === classId ? { ...c, name: newName } : c
+            ),
+          }
+        : s
+    ));
   };
 
   const updateTopicName = async (subjectId: string, classId: string, topicId: string, newName: string) => {
     const subject = subjects.find(s => s.id === subjectId);
     if (!subject) return;
-    await persistSubject({
-      ...subject,
-      classes: subject.classes.map(c =>
-        c.id === classId
-          ? {
-              ...c,
-              topics: c.topics.map(t =>
-                t.id === topicId ? { ...t, name: newName } : t
-              ),
-            }
-          : c
-      ),
-    });
+
+    const cls = subject.classes.find(c => c.id === classId);
+    if (!cls) return;
+
+    const topic = cls.topics.find(t => t.id === topicId);
+    if (!topic) return;
+
+    // Update all quizzes with this topicId
+    for (const quiz of topic.quizzes) {
+      const quizId = quiz.uuid || quiz.id;
+      await updateQuizDocument(quizId, {
+        topicName: newName,
+        updatedAt: Date.now(),
+      });
+    }
+
+    // Update local state
+    updateLocalSubjects(prev => prev.map(s =>
+      s.id === subjectId
+        ? {
+            ...s,
+            classes: s.classes.map(c =>
+              c.id === classId
+                ? {
+                    ...c,
+                    topics: c.topics.map(t =>
+                      t.id === topicId ? { ...t, name: newName } : t
+                    ),
+                  }
+                : c
+            ),
+          }
+        : s
+    ));
   };
 
   /* ---------- Public API ---------- */

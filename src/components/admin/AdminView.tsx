@@ -23,12 +23,14 @@ interface AdminViewProps {
   subjects: Subject[];
   onSubjectsChange: (subjects: Subject[]) => void;
   onLogout: () => void;
+  onRefetch?: () => Promise<void>;
 }
 
 export default function AdminView({
   subjects: initialSubjects,
   onSubjectsChange,
   onLogout,
+  onRefetch,
 }: AdminViewProps) {
   const { saveDocument, fetchCollection } = useFirestore();
   const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
@@ -48,20 +50,7 @@ export default function AdminView({
     onSubjectsChange(subjects);
   }, [subjects, onSubjectsChange]);
 
-  // Load subjects from Firestore on mount
-  const handleLoadSubjects = async () => {
-    const loadedSubjects = await fetchCollection("subjects");
-    const formattedSubjects: Subject[] = loadedSubjects.map((subject: any) => ({
-      id: subject.id,
-      name: subject.name || "",
-      order: subject.order || 0,
-      classes: subject.classes || [],
-    }));
-    onSubjectsChange(formattedSubjects);
-  };
-
   useEffect(() => {
-    handleLoadSubjects();
     handleLoadChallenges();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -187,6 +176,7 @@ export default function AdminView({
                   <FlatQuizManager
                     subjects={subjects}
                     onSubjectsChange={setSubjects}
+                    onRefetch={onRefetch}
                   />
                 </div>
               </>
