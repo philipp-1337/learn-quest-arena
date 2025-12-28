@@ -25,9 +25,12 @@ export function createQuizDocument(
   authorEmail?: string
 ): QuizDocument {
   const now = Date.now();
+  // Generate UUID if not present to ensure unique IDs in the new collection
+  const quizId = quiz.uuid || crypto.randomUUID();
   return {
     ...quiz,
-    id: quiz.uuid || quiz.id, // Prefer UUID for consistency
+    id: quizId,
+    uuid: quizId, // Ensure UUID is set
     createdAt: now,
     updatedAt: now,
     authorId,
@@ -289,14 +292,16 @@ export async function migrateQuizzesToCollection(
     const { quiz, subjectId, subjectName, classId, className, topicId, topicName } = allQuizzes[i];
     
     try {
-      // Check if already migrated
-      const existingDoc = await loadQuizDocument(quiz.uuid || quiz.id);
+      // Check if already migrated - try UUID first, then legacy ID
+      const checkId = quiz.uuid || quiz.id;
+      const existingDoc = await loadQuizDocument(checkId);
       if (existingDoc) {
         status.migratedQuizzes++;
         onProgress?.(i + 1, allQuizzes.length, `Quiz "${quiz.title}" bereits migriert, übersprungen.`);
         continue;
       }
       
+      // Create the quiz document (will generate UUID if not present)
       const quizDoc = createQuizDocument(
         quiz,
         subjectId,
@@ -328,8 +333,19 @@ export async function migrateQuizzesToCollection(
   }
   
   status.completedAt = Date.now();
-  status.status = status.failedQuizzes === 0 ? "completed" : 
-    status.migratedQuizzes > 0 ? "completed" : "failed";
+  
+  // Determine final status based on results
+  if (status.failedQuizzes === 0 && status.migratedQuizzes > 0) {
+    status.status = "completed";
+  } else if (status.failedQuizzes > 0 && status.migratedQuizzes > 0) {
+    // Partial success - some quizzes migrated, some failed
+    status.status = "completed"; // Consider it completed but with errors logged
+  } else if (status.migratedQuizzes === 0 && status.failedQuizzes > 0) {
+    status.status = "failed";
+  } else {
+    // No quizzes to migrate or all were already migrated
+    status.status = "completed";
+  }
   
   // Save migration status to Firestore
   await saveMigrationStatus(status);
