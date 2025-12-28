@@ -22,10 +22,8 @@ import { useQuizzesFromCollection } from './hooks/useQuizzesFromCollection';
 
 
 export default function FlashcardQuizApp() {
-  const { fetchCollection } = useFirestore();
   const { subjects: quizSubjects, loading: quizzesLoading, error: quizzesError, refetch } = useQuizzesFromCollection();
   const { isMaintenanceMode, isLoading: maintenanceLoading } = useMaintenanceMode();
-  const { subjects: quizSubjects, loading: quizzesLoading, error: quizzesError, refetch } = useQuizzesFromCollection();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
