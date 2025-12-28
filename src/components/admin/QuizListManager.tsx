@@ -57,12 +57,15 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
   }, []);
 
   // Extract unique values for filter dropdowns
+  // Group by normalized IDs (which are based on names) to avoid duplicates
   const filterOptions = useMemo(() => {
     const subjects = new Map<string, string>();
     const classes = new Map<string, string>();
     const topics = new Map<string, string>();
 
     quizzes.forEach(q => {
+      // Use normalized IDs (subjectId is already normalized after migration)
+      // This ensures "Klasse 1" appears only once, even if it was in multiple subjects before
       if (q.subjectId && q.subjectName) subjects.set(q.subjectId, q.subjectName);
       if (q.classId && q.className) classes.set(q.classId, q.className);
       if (q.topicId && q.topicName) topics.set(q.topicId, q.topicName);

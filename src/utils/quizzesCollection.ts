@@ -6,12 +6,14 @@
 import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, where, orderBy } from "firebase/firestore";
 import type { QuizDocument, Quiz, Subject, MigrationStatus, QuizWithContext } from "../types/quizTypes";
 import { getAuth } from "firebase/auth";
+import { createDeterministicId } from "./slugify";
 
 const QUIZZES_COLLECTION = "quizzes";
 const MIGRATION_STATUS_COLLECTION = "migrationStatus";
 
 /**
  * Converts an embedded Quiz to a QuizDocument for the new collection.
+ * Uses deterministic IDs for subjects, classes, and topics based on their names.
  */
 export function createQuizDocument(
   quiz: Quiz,
@@ -27,6 +29,13 @@ export function createQuizDocument(
   const now = Date.now();
   // Generate UUID if not present to ensure unique IDs in the new collection
   const quizId = quiz.uuid || crypto.randomUUID();
+  
+  // Use deterministic IDs for subjects, classes, and topics
+  // This ensures same names always get the same ID, preventing duplicates
+  const normalizedSubjectId = createDeterministicId(subjectName, 'subject');
+  const normalizedClassId = createDeterministicId(className, 'class');
+  const normalizedTopicId = createDeterministicId(topicName, 'topic');
+  
   return {
     ...quiz,
     id: quizId,
@@ -35,13 +44,16 @@ export function createQuizDocument(
     updatedAt: now,
     authorId,
     authorEmail,
-    subjectId,
+    subjectId: normalizedSubjectId,
     subjectName,
-    classId,
+    classId: normalizedClassId,
     className,
-    topicId,
+    topicId: normalizedTopicId,
     topicName,
     legacyQuizId: quiz.id,
+    legacySubjectId: subjectId,
+    legacyClassId: classId,
+    legacyTopicId: topicId,
     migratedFrom: `subjects/${subjectId}/classes/${classId}/topics/${topicId}/quizzes/${quiz.id}`,
   };
 }
@@ -450,4 +462,85 @@ export async function getQuizzesCollectionCount(): Promise<number> {
     console.error("Error getting quizzes count:", err);
     return 0;
   }
+}
+
+/**
+ * Re-normalizes all existing quiz documents to use deterministic IDs.
+ * This is useful when you have existing quizzes with old IDs and want to 
+ * standardize them to prevent duplicates in filters.
+ */
+export async function renormalizeQuizIds(
+  onProgress?: (current: number, total: number, message: string) => void
+): Promise<{ success: number; failed: number; errors: string[] }> {
+  const result = { success: 0, failed: 0, errors: [] as string[] };
+  
+  try {
+    const allQuizzes = await loadAllQuizDocuments();
+    const total = allQuizzes.length;
+    
+    onProgress?.(0, total, "Beginne Re-Normalisierung...");
+    
+    for (let i = 0; i < allQuizzes.length; i++) {
+      const quiz = allQuizzes[i];
+      
+      try {
+        // Calculate normalized IDs
+        const normalizedSubjectId = quiz.subjectName ? createDeterministicId(quiz.subjectName, 'subject') : quiz.subjectId;
+        const normalizedClassId = quiz.className ? createDeterministicId(quiz.className, 'class') : quiz.classId;
+        const normalizedTopicId = quiz.topicName ? createDeterministicId(quiz.topicName, 'topic') : quiz.topicId;
+        
+        // Check if normalization is needed
+        const needsUpdate = 
+          (normalizedSubjectId && normalizedSubjectId !== quiz.subjectId) ||
+          (normalizedClassId && normalizedClassId !== quiz.classId) ||
+          (normalizedTopicId && normalizedTopicId !== quiz.topicId);
+        
+        if (needsUpdate) {
+          // Store original IDs as legacy IDs if not already set
+          const updates: Partial<QuizDocument> = {
+            subjectId: normalizedSubjectId,
+            classId: normalizedClassId,
+            topicId: normalizedTopicId,
+          };
+          
+          // Preserve legacy IDs for tracking
+          if (!quiz.legacySubjectId && quiz.subjectId) {
+            updates.legacySubjectId = quiz.subjectId;
+          }
+          if (!quiz.legacyClassId && quiz.classId) {
+            updates.legacyClassId = quiz.classId;
+          }
+          if (!quiz.legacyTopicId && quiz.topicId) {
+            updates.legacyTopicId = quiz.topicId;
+          }
+          
+          const updateResult = await updateQuizDocument(quiz.id, updates);
+          
+          if (updateResult.success) {
+            result.success++;
+            onProgress?.(i + 1, total, `✓ Quiz "${quiz.title}" normalisiert`);
+          } else {
+            result.failed++;
+            result.errors.push(`${quiz.title}: ${updateResult.error}`);
+            onProgress?.(i + 1, total, `✗ Fehler bei "${quiz.title}"`);
+          }
+        } else {
+          result.success++;
+          onProgress?.(i + 1, total, `→ Quiz "${quiz.title}" bereits normalisiert`);
+        }
+      } catch (err: unknown) {
+        result.failed++;
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        result.errors.push(`${quiz.title}: ${errorMessage}`);
+        onProgress?.(i + 1, total, `✗ Fehler bei "${quiz.title}"`);
+      }
+    }
+    
+    onProgress?.(total, total, "Re-Normalisierung abgeschlossen!");
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
+    result.errors.push(`Gesamtfehler: ${errorMessage}`);
+  }
+  
+  return result;
 }
