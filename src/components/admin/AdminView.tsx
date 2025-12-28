@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
 import { getAuth, signOut } from "firebase/auth";
-import { Plus, Upload, Sparkles, BadgeInfoIcon, Database } from "lucide-react";
+import { Upload, Sparkles, BadgeInfoIcon, Database } from "lucide-react";
 import type { Subject, QuizChallenge } from "../../types/quizTypes";
 import useFirestore from "../../hooks/useFirestore";
 import { useStatsCalculation } from "../../hooks/useStatsCalculation";
-import { useSubjectOperations } from "../../hooks/useSubjectOperations";
 import AdminHeader from "./AdminHeader";
 import AdminStats from "./AdminStats";
 import QRCodeInfo from "./QRCodeInfo";
-// import SubjectManager from "./managers/SubjectManager";
-import AddModal from "../modals/AddModal";
 import ImportModal from "../modals/ImportModal";
-import FlatQuizManager from "./FlatQuizManager";
+import QuizListManager from "./QuizListManager";
 import QuizChallengeManager from "./QuizChallengeManager";
 import QuizMigrationPanel from "./QuizMigrationPanel";
 
@@ -32,9 +29,8 @@ export default function AdminView({
   onLogout,
   onRefetch,
 }: AdminViewProps) {
-  const { saveDocument, fetchCollection } = useFirestore();
-  const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const { fetchCollection } = useFirestore();
+  const [subjects] = useState<Subject[]>(initialSubjects);
   const [showImportModal, setShowImportModal] = useState(false);
   const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
   const [activeTab, setActiveTab] = useState<'quiz' | 'challenge' | 'migration'>('quiz');
@@ -42,8 +38,6 @@ export default function AdminView({
 
   // Custom Hooks
   const stats = useStatsCalculation(subjects);
-  const { handleAddSubject } =
-    useSubjectOperations(subjects, setSubjects);
 
   // Sync changes back to parent
   useEffect(() => {
@@ -84,11 +78,6 @@ export default function AdminView({
       .catch((error) => {
         console.error("Logout Fehler:", error);
       });
-  };
-
-  const handleSaveSubject = async (name: string) => {
-    await handleAddSubject(name);
-    setShowAddModal(false);
   };
 
   return (
@@ -158,27 +147,12 @@ export default function AdminView({
                       aria-label="Quiz importieren"
                     >
                       <Upload className="w-4 h-4" />
-                      <span className="max-[640px]:hidden">Quiz importieren</span>
-                    </button>
-                    <button
-                      onClick={() => setShowAddModal(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-indigo-100 border border-indigo-300 rounded-md text-indigo-600 hover:text-indigo-700 hover:bg-indigo-200"
-                      title="Fach hinzufügen"
-                      aria-label="Fach hinzufügen"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span className="max-[640px]:hidden">Fach hinzufügen</span>
+                      <span className="max-[640px]:hidden">Importieren</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <FlatQuizManager
-                    subjects={subjects}
-                    onSubjectsChange={setSubjects}
-                    onRefetch={onRefetch}
-                  />
-                </div>
+                <QuizListManager onRefetch={onRefetch} />
               </>
             )}
 
@@ -219,28 +193,14 @@ export default function AdminView({
           <QRCodeInfo />
         </div>
 
-        {/* Add Modal */}
-        {showAddModal && (
-          <AddModal
-            type="subject"
-            onSave={handleSaveSubject}
-            onClose={() => setShowAddModal(false)}
-          />
-        )}
-
         {/* Import Modal */}
         {showImportModal && (
           <ImportModal
-            subjects={subjects}
-            onImport={async (updatedSubjects) => {
-              // Speichere alle aktualisierten Subjects in Firestore
-              for (const subject of updatedSubjects) {
-                await saveDocument(`subjects/${subject.id}`, subject);
-              }
-              setSubjects(updatedSubjects);
-              setShowImportModal(false);
-            }}
             onClose={() => setShowImportModal(false)}
+            onImportComplete={async () => {
+              setShowImportModal(false);
+              if (onRefetch) await onRefetch();
+            }}
           />
         )}
       </div>

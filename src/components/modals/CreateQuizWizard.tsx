@@ -1,0 +1,462 @@
+import { useState } from "react";
+import { X, ChevronRight, ChevronLeft, Plus, Check } from "lucide-react";
+import { getAuth } from "firebase/auth";
+import { saveQuizDocument } from "../../utils/quizzesCollection";
+import type { QuizDocument } from "../../types/quizTypes";
+import { toast } from "sonner";
+import { CustomToast } from "../misc/CustomToast";
+
+interface CreateQuizWizardProps {
+  existingSubjects: { id: string; name: string }[];
+  existingClasses: { id: string; name: string }[];
+  existingTopics: { id: string; name: string }[];
+  onClose: () => void;
+  onQuizCreated: () => void;
+}
+
+type WizardStep = 'subject' | 'class' | 'topic' | 'details';
+
+interface QuizFormData {
+  subjectId: string;
+  subjectName: string;
+  classId: string;
+  className: string;
+  topicId: string;
+  topicName: string;
+  title: string;
+  isNewSubject: boolean;
+  isNewClass: boolean;
+  isNewTopic: boolean;
+}
+
+export default function CreateQuizWizard({
+  existingSubjects,
+  existingClasses,
+  existingTopics,
+  onClose,
+  onQuizCreated,
+}: CreateQuizWizardProps) {
+  const [step, setStep] = useState<WizardStep>('subject');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState<QuizFormData>({
+    subjectId: "",
+    subjectName: "",
+    classId: "",
+    className: "",
+    topicId: "",
+    topicName: "",
+    title: "",
+    isNewSubject: false,
+    isNewClass: false,
+    isNewTopic: false,
+  });
+
+  const steps: WizardStep[] = ['subject', 'class', 'topic', 'details'];
+  const currentStepIndex = steps.indexOf(step);
+
+  const stepTitles: Record<WizardStep, string> = {
+    subject: 'Fach wählen',
+    class: 'Klasse wählen',
+    topic: 'Thema wählen',
+    details: 'Quiz-Details',
+  };
+
+  const canProceed = (): boolean => {
+    switch (step) {
+      case 'subject':
+        return formData.subjectName.trim().length > 0;
+      case 'class':
+        return formData.className.trim().length > 0;
+      case 'topic':
+        return formData.topicName.trim().length > 0;
+      case 'details':
+        return formData.title.trim().length > 0;
+      default:
+        return false;
+    }
+  };
+
+  const goNext = () => {
+    const nextIndex = currentStepIndex + 1;
+    if (nextIndex < steps.length) {
+      setStep(steps[nextIndex]);
+    }
+  };
+
+  const goBack = () => {
+    const prevIndex = currentStepIndex - 1;
+    if (prevIndex >= 0) {
+      setStep(steps[prevIndex]);
+    }
+  };
+
+  const handleSubjectSelect = (subject: { id: string; name: string } | null, newName?: string) => {
+    if (subject) {
+      setFormData(prev => ({
+        ...prev,
+        subjectId: subject.id,
+        subjectName: subject.name,
+        isNewSubject: false,
+      }));
+    } else if (newName) {
+      setFormData(prev => ({
+        ...prev,
+        subjectId: `subject-${Date.now()}`,
+        subjectName: newName,
+        isNewSubject: true,
+      }));
+    }
+  };
+
+  const handleClassSelect = (classItem: { id: string; name: string } | null, newName?: string) => {
+    if (classItem) {
+      setFormData(prev => ({
+        ...prev,
+        classId: classItem.id,
+        className: classItem.name,
+        isNewClass: false,
+      }));
+    } else if (newName) {
+      setFormData(prev => ({
+        ...prev,
+        classId: `${formData.subjectId}-${Date.now()}`,
+        className: newName,
+        isNewClass: true,
+      }));
+    }
+  };
+
+  const handleTopicSelect = (topic: { id: string; name: string } | null, newName?: string) => {
+    if (topic) {
+      setFormData(prev => ({
+        ...prev,
+        topicId: topic.id,
+        topicName: topic.name,
+        isNewTopic: false,
+      }));
+    } else if (newName) {
+      setFormData(prev => ({
+        ...prev,
+        topicId: `${formData.classId}-${Date.now()}`,
+        topicName: newName,
+        isNewTopic: true,
+      }));
+    }
+  };
+
+  const handleSubmit = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      toast.custom(() => (
+        <CustomToast message="Nicht eingeloggt" type="error" />
+      ));
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const now = Date.now();
+      const quizId = crypto.randomUUID();
+
+      const quizDoc: QuizDocument = {
+        id: quizId,
+        uuid: quizId,
+        title: formData.title.trim(),
+        shortTitle: formData.title.trim().substring(0, 20),
+        questions: [],
+        hidden: true, // New quizzes start hidden
+        createdAt: now,
+        updatedAt: now,
+        authorId: user.uid,
+        authorEmail: user.email || undefined,
+        subjectId: formData.subjectId,
+        subjectName: formData.subjectName,
+        classId: formData.classId,
+        className: formData.className,
+        topicId: formData.topicId,
+        topicName: formData.topicName,
+      };
+
+      const result = await saveQuizDocument(quizDoc);
+
+      if (result.success) {
+        toast.custom(() => (
+          <CustomToast message="Quiz erstellt! Füge jetzt Fragen hinzu." type="success" />
+        ));
+        onQuizCreated();
+      } else {
+        toast.custom(() => (
+          <CustomToast message={`Fehler: ${result.error}`} type="error" />
+        ));
+      }
+    } catch (error) {
+      console.error("Error creating quiz:", error);
+      toast.custom(() => (
+        <CustomToast message="Fehler beim Erstellen des Quiz" type="error" />
+      ));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Neues Quiz erstellen</h2>
+            <p className="text-sm text-gray-500 mt-1">Schritt {currentStepIndex + 1} von {steps.length}: {stepTitles[step]}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Progress bar */}
+        <div className="px-6 pt-4">
+          <div className="flex gap-1">
+            {steps.map((s, index) => (
+              <div
+                key={s}
+                className={`flex-1 h-1.5 rounded-full transition-colors ${
+                  index <= currentStepIndex ? 'bg-indigo-600' : 'bg-gray-200'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          {step === 'subject' && (
+            <SelectOrCreateStep
+              label="Fach"
+              options={existingSubjects}
+              selectedId={formData.subjectId}
+              newValue={formData.isNewSubject ? formData.subjectName : ""}
+              onSelect={handleSubjectSelect}
+              placeholder="Neues Fach eingeben..."
+            />
+          )}
+
+          {step === 'class' && (
+            <SelectOrCreateStep
+              label="Klasse"
+              options={existingClasses}
+              selectedId={formData.classId}
+              newValue={formData.isNewClass ? formData.className : ""}
+              onSelect={handleClassSelect}
+              placeholder="Neue Klasse eingeben..."
+            />
+          )}
+
+          {step === 'topic' && (
+            <SelectOrCreateStep
+              label="Thema"
+              options={existingTopics}
+              selectedId={formData.topicId}
+              newValue={formData.isNewTopic ? formData.topicName : ""}
+              onSelect={handleTopicSelect}
+              placeholder="Neues Thema eingeben..."
+            />
+          )}
+
+          {step === 'details' && (
+            <div className="space-y-4">
+              {/* Summary */}
+              <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <h4 className="font-medium text-gray-700 text-sm">Zusammenfassung</h4>
+                <div className="flex flex-wrap gap-2">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-blue-100 text-blue-800">
+                    {formData.subjectName}
+                    {formData.isNewSubject && <Plus className="w-3 h-3 ml-1" />}
+                  </span>
+                  <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-green-100 text-green-800">
+                    {formData.className}
+                    {formData.isNewClass && <Plus className="w-3 h-3 ml-1" />}
+                  </span>
+                  <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-purple-100 text-purple-800">
+                    {formData.topicName}
+                    {formData.isNewTopic && <Plus className="w-3 h-3 ml-1" />}
+                  </span>
+                </div>
+              </div>
+
+              {/* Quiz title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Quiz-Titel *
+                </label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="z.B. Grundlagen der Addition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  autoFocus
+                />
+              </div>
+
+              <p className="text-sm text-gray-500">
+                Das Quiz wird zunächst als <span className="font-medium">versteckt</span> erstellt. 
+                Nach dem Hinzufügen von Fragen kannst du es sichtbar machen.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-200 flex justify-between">
+          <button
+            onClick={currentStepIndex === 0 ? onClose : goBack}
+            className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            {currentStepIndex === 0 ? (
+              <>Abbrechen</>
+            ) : (
+              <>
+                <ChevronLeft className="w-4 h-4" />
+                Zurück
+              </>
+            )}
+          </button>
+
+          {step === 'details' ? (
+            <button
+              onClick={handleSubmit}
+              disabled={!canProceed() || isSubmitting}
+              className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Erstelle...
+                </>
+              ) : (
+                <>
+                  <Check className="w-4 h-4" />
+                  Quiz erstellen
+                </>
+              )}
+            </button>
+          ) : (
+            <button
+              onClick={goNext}
+              disabled={!canProceed()}
+              className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Weiter
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Sub-component for select or create functionality
+interface SelectOrCreateStepProps {
+  label: string;
+  options: { id: string; name: string }[];
+  selectedId: string;
+  newValue: string;
+  onSelect: (item: { id: string; name: string } | null, newName?: string) => void;
+  placeholder: string;
+}
+
+function SelectOrCreateStep({
+  label,
+  options,
+  selectedId,
+  newValue,
+  onSelect,
+  placeholder,
+}: SelectOrCreateStepProps) {
+  const [showNewInput, setShowNewInput] = useState(newValue.length > 0);
+  const [inputValue, setInputValue] = useState(newValue);
+
+  const handleOptionClick = (option: { id: string; name: string }) => {
+    setShowNewInput(false);
+    setInputValue("");
+    onSelect(option);
+  };
+
+  const handleNewClick = () => {
+    setShowNewInput(true);
+    onSelect(null, "");
+  };
+
+  const handleInputChange = (value: string) => {
+    setInputValue(value);
+    onSelect(null, value);
+  };
+
+  return (
+    <div className="space-y-4">
+      <p className="text-gray-600">
+        Wähle ein bestehendes {label} aus oder erstelle ein neues.
+      </p>
+
+      {/* Existing options */}
+      {options.length > 0 && (
+        <div className="space-y-2 max-h-48 overflow-y-auto">
+          {options.map(option => (
+            <button
+              key={option.id}
+              onClick={() => handleOptionClick(option)}
+              className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
+                selectedId === option.id && !showNewInput
+                  ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              {option.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Divider */}
+      {options.length > 0 && (
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">oder</span>
+          </div>
+        </div>
+      )}
+
+      {/* New input */}
+      {showNewInput ? (
+        <div>
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => handleInputChange(e.target.value)}
+            placeholder={placeholder}
+            className="w-full px-4 py-3 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-indigo-50"
+            autoFocus
+          />
+        </div>
+      ) : (
+        <button
+          onClick={handleNewClick}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Neues {label} erstellen
+        </button>
+      )}
+    </div>
+  );
+}
