@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAuth, signOut } from "firebase/auth";
-import { Upload, Sparkles, BadgeInfoIcon, Database } from "lucide-react";
+import { Upload, Download, Sparkles, BadgeInfoIcon, Database } from "lucide-react";
 import type { Subject, QuizChallenge } from "../../types/quizTypes";
 import useFirestore from "../../hooks/useFirestore";
 import { useStatsCalculation } from "../../hooks/useStatsCalculation";
@@ -8,6 +8,7 @@ import AdminHeader from "./AdminHeader";
 import AdminStats from "./AdminStats";
 import QRCodeInfo from "./QRCodeInfo";
 import ImportModal from "../modals/ImportModal";
+import ExportModal from "../modals/ExportModal";
 import QuizListManager from "./QuizListManager";
 import QuizChallengeManager from "./QuizChallengeManager";
 import QuizMigrationPanel from "./QuizMigrationPanel";
@@ -32,6 +33,7 @@ export default function AdminView({
   const { fetchCollection } = useFirestore();
   const [subjects] = useState<Subject[]>(initialSubjects);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
   const [activeTab, setActiveTab] = useState<'quiz' | 'challenge' | 'migration'>('quiz');
   const auth = getAuth();
@@ -141,6 +143,15 @@ export default function AdminView({
                   <h2 className="text-2xl font-bold text-gray-900 force-break" lang="de">Quiz verwalten</h2>
                   <div className="flex gap-3">
                     <button
+                      onClick={() => setShowExportModal(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-100 border border-blue-300 rounded-md text-blue-600 hover:text-blue-700 hover:bg-blue-200"
+                      title="Quiz exportieren"
+                      aria-label="Quiz exportieren"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span className="max-[640px]:hidden">Exportieren</span>
+                    </button>
+                    <button
                       onClick={() => setShowImportModal(true)}
                       className="flex items-center gap-2 px-4 py-2 bg-green-100 border border-green-300 rounded-md text-green-600 hover:text-green-700 hover:bg-green-200"
                       title="Quiz importieren"
@@ -201,6 +212,13 @@ export default function AdminView({
               setShowImportModal(false);
               if (onRefetch) await onRefetch();
             }}
+          />
+        )}
+
+        {/* Export Modal */}
+        {showExportModal && (
+          <ExportModal
+            onClose={() => setShowExportModal(false)}
           />
         )}
       </div>

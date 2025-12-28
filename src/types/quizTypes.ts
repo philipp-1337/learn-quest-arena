@@ -41,16 +41,20 @@ export interface QuizDocument extends Omit<Quiz, 'id'> {
   authorEmail?: string;     // Email of the author for display purposes
   
   // References to categories (can be associated with multiple)
-  subjectId?: string;       // Reference to subject
+  // These use normalized/deterministic IDs based on names
+  subjectId?: string;       // Normalized subject ID (e.g., "subject-sachkunde")
   subjectName?: string;     // Denormalized subject name for display
-  classId?: string;         // Reference to class  
+  classId?: string;         // Normalized class ID (e.g., "class-klasse-1")
   className?: string;       // Denormalized class name for display
-  topicId?: string;         // Reference to topic
+  topicId?: string;         // Normalized topic ID (e.g., "topic-das-universum")
   topicName?: string;       // Denormalized topic name for display
   
   // Migration tracking
   migratedFrom?: string;    // Original path if migrated from embedded structure
   legacyQuizId?: string;    // Original quiz ID from embedded structure
+  legacySubjectId?: string; // Original subject ID before normalization
+  legacyClassId?: string;   // Original class ID before normalization
+  legacyTopicId?: string;   // Original topic ID before normalization
 }
 
 export interface Question {
