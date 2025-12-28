@@ -14,6 +14,7 @@ import useMaintenanceMode from './hooks/useMaintenanceMode';
 import ProtectedRoute from './utils/ProtectedRoute';
 import useScrollToTop from './hooks/useScrollToTop';
 import { getAuth } from 'firebase/auth';
+import { useQuizzesFromCollection } from './hooks/useQuizzesFromCollection';
 
 
 // ============================================
@@ -24,8 +25,8 @@ import { getAuth } from 'firebase/auth';
 export default function FlashcardQuizApp() {
   const { fetchCollection } = useFirestore();
   const { isMaintenanceMode, isLoading: maintenanceLoading } = useMaintenanceMode();
+  const { subjects: quizSubjects, loading: quizzesLoading, error: quizzesError, refetch } = useQuizzesFromCollection();
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  // Entfernt: isLoggedIn, stattdessen Firebase-Auth nutzen
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -33,49 +34,17 @@ export default function FlashcardQuizApp() {
   // Scroll to top when route changes
   useScrollToTop();
 
-
-  // Load subjects from Firestore
+  // Update subjects when quizzes are loaded from collection
   useEffect(() => {
-    const loadSubjects = async () => {
-      try {
-        console.log('Loading subjects from Firestore...');
-        setIsLoading(true);
-        setError(null);
-        
-        const subjectsData = await fetchCollection("subjects");
-        console.log('Received subjects data:', subjectsData);
-        
-        // Handle empty collection
-        if (!subjectsData || subjectsData.length === 0) {
-          console.warn('No subjects found in Firestore - using empty array');
-          setSubjects([]);
-          setIsLoading(false);
-          return;
-        }
-        
-        const formattedSubjects = subjectsData.map((subject: any) => ({
-          id: subject.id,
-          name: subject.name || "",
-          order: subject.order || 0,
-          classes: subject.classes || [],
-        }));
-        
-        console.log('Success: Subjects loaded successfully:', formattedSubjects);
-        setSubjects(formattedSubjects);
-      } catch (error) {
-        console.error('Error loading subjects:', error);
-        setError(error instanceof Error ? error.message : 'Fehler beim Laden der Daten');
-        // Set empty array on error so app can still load
-        setSubjects([]);
-      } finally {
-        setIsLoading(false);
-        console.log('Success: Loading complete');
+    if (!quizzesLoading) {
+      console.log('Quizzes loaded from collection, subjects:', quizSubjects);
+      setSubjects(quizSubjects);
+      setIsLoading(false);
+      if (quizzesError) {
+        setError(quizzesError);
       }
-    };
-    
-    loadSubjects();
-    
-  }, [fetchCollection]);
+    }
+  }, [quizSubjects, quizzesLoading, quizzesError]);
 
 
   const handleAdminClick = () => {
@@ -93,6 +62,10 @@ export default function FlashcardQuizApp() {
       console.log('Subjects updated:', updatedSubjects);
       setSubjects(updatedSubjects);
     }
+  };
+
+  const handleRefetchQuizzes = async () => {
+    await refetch();
   };
 
 
@@ -150,6 +123,7 @@ export default function FlashcardQuizApp() {
                 subjects={subjects}
                 onSubjectsChange={handleSubjectsChange}
                 onLogout={handleLogout}
+                onRefetch={handleRefetchQuizzes}
               />
             </ProtectedRoute>
           }

@@ -20,16 +20,18 @@ import QuizEditorModal from "../modals/QuizEditorModal";
 interface FlatQuizManagerProps {
   subjects: Subject[];
   onSubjectsChange: (subjects: Subject[]) => void;
+  onRefetch?: () => Promise<void>;
 }
 
 export default function FlatQuizManager({
   subjects,
   onSubjectsChange,
+  onRefetch,
 }: FlatQuizManagerProps) {
   /* ---------------- Hooks ---------------- */
   const expanded = useExpandedState();
   const modals = useModalState();
-  const hierarchy = useQuizHierarchy(subjects, onSubjectsChange);
+  const hierarchy = useQuizHierarchy(subjects, onSubjectsChange, onRefetch);
 
   const handleCopyQuizLink = async (
     subject: Subject,
