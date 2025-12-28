@@ -28,6 +28,31 @@ export interface Quiz {
   hidden?: boolean; // Wenn true, ist das Quiz ausgeblendet
 }
 
+/**
+ * New Quiz structure for the standalone quizzes collection.
+ * This extends the embedded Quiz with metadata fields for better organization.
+ */
+export interface QuizDocument extends Omit<Quiz, 'id'> {
+  id: string;
+  // Metadata
+  createdAt: number;        // Timestamp of creation
+  updatedAt?: number;       // Timestamp of last update
+  authorId: string;         // Firebase Auth UID of the creator (Admin/Teacher)
+  authorEmail?: string;     // Email of the author for display purposes
+  
+  // References to categories (can be associated with multiple)
+  subjectId?: string;       // Reference to subject
+  subjectName?: string;     // Denormalized subject name for display
+  classId?: string;         // Reference to class  
+  className?: string;       // Denormalized class name for display
+  topicId?: string;         // Reference to topic
+  topicName?: string;       // Denormalized topic name for display
+  
+  // Migration tracking
+  migratedFrom?: string;    // Original path if migrated from embedded structure
+  legacyQuizId?: string;    // Original quiz ID from embedded structure
+}
+
 export interface Question {
   id?: string;  // Unique identifier for the question
   question: string;
@@ -55,4 +80,30 @@ export interface QuizChallenge {
   title: string;
   levels: QuizChallengeLevel[];
   hidden?: boolean;
+}
+
+/**
+ * Migration status for tracking quiz migration progress
+ */
+export interface MigrationStatus {
+  totalQuizzes: number;
+  migratedQuizzes: number;
+  failedQuizzes: number;
+  errors: string[];
+  startedAt: number;
+  completedAt?: number;
+  status: 'pending' | 'in-progress' | 'completed' | 'failed';
+}
+
+/**
+ * Helper type for quiz with full hierarchy context
+ */
+export interface QuizWithContext {
+  quiz: Quiz;
+  subjectId: string;
+  subjectName: string;
+  classId: string;
+  className: string;
+  topicId: string;
+  topicName: string;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAuth, signOut } from "firebase/auth";
-import { Plus, Upload, Sparkles, BadgeInfoIcon } from "lucide-react";
+import { Plus, Upload, Sparkles, BadgeInfoIcon, Database } from "lucide-react";
 import type { Subject, QuizChallenge } from "../../types/quizTypes";
 import useFirestore from "../../hooks/useFirestore";
 import { useStatsCalculation } from "../../hooks/useStatsCalculation";
@@ -13,6 +13,7 @@ import AddModal from "../modals/AddModal";
 import ImportModal from "../modals/ImportModal";
 import FlatQuizManager from "./FlatQuizManager";
 import QuizChallengeManager from "./QuizChallengeManager";
+import QuizMigrationPanel from "./QuizMigrationPanel";
 
 // ============================================
 // ADMIN VIEW COMPONENT
@@ -34,7 +35,7 @@ export default function AdminView({
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
-  const [activeTab, setActiveTab] = useState<'quiz' | 'challenge'>('quiz');
+  const [activeTab, setActiveTab] = useState<'quiz' | 'challenge' | 'migration'>('quiz');
   const auth = getAuth();
 
   // Custom Hooks
@@ -143,6 +144,17 @@ export default function AdminView({
                   <Sparkles className="w-3 h-3 text-white" />
                 </span>
               </button>
+              <button
+                onClick={() => setActiveTab('migration')}
+                className={`relative pb-3 px-4 font-semibold transition-colors flex items-center gap-2 ${
+                  activeTab === 'migration'
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Database className="w-4 h-4" />
+                Migration
+              </button>
             </div>
 
             {activeTab === 'quiz' && (
@@ -206,6 +218,10 @@ export default function AdminView({
                   onChallengesChange={handleChallengesChange}
                 />
               </>
+            )}
+
+            {activeTab === 'migration' && (
+              <QuizMigrationPanel subjects={subjects} />
             )}
           </div>
 

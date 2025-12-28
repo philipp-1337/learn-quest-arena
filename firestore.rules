@@ -61,5 +61,27 @@ service cloud.firestore {
     match /quizResults/{resultId} {
       allow read, write: if request.auth != null;
     }
+    
+    // Quizzes Collection - Neue eigenständige Quiz-Sammlung
+    // Ermöglicht flexible Zuordnung zu Fächern, Klassen und Themen
+    match /quizzes/{quizId} {
+      // Jeder kann Quizze lesen (für Quiz-Teilnehmer)
+      allow read: if true;
+      
+      // Nur eingeloggte Admins können Quizze erstellen/ändern/löschen
+      // Bei Erstellung muss authorId dem aktuellen Benutzer entsprechen
+      allow create: if request.auth != null 
+        && request.resource.data.authorId == request.auth.uid;
+      
+      // Bei Änderung/Löschung: Nur der Autor oder jeder Admin
+      // (Für einfache Verwaltung erlauben wir allen Admins das Bearbeiten)
+      allow update, delete: if request.auth != null;
+    }
+    
+    // Migration Status - Tracking für die Datenmigration
+    match /migrationStatus/{statusId} {
+      // Nur Admins können Migrationsstatus lesen und schreiben
+      allow read, write: if request.auth != null;
+    }
   }
 }
