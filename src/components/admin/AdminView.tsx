@@ -38,6 +38,10 @@ export default function AdminView({
   const [activeTab, setActiveTab] = useState<'quiz' | 'challenge' | 'migration'>('quiz');
   const auth = getAuth();
 
+  // Only show migration tab for specific user
+  const MIGRATION_ALLOWED_USER_ID = 'MaV5GHj77vRr48xpTo9GbxK4dqM2';
+  const canAccessMigration = auth.currentUser?.uid === MIGRATION_ALLOWED_USER_ID;
+
   // Custom Hooks
   const stats = useStatsCalculation(subjects);
 
@@ -124,17 +128,19 @@ export default function AdminView({
                   <Sparkles className="w-3 h-3 text-white" />
                 </span>
               </button>
-              <button
-                onClick={() => setActiveTab('migration')}
-                className={`relative pb-3 px-4 font-semibold transition-colors flex items-center gap-2 ${
-                  activeTab === 'migration'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Database className="w-4 h-4" />
-                Migration
-              </button>
+              {canAccessMigration && (
+                <button
+                  onClick={() => setActiveTab('migration')}
+                  className={`relative pb-3 px-4 font-semibold transition-colors flex items-center gap-2 ${
+                    activeTab === 'migration'
+                      ? 'text-blue-600 border-b-2 border-blue-600'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Database className="w-4 h-4" />
+                  Migration
+                </button>
+              )}
             </div>
 
             {activeTab === 'quiz' && (
@@ -195,7 +201,7 @@ export default function AdminView({
               </>
             )}
 
-            {activeTab === 'migration' && (
+            {activeTab === 'migration' && canAccessMigration && (
               <QuizMigrationPanel subjects={subjects} />
             )}
           </div>
