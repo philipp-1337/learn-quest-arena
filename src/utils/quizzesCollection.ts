@@ -90,14 +90,23 @@ export async function loadQuizDocument(quizId: string): Promise<QuizDocument | n
  */
 export async function loadAllQuizDocuments(): Promise<QuizDocument[]> {
   try {
+    console.log(`Loading all quizzes from collection "${QUIZZES_COLLECTION}"...`);
     const db = getFirestore();
     const col = collection(db, QUIZZES_COLLECTION);
     const snap = await getDocs(col);
     
-    return snap.docs.map(docSnap => ({
-      id: docSnap.id,
-      ...docSnap.data()
-    } as QuizDocument));
+    console.log(`Found ${snap.docs.length} documents in quizzes collection`);
+    
+    const quizzes = snap.docs.map(docSnap => {
+      const data = docSnap.data();
+      console.log(`Quiz document: id=${docSnap.id}, title=${data.title}, subjectId=${data.subjectId}`);
+      return {
+        id: docSnap.id,
+        ...data
+      } as QuizDocument;
+    });
+    
+    return quizzes;
   } catch (err) {
     console.error("Error loading quiz documents:", err);
     return [];

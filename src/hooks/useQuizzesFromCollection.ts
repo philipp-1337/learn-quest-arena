@@ -22,31 +22,38 @@ interface UseQuizzesFromCollectionResult {
 function buildSubjectHierarchy(quizDocs: QuizDocument[]): Subject[] {
   const subjectsMap = new Map<string, Subject>();
   
+  console.log(`Building hierarchy from ${quizDocs.length} quiz documents...`);
+  
   for (const doc of quizDocs) {
-    // Skip quizzes without proper hierarchy references
-    if (!doc.subjectId || !doc.classId || !doc.topicId) {
-      console.warn(`Quiz "${doc.title}" is missing hierarchy references, skipping`);
-      continue;
-    }
+    // Log each quiz for debugging
+    console.log(`Processing quiz: "${doc.title}" with subjectId=${doc.subjectId}, classId=${doc.classId}, topicId=${doc.topicId}`);
+    
+    // Use default values if hierarchy references are missing
+    const subjectId = doc.subjectId || 'unknown-subject';
+    const subjectName = doc.subjectName || 'Unbekanntes Fach';
+    const classId = doc.classId || 'unknown-class';
+    const className = doc.className || 'Unbekannte Klasse';
+    const topicId = doc.topicId || 'unknown-topic';
+    const topicName = doc.topicName || 'Unbekanntes Thema';
     
     // Get or create subject
-    let subject = subjectsMap.get(doc.subjectId);
+    let subject = subjectsMap.get(subjectId);
     if (!subject) {
       subject = {
-        id: doc.subjectId,
-        name: doc.subjectName || doc.subjectId,
+        id: subjectId,
+        name: subjectName,
         order: subjectsMap.size + 1,
         classes: [],
       };
-      subjectsMap.set(doc.subjectId, subject);
+      subjectsMap.set(subjectId, subject);
     }
     
     // Get or create class within subject
-    let classItem = subject.classes.find(c => c.id === doc.classId);
+    let classItem = subject.classes.find(c => c.id === classId);
     if (!classItem) {
       classItem = {
-        id: doc.classId,
-        name: doc.className || doc.classId,
+        id: classId,
+        name: className,
         level: subject.classes.length + 1,
         topics: [],
       };
@@ -54,11 +61,11 @@ function buildSubjectHierarchy(quizDocs: QuizDocument[]): Subject[] {
     }
     
     // Get or create topic within class
-    let topic = classItem.topics.find(t => t.id === doc.topicId);
+    let topic = classItem.topics.find(t => t.id === topicId);
     if (!topic) {
       topic = {
-        id: doc.topicId,
-        name: doc.topicName || doc.topicId,
+        id: topicId,
+        name: topicName,
         quizzes: [],
       };
       classItem.topics.push(topic);
@@ -83,6 +90,7 @@ function buildSubjectHierarchy(quizDocs: QuizDocument[]): Subject[] {
     }
   }
   
+  console.log(`Built hierarchy with ${subjects.length} subjects`);
   return subjects;
 }
 
