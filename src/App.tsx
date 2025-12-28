@@ -9,7 +9,6 @@ import AdminView from './components/admin/AdminView';
 import Dataprotection from './components/footer/Dataprotection';
 import Imprint from './components/footer/Imprint';
 import type { Subject } from './types/quizTypes';
-import useFirestore from "./hooks/useFirestore";
 import useMaintenanceMode from './hooks/useMaintenanceMode';
 import ProtectedRoute from './utils/ProtectedRoute';
 import useScrollToTop from './hooks/useScrollToTop';
@@ -24,6 +23,7 @@ import { useQuizzesFromCollection } from './hooks/useQuizzesFromCollection';
 
 export default function FlashcardQuizApp() {
   const { fetchCollection } = useFirestore();
+  const { subjects: quizSubjects, loading: quizzesLoading, error: quizzesError, refetch } = useQuizzesFromCollection();
   const { isMaintenanceMode, isLoading: maintenanceLoading } = useMaintenanceMode();
   const { subjects: quizSubjects, loading: quizzesLoading, error: quizzesError, refetch } = useQuizzesFromCollection();
   const [subjects, setSubjects] = useState<Subject[]>([]);
