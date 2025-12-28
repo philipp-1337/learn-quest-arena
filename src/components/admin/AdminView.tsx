@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAuth, signOut } from "firebase/auth";
-import { Upload, Download, Sparkles, BadgeInfoIcon, Database } from "lucide-react";
+import { Upload, Download, Sparkles, BadgeInfoIcon } from "lucide-react";
 import type { Subject, QuizChallenge } from "../../types/quizTypes";
 import useFirestore from "../../hooks/useFirestore";
 import { useStatsCalculation } from "../../hooks/useStatsCalculation";
@@ -137,7 +137,6 @@ export default function AdminView({
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  <Database className="w-4 h-4" />
                   Migration
                 </button>
               )}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, Link, ChevronDown } from "lucide-react";
+import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, Link, ChevronDown, Edit3, MoveHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
 import type { QuizDocument } from "../../types/quizTypes";
@@ -7,6 +7,8 @@ import { loadAllQuizDocuments, deleteQuizDocument, updateQuizDocument } from "..
 import QuizEditorModal from "../modals/QuizEditorModal";
 import DeleteConfirmModal from "../modals/DeleteConfirmModal";
 import CreateQuizWizard from "../modals/CreateQuizWizard";
+import RenameCategoryModal from "../modals/RenameCategoryModal";
+import ReassignQuizModal from "../modals/ReassignQuizModal";
 import { slugify } from "../../utils/slugify";
 
 interface QuizListManagerProps {
@@ -35,6 +37,13 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [editingQuiz, setEditingQuiz] = useState<QuizDocument | null>(null);
   const [deletingQuiz, setDeletingQuiz] = useState<QuizDocument | null>(null);
+  const [reassignQuiz, setReassignQuiz] = useState<QuizDocument | null>(null);
+  const [renameModal, setRenameModal] = useState<{
+    type: 'subject' | 'class' | 'topic';
+    id: string;
+    name: string;
+    count: number;
+  } | null>(null);
 
   // Load quizzes from collection
   const loadQuizzes = async () => {
@@ -176,6 +185,32 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     setEditingQuiz(null);
   };
 
+  const handleRenameCategory = (type: 'subject' | 'class' | 'topic', id: string, name: string) => {
+    const count = quizzes.filter(q => {
+      if (type === 'subject') return q.subjectId === id;
+      if (type === 'class') return q.classId === id;
+      if (type === 'topic') return q.topicId === id;
+      return false;
+    }).length;
+
+    setRenameModal({ type, id, name, count });
+  };
+
+  const handleRenameSuccess = async () => {
+    // Zeige Loading-Indikator
+    setLoading(true);
+    
+    // Lade Quizze neu
+    await loadQuizzes();
+    
+    // Setze alle Filter zurück
+    clearFilters();
+    
+    toast.custom(() => (
+      <CustomToast message="Kategorie erfolgreich umbenannt" type="success" />
+    ));
+  };
+
   const clearFilters = () => {
     setFilters({
       search: "",
@@ -249,10 +284,25 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
             )}
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {/* Subject Filter */}
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Fach</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm text-gray-600">Fach</label>
+                {filters.subject && (
+                  <button
+                    onClick={() => {
+                      const subject = filterOptions.subjects.find(s => s.id === filters.subject);
+                      if (subject) handleRenameCategory('subject', subject.id, subject.name);
+                    }}
+                    className="text-xs text-gray-400 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+                    title="Fach umbenennen"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span className="max-lg:hidden">Umbenennen</span>
+                  </button>
+                )}
+              </div>
               <select
                 value={filters.subject}
                 onChange={(e) => setFilters(prev => ({ ...prev, subject: e.target.value }))}
@@ -267,7 +317,22 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
             {/* Class Filter */}
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Klasse</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm text-gray-600">Klasse</label>
+                {filters.class && (
+                  <button
+                    onClick={() => {
+                      const classItem = filterOptions.classes.find(c => c.id === filters.class);
+                      if (classItem) handleRenameCategory('class', classItem.id, classItem.name);
+                    }}
+                    className="text-xs text-gray-400 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+                    title="Klasse umbenennen"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span className="max-lg:hidden">Umbenennen</span>
+                  </button>
+                )}
+              </div>
               <select
                 value={filters.class}
                 onChange={(e) => setFilters(prev => ({ ...prev, class: e.target.value }))}
@@ -282,7 +347,22 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
             {/* Topic Filter */}
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Thema</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm text-gray-600">Thema</label>
+                {filters.topic && (
+                  <button
+                    onClick={() => {
+                      const topic = filterOptions.topics.find(t => t.id === filters.topic);
+                      if (topic) handleRenameCategory('topic', topic.id, topic.name);
+                    }}
+                    className="text-xs text-gray-400 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+                    title="Thema umbenennen"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span className="max-lg:hidden">Umbenennen</span>
+                  </button>
+                )}
+              </div>
               <select
                 value={filters.topic}
                 onChange={(e) => setFilters(prev => ({ ...prev, topic: e.target.value }))}
@@ -342,7 +422,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                 {/* Quiz info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-gray-900 truncate">{quiz.title}</h3>
+                    <h3 className="font-semibold text-gray-900 truncate">{quiz.shortTitle || quiz.title}</h3>
                     {quiz.hidden && (
                       <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">
                         Versteckt
@@ -353,21 +433,21 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                   {/* Tags */}
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {quiz.subjectName && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-yellow-800">
                         {quiz.subjectName}
                       </span>
                     )}
                     {quiz.className && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
                         {quiz.className}
                       </span>
                     )}
                     {quiz.topicName && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                         {quiz.topicName}
                       </span>
                     )}
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-600">
                       {quiz.questions?.length || 0} Fragen
                     </span>
                   </div>
@@ -375,6 +455,13 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
                 {/* Actions */}
                 <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setReassignQuiz(quiz)}
+                    className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                    title="Fach/Klasse/Thema ändern"
+                  >
+                    <MoveHorizontal className="w-4 h-4" />
+                  </button>
                   <button
                     onClick={() => handleCopyLink(quiz)}
                     className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
@@ -441,6 +528,30 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
           itemName={deletingQuiz.title}
           onConfirm={handleDelete}
           onClose={() => setDeletingQuiz(null)}
+        />
+      )}
+
+      {renameModal && (
+        <RenameCategoryModal
+          type={renameModal.type}
+          currentId={renameModal.id}
+          currentName={renameModal.name}
+          affectedCount={renameModal.count}
+          onClose={() => setRenameModal(null)}
+          onSuccess={handleRenameSuccess}
+        />
+      )}
+
+      {reassignQuiz && (
+        <ReassignQuizModal
+          quiz={reassignQuiz}
+          onClose={() => setReassignQuiz(null)}
+          onSuccess={async () => {
+            await loadQuizzes();
+            toast.custom(() => (
+              <CustomToast message="Quiz neu zugeordnet" type="success" />
+            ));
+          }}
         />
       )}
     </div>
