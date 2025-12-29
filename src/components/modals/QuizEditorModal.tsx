@@ -368,7 +368,7 @@ export default function QuizEditorModal({
                         </button>
                         <button
                           onClick={() => handleDeleteQuestion(index)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded"
+                          className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                           title="Frage löschen"
                           aria-label="Frage löschen"
                         >
@@ -391,7 +391,7 @@ export default function QuizEditorModal({
             </h4>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Frage
               </label>
               <input
@@ -509,13 +509,13 @@ export default function QuizEditorModal({
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                    <p className="text-xs font-medium text-blue-900 flex items-center gap-1.5">
-                      <MessageCircleWarning className="w-4 h-4 text-blue-600" />
+                  <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-4">
+                    <p className="text-xs font-medium text-blue-900 dark:text-blue-200 flex items-center gap-1.5">
+                      <MessageCircleWarning className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       <span>Bildgröße max. 500 KB. Größere Bilder werden automatisch komprimiert.</span>
                     </p>
-                    <p className="text-xs text-blue-700 mt-2 flex items-center gap-1.5">
-                      <Lightbulb className="w-4 h-4 text-blue-600" />
+                    <p className="text-xs text-blue-700 dark:text-blue-300 mt-2 flex items-center gap-1.5">
+                      <Lightbulb className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       <span>
                         Tipp: Nutze tinypng.com oder imagecompressor.com zur Optimierung.
                       </span>
@@ -524,11 +524,11 @@ export default function QuizEditorModal({
                   {currentQuestion.answers.map((answer: Answer, i: number) => (
                     <div
                       key={i}
-                      className="border border-gray-300 rounded-lg p-4"
+                      className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg p-4"
                     >
                       <div className="flex gap-3">
                         <div className="flex-1">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Bild {i + 1}
                           </label>
 
@@ -577,7 +577,7 @@ export default function QuizEditorModal({
                                 answers: newAnswers,
                               });
                             }}
-                            className="w-full px-3 py-2 mt-2 border border-gray-300 rounded-md text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full px-3 py-2 mt-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-md text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                             placeholder="Beschreibung (optional)"
                           />
                         </div>
@@ -590,7 +590,7 @@ export default function QuizEditorModal({
                           }
                           className={`px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap self-start ${currentQuestion.correctAnswerIndex === i
                               ? 'bg-green-600 text-white'
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                             }`}
                           title={currentQuestion.correctAnswerIndex === i ? 'Korrekte Antwort' : 'Als korrekt markieren'}
                           aria-label={currentQuestion.correctAnswerIndex === i ? 'Korrekte Antwort' : 'Als korrekt markieren'}
@@ -600,15 +600,15 @@ export default function QuizEditorModal({
                               <Check className="w-4 h-4 inline text-white" />
                             </span>
                           ) : (
-                            <span className="flex items-center gap-1 text-gray-700">
-                              <Check className="w-4 h-4 inline text-gray-500" />
+                            <span className="flex items-center gap-1">
+                              <Check className="w-4 h-4 inline text-gray-500 dark:text-gray-400" />
                             </span>
                           )}
                         </button>
                         <button
                           onClick={() => handleRemoveAnswer(i)}
                           disabled={currentQuestion.answers.length <= 2}
-                          className="px-3 py-3 rounded-lg text-red-600 hover:bg-red-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap self-start"
+                          className="px-3 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed transition-colors whitespace-nowrap self-start"
                           title="Antwort löschen"
                           aria-label="Antwort löschen"
                         >
@@ -634,7 +634,7 @@ export default function QuizEditorModal({
               </button>
               <button
                 onClick={() => setCurrentQuestion(null)}
-                className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300"
+                className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600"
                 title="Abbrechen"
                 aria-label="Abbrechen"
               >

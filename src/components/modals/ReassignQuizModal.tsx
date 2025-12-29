@@ -93,17 +93,17 @@ export default function ReassignQuizModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+        <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <MoveHorizontal className="w-6 h-6 text-indigo-600" />
+            <MoveHorizontal className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Quiz neu zuordnen</h2>
           </div>
           <button
             onClick={onClose}
             disabled={isProcessing}
-            className="text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
             aria-label="Schließen"
           >
             <X className="w-6 h-6" />
@@ -112,8 +112,8 @@ export default function ReassignQuizModal({
 
         {/* Content */}
         <div className="p-6 space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-            <p className="text-sm text-blue-800">
+          <div className="bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-4">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
               <strong>Quiz:</strong> {quiz.title}
             </p>
           </div>
@@ -164,7 +164,6 @@ export default function ReassignQuizModal({
               onChange={(e) => setSelectedTopic(e.target.value)}
               disabled={isProcessing}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
             >
               <option value="">Kein Thema</option>
               {topics.map(t => (
@@ -175,19 +174,19 @@ export default function ReassignQuizModal({
 
           {/* Success Message */}
           {success && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              <span className="text-sm text-green-800 font-medium">Erfolgreich zugeordnet!</span>
+            <div className="bg-green-50 dark:bg-green-900/40 border border-green-200 dark:border-green-700 rounded-lg p-3 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+              <span className="text-sm text-green-800 dark:text-green-200 font-medium">Erfolgreich zugeordnet!</span>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+        <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
           <button
             onClick={onClose}
             disabled={isProcessing}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
           >
             Abbrechen
           </button>
