@@ -32,6 +32,9 @@ export default function useDarkMode() {
 
   // Listen for system preference changes
   useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) {
+      return;
+    }
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
       // Only update if user hasn't set a preference
