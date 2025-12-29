@@ -72,7 +72,7 @@ const ProgressAccordionItem: React.FC<{
           isCompleted 
             ? 'bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/40' 
             : completionPercentage > 0
-            ? 'bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-900/30 dark:hover:bg-yellow-900/40'
+            ? 'bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-600/30 dark:hover:bg-yellow-900/40'
             : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700'
         }`}
       >
@@ -152,10 +152,10 @@ const ProgressAccordionItem: React.FC<{
             if (!hasRelevantStats) return null;
             
             return (
-              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+              <div className="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded-lg p-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <p className="text-xs text-indigo-700 uppercase tracking-wide font-semibold truncate block">Lernfortschritt</p>
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                  <p className="text-xs text-indigo-700 dark:text-indigo-300 uppercase tracking-wide font-semibold truncate block">Lernfortschritt</p>
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700">
                     <Sparkles className="w-3 h-3" />
                     BETA
                   </span>
@@ -163,27 +163,27 @@ const ProgressAccordionItem: React.FC<{
                 <div className="grid grid-cols-1 gap-2 text-sm">
                   {dueForReview > 0 && (
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                      <span className="text-orange-700">{dueForReview} zur Wiederholung</span>
+                      <span className="w-2 h-2 rounded-full bg-orange-500 dark:bg-orange-700"></span>
+                      <span className="text-orange-700 dark:text-orange-300">{dueForReview} zur Wiederholung</span>
                     </div>
                   )}
                   {masteredQuestions > 0 && (
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                      <span className="text-green-700">{masteredQuestions} gemeistert</span>
+                      <span className="w-2 h-2 rounded-full bg-green-500 dark:bg-green-700"></span>
+                      <span className="text-green-700 dark:text-green-300">{masteredQuestions} gemeistert</span>
                     </div>
                   )}
                   {/* Bei unvollständigen Quizzen auch Learning und New anzeigen */}
                   {!isCompleted && learningQuestions > 0 && (
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                      <span className="text-blue-700">{learningQuestions} am Lernen</span>
+                      <span className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-700"></span>
+                      <span className="text-blue-700 dark:text-blue-300">{learningQuestions} am Lernen</span>
                     </div>
                   )}
                   {!isCompleted && newQuestions > 0 && (
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-gray-400"></span>
-                      <span className="text-gray-600">{newQuestions} neu</span>
+                      <span className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-600"></span>
+                      <span className="text-gray-600 dark:text-gray-300">{newQuestions} neu</span>
                     </div>
                   )}
                 </div>
@@ -314,7 +314,11 @@ const UserView: React.FC<UserViewProps> = ({ username, onClose, onChooseName, su
         {/* Header */}
         <div className="mb-4">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 force-break" lang="de">Nutzername</h1>
-          <p className="text-gray-600 dark:text-gray-400 force-break" lang="de">Dein zufällig generierter Nutzername</p>
+          <p className="text-gray-600 dark:text-gray-400 force-break" lang="de">
+            {username === 'Gast' 
+              ? 'Du hast noch keinen Namen. Klicke auf das Stift-Icon, um einen auszuwählen.' 
+              : 'Dein zufällig generierter Nutzername'}
+          </p>
         </div>
 
 
@@ -342,12 +346,12 @@ const UserView: React.FC<UserViewProps> = ({ username, onClose, onChooseName, su
                 onChooseName();
               }
             }}
-            className="ml-2 p-2 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors"
+            className="ml-2 p-2 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors relative"
             title="Anderen Namen wählen"
             aria-label="Anderen Namen wählen"
             type="button"
           >
-            <Pencil className="w-5 h-5" />
+            <Pencil className={`w-5 h-5 ${username === 'Gast' ? 'animate-pulse' : ''}`} />
           </button>
         </div>
 

@@ -6,9 +6,10 @@ export interface MenuItem {
   icon: ComponentType<{ className?: string }>;
   label: string;
   onClick: () => void;
-  variant?: 'default' | 'primary' | 'secondary' | 'danger';
+  variant?: 'default' | 'primary' | 'divider';
   isActive?: boolean;
   hideOnDesktop?: boolean; // Hide on desktop, show only in mobile menu
+  hasNotification?: boolean; // Show a notification badge
 }
 
 interface AppHeaderProps {
@@ -45,29 +46,17 @@ export default function AppHeader({
   const getButtonClasses = (item: MenuItem, isMobile: boolean = false) => {
     if (isMobile) {
       // Mobile menu item styling
-      if (item.variant === 'danger') {
-        return "w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors";
-      }
       if (item.variant === 'primary' || item.isActive) {
         return "w-full flex items-center gap-3 px-4 py-3 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors";
       }
-      if (item.variant === 'secondary') {
-        return "w-full flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors";
-      }
-      return "w-full flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors";
+      return "w-full flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors";
     }
 
     // Desktop button styling
-    if (item.variant === 'danger') {
-      return "relative group p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors";
-    }
     if (item.variant === 'primary' || item.isActive) {
-      return "relative group p-2 rounded-full text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors";
+      return "relative group p-2 rounded-full text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors";
     }
-    if (item.variant === 'secondary') {
-      return "relative group p-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors";
-    }
-    return "relative group p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors";
+    return "relative group p-2 rounded-full text-gray-700 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors";
   };
 
   // Filter items for desktop (exclude hideOnDesktop)
@@ -81,19 +70,19 @@ export default function AppHeader({
             {title}
             {titleIcon}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">{subtitle}</p>
+          <p className="text-gray-700 dark:text-gray-200">{subtitle}</p>
         </div>
         <div className="flex flex-row gap-2 items-end relative" ref={menuRef}>
           {/* Dark Mode Toggle - visible on desktop */}
           <button
             onClick={toggleDarkMode}
-            className="hidden md:block relative group p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="hidden md:block relative group p-2 rounded-full text-gray-700 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             aria-label={isDarkMode ? "Heller Modus" : "Dunkler Modus"}
             title={isDarkMode ? "Heller Modus" : "Dunkler Modus"}
           >
             {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
             {/* Tooltip */}
-            <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+            <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
               {isDarkMode ? "Heller Modus" : "Dunkler Modus"}
             </span>
           </button>
@@ -111,6 +100,10 @@ export default function AppHeader({
                   title={item.label}
                 >
                   <Icon className="w-6 h-6" />
+                  {/* Notification Badge */}
+                  {item.hasNotification && (
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500/40 rounded-full ring-2 ring-white dark:ring-gray-800" />
+                  )}
                   {/* Tooltip */}
                   <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
                     {item.label}
@@ -123,7 +116,7 @@ export default function AppHeader({
           {/* Mobile Menu Button - visible below md */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="md:hidden p-2 rounded-full text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             aria-label="Menü"
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -138,7 +131,7 @@ export default function AppHeader({
                   toggleDarkMode();
                   setIsMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 <span className="font-medium">{isDarkMode ? "Heller Modus" : "Dunkler Modus"}</span>
@@ -148,10 +141,8 @@ export default function AppHeader({
                 const Icon = item.icon;
                 const needsDivider = 
                   index > 0 && 
-                  (item.variant === 'danger' || 
-                   item.variant === 'secondary' ||
-                   menuItems[index - 1].variant === 'danger' ||
-                   menuItems[index - 1].variant === 'secondary');
+                  (item.variant === 'divider' ||
+                   menuItems[index - 1].variant === 'divider');
                 
                 return (
                   <div key={index}>
@@ -165,7 +156,13 @@ export default function AppHeader({
                       }}
                       className={getButtonClasses(item, true)}
                     >
-                      <Icon className="w-5 h-5" />
+                      <div className="relative">
+                        <Icon className="w-5 h-5" />
+                        {/* Notification Badge */}
+                        {item.hasNotification && (
+                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full ring-1 ring-white dark:ring-gray-800" />
+                        )}
+                      </div>
                       <span className="font-medium">{item.label}</span>
                     </button>
                   </div>

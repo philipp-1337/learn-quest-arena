@@ -61,9 +61,9 @@ export default function ExportModal({ onClose }: ExportModalProps) {
         {/* Content */}
         <div className="p-6">
           {/* Info */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-blue-900 mb-2">Was wird exportiert?</h3>
-            <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+          <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 rounded-lg p-4 mb-6">
+            <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">Was wird exportiert?</h3>
+            <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-disc list-inside">
               <li>Alle Quizze aus der Quiz-Collection</li>
               <li>Gruppiert nach Fach, Klasse und Thema</li>
               <li>Mit allen Fragen und Antworten</li>
@@ -86,12 +86,12 @@ export default function ExportModal({ onClose }: ExportModalProps) {
               </div>
               <div className="flex-1 text-left">
                 <div className="font-semibold text-gray-900 dark:text-white">JSON Format</div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
                   Strukturiert und leicht zu bearbeiten. Empfohlen für große Datenmengen.
                 </div>
               </div>
               {isExporting && (
-                <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                <Loader2 className="w-5 h-5 animate-spin text-blue-600 dark:text-blue-300" />
               )}
             </button>
 
@@ -102,16 +102,16 @@ export default function ExportModal({ onClose }: ExportModalProps) {
               className="w-full flex items-center gap-4 p-4 border-2 border-gray-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="flex-shrink-0">
-                <FileSpreadsheet className="w-8 h-8 text-green-600" />
+                <FileSpreadsheet className="w-8 h-8 text-green-600 dark:text-green-300" />
               </div>
               <div className="flex-1 text-left">
                 <div className="font-semibold text-gray-900 dark:text-white">CSV Format</div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
                   Einfaches Tabellenformat. Gut für Excel/Google Sheets.
                 </div>
               </div>
               {isExporting && (
-                <Loader2 className="w-5 h-5 animate-spin text-green-600" />
+                <Loader2 className="w-5 h-5 animate-spin text-green-600 dark:text-green-300" />
               )}
             </button>
           </div>
@@ -125,12 +125,12 @@ export default function ExportModal({ onClose }: ExportModalProps) {
             }`}>
               <div className="flex items-center gap-2">
                 {exportResult.success ? (
-                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <CheckCircle className="w-5 h-5 text-green-600  dark:text-green-300 flex-shrink-0" />
                 ) : (
-                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-300 flex-shrink-0" />
                 )}
                 <p className={`text-sm ${
-                  exportResult.success ? 'text-green-800' : 'text-red-800'
+                  exportResult.success ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'
                 }`}>
                   {exportResult.message}
                 </p>
@@ -139,7 +139,7 @@ export default function ExportModal({ onClose }: ExportModalProps) {
           )}
 
           {/* Info Text */}
-          <div className="mt-6 text-sm text-gray-600 bg-gray-50 rounded-lg p-4">
+          <div className="mt-6 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
             <p className="font-semibold mb-2">💡 Tipp:</p>
             <p>
               Die exportierte Datei kann direkt wieder importiert werden. 

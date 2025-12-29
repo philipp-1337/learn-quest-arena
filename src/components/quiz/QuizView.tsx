@@ -2,7 +2,7 @@ import UserView from "../user/UserView";
 import { useEffect, useState } from "react";
 import UsernamePicker from "../user/UsernamePicker";
 import UsernameManualEntry from "../user/UsernameManualEntry";
-import { Cog, Sword, UserPen, Trophy, Sparkles, BadgeInfoIcon } from "lucide-react";
+import { Cog, Sword, UserCircle, Trophy, Sparkles, BadgeInfoIcon } from "lucide-react";
 import AppHeader, { type MenuItem } from "../shared/AppHeader";
 import { useQuizState } from "../../hooks/useQuizState";
 import { getAuth } from "firebase/auth";
@@ -341,10 +341,10 @@ export default function QuizView({
 
   const menuItems: MenuItem[] = [
     {
-      icon: UserPen,
+      icon: UserCircle,
       label: username !== "Gast" ? username : "Gast",
       onClick: () => setShowUserView(true),
-      // isActive: username !== "Gast",
+      hasNotification: username === "Gast",
     },
     {
       icon: Cog,
