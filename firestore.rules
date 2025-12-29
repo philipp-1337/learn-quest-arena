@@ -10,15 +10,6 @@ service cloud.firestore {
       return username.matches('^[A-Za-zäöüßÄÖÜ]+-[A-Za-z0-9]{6}$');
     }
     
-    // Subjects Collection - Lesen für alle, Schreiben nur für authentifizierte User
-    match /subjects/{subjectId} {
-      // Jeder kann Subjects lesen (für Quiz-Teilnehmer)
-      allow read: if true;
-      
-      // Nur eingeloggte Admins können Subjects erstellen/ändern/löschen
-      allow create, update, delete: if request.auth != null;
-    }
-    
     // Users Collection - Streng kontrolliert
     match /users/{userId} {
       // Jeder kann lesen (nur um zu prüfen, ob Username existiert)
@@ -76,12 +67,6 @@ service cloud.firestore {
       // Bei Änderung/Löschung: Nur der Autor oder jeder Admin
       // (Für einfache Verwaltung erlauben wir allen Admins das Bearbeiten)
       allow update, delete: if request.auth != null;
-    }
-    
-    // Migration Status - Tracking für die Datenmigration
-    match /migrationStatus/{statusId} {
-      // Nur Admins können Migrationsstatus lesen und schreiben
-      allow read, write: if request.auth != null;
     }
     
     // Author Collection - Speichert Author-Abbreviations

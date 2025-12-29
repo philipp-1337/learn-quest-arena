@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Trophy, Home, ArrowLeft, Shield } from 'lucide-react';
-import type { QuizChallenge, Question, Answer, Subject } from '../../types/quizTypes';
+import type { QuizChallenge, Question, Answer } from '../../types/quizTypes';
 import type { UserQuizChallengeProgress } from '../../types/userProgress';
 import QuizQuestion from './QuizQuestion';
 import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
-import useFirestore from '../../hooks/useFirestore';
 import { getQuestionId } from '../../utils/questionIdHelper';
+import { loadAllQuizDocuments } from '../../utils/quizzesCollection';
 
 interface QuizChallengePlayerProps {
   challenge: QuizChallenge;
@@ -24,7 +24,6 @@ export default function QuizChallengePlayer({
   initialProgress,
   onProgressUpdate,
 }: QuizChallengePlayerProps) {
-  const { fetchCollection } = useFirestore();
   const [currentLevel, setCurrentLevel] = useState(initialProgress?.currentLevel || 1);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [shuffledAnswers, setShuffledAnswers] = useState<Array<Answer & { originalIndex: number }>>([]);
@@ -38,24 +37,17 @@ export default function QuizChallengePlayer({
   const [elapsedTime, setElapsedTime] = useState(0);
   const [questionMap, setQuestionMap] = useState<Map<string, Question>>(new Map());
 
-  // Load all questions from subjects and create a map
+  // Load all questions from quizzes and create a map
   useEffect(() => {
     const loadQuestions = async () => {
       try {
-        const subjects = await fetchCollection('subjects');
+        const quizDocs = await loadAllQuizDocuments();
         const qMap = new Map<string, Question>();
         
-        subjects.forEach((subjectData: { id: string; name?: string; classes?: unknown[] }) => {
-          const subject = subjectData as Subject;
-          subject.classes?.forEach((cls) => {
-            cls.topics?.forEach((topic) => {
-              topic.quizzes?.forEach((quiz) => {
-                quiz.questions?.forEach((question, index) => {
-                  const questionId = getQuestionId(question, quiz.id, index);
-                  qMap.set(questionId, question);
-                });
-              });
-            });
+        quizDocs.forEach((quizDoc) => {
+          quizDoc.questions?.forEach((question, index) => {
+            const questionId = getQuestionId(question, quizDoc.id, index);
+            qMap.set(questionId, question);
           });
         });
         
@@ -66,7 +58,7 @@ export default function QuizChallengePlayer({
     };
     
     loadQuestions();
-  }, [fetchCollection]);
+  }, []);
 
   // Update elapsed time
   useEffect(() => {

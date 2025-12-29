@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
-import type { QuizChallenge, Question, Subject } from '../../types/quizTypes';
+import type { QuizChallenge, Question } from '../../types/quizTypes';
 import useFirestore from '../../hooks/useFirestore';
 import { toast } from 'sonner';
 import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
 import { getQuestionId } from '../../utils/questionIdHelper';
+import { loadAllQuizDocuments } from '../../utils/quizzesCollection';
 
 interface QuizChallengeManagerProps {
   challenges: QuizChallenge[];
@@ -15,7 +16,7 @@ export default function QuizChallengeManager({
   challenges,
   onChallengesChange,
 }: QuizChallengeManagerProps) {
-  const { saveDocument, deleteDocument, fetchCollection } = useFirestore();
+  const { saveDocument, deleteDocument } = useFirestore();
   const [selectedChallenge, setSelectedChallenge] = useState<QuizChallenge | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
   const [availableQuestions, setAvailableQuestions] = useState<(Question & { quizTitle?: string; topicName?: string })[]>([]);
@@ -26,24 +27,17 @@ export default function QuizChallengeManager({
   useEffect(() => {
     const loadQuestions = async () => {
       try {
-        const subjects = await fetchCollection('subjects');
+        const quizDocs = await loadAllQuizDocuments();
         const allQuestions: (Question & { quizTitle?: string; topicName?: string })[] = [];
         
-        subjects.forEach((subjectData: { id: string; name?: string; classes?: unknown[] }) => {
-          const subject = subjectData as Subject;
-          subject.classes?.forEach((cls) => {
-            cls.topics?.forEach((topic) => {
-              topic.quizzes?.forEach((quiz) => {
-                quiz.questions?.forEach((question, index) => {
-                  const questionId = getQuestionId(question, quiz.id, index);
-                  allQuestions.push({
-                    ...question,
-                    id: questionId,
-                    quizTitle: quiz.title,
-                    topicName: topic.name,
-                  });
-                });
-              });
+        quizDocs.forEach((quizDoc) => {
+          quizDoc.questions?.forEach((question, index) => {
+            const questionId = getQuestionId(question, quizDoc.id, index);
+            allQuestions.push({
+              ...question,
+              id: questionId,
+              quizTitle: quizDoc.title,
+              topicName: quizDoc.topicName,
             });
           });
         });
@@ -55,7 +49,7 @@ export default function QuizChallengeManager({
     };
     
     loadQuestions();
-  }, [fetchCollection]);
+  }, []);
 
   // Load selected questions when level changes
   useEffect(() => {

@@ -85,29 +85,3 @@ export interface QuizChallenge {
   levels: QuizChallengeLevel[];
   hidden?: boolean;
 }
-
-/**
- * Migration status for tracking quiz migration progress
- */
-export interface MigrationStatus {
-  totalQuizzes: number;
-  migratedQuizzes: number;
-  failedQuizzes: number;
-  errors: string[];
-  startedAt: number;
-  completedAt?: number;
-  status: 'pending' | 'in-progress' | 'completed' | 'failed';
-}
-
-/**
- * Helper type for quiz with full hierarchy context
- */
-export interface QuizWithContext {
-  quiz: Quiz;
-  subjectId: string;
-  subjectName: string;
-  classId: string;
-  className: string;
-  topicId: string;
-  topicName: string;
-}

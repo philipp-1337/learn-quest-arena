@@ -12,7 +12,6 @@ import ExportModal from "../modals/ExportModal";
 import AdminProfileModal from "../modals/AdminProfileModal";
 import QuizListManager from "./QuizListManager";
 import QuizChallengeManager from "./QuizChallengeManager";
-import QuizMigrationPanel from "./QuizMigrationPanel";
 
 // ============================================
 // ADMIN VIEW COMPONENT
@@ -37,13 +36,9 @@ export default function AdminView({
   const [showExportModal, setShowExportModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
-  const [activeTab, setActiveTab] = useState<'quiz' | 'challenge' | 'migration'>('quiz');
+  const [activeTab, setActiveTab] = useState<'quiz' | 'challenge'>('quiz');
   const [quizListKey, setQuizListKey] = useState(0);
   const auth = getAuth();
-
-  // Only show migration tab for specific user
-  const MIGRATION_ALLOWED_USER_ID = 'MaV5GHj77vRr48xpTo9GbxK4dqM2';
-  const canAccessMigration = auth.currentUser?.uid === MIGRATION_ALLOWED_USER_ID;
 
   // Custom Hooks
   const stats = useStatsCalculation(subjects);
@@ -140,18 +135,6 @@ export default function AdminView({
                     <Sparkles className="w-3 h-3 text-purple-600" />
                   </span>
                 </button>
-                {canAccessMigration && (
-                  <button
-                    onClick={() => setActiveTab('migration')}
-                    className={`relative pb-3 px-4 font-semibold transition-colors flex items-center gap-2 whitespace-nowrap ${
-                      activeTab === 'migration'
-                        ? 'text-blue-600 border-b-2 border-blue-600'
-                        : 'text-gray-500 hover:text-gray-700 border-b-2 border-transparent'
-                    }`}
-                  >
-                    Migration
-                  </button>
-                )}
               </div>
             </div>
 
@@ -211,10 +194,6 @@ export default function AdminView({
                   onChallengesChange={handleChallengesChange}
                 />
               </>
-            )}
-
-            {activeTab === 'migration' && canAccessMigration && (
-              <QuizMigrationPanel subjects={subjects} />
             )}
           </div>
 
