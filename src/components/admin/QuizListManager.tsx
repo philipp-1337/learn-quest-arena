@@ -295,13 +295,13 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
       <div className="flex flex-col sm:flex-row gap-3">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Quizze durchsuchen..."
             value={filters.search}
             onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
         </div>
 
@@ -310,8 +310,8 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
           onClick={() => setShowFilters(!showFilters)}
           className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
             hasActiveFilters 
-              ? 'bg-indigo-100 border-indigo-300 text-indigo-700' 
-              : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              ? 'bg-indigo-100 dark:bg-indigo-900/40 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300' 
+              : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
           }`}
         >
           <Filter className="w-4 h-4" />
@@ -336,13 +336,13 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
+        <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="font-medium text-gray-700">Filter</h4>
+            <h4 className="font-medium text-gray-700 dark:text-gray-300">Filter</h4>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center gap-1"
               >
                 <X className="w-3 h-3" />
                 Zurücksetzen
@@ -354,7 +354,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
             {/* Subject Filter */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-sm text-gray-600">Fach</label>
+                <label className="block text-sm text-gray-600 dark:text-gray-400">Fach</label>
                 {filters.subject && (
                   <button
                     onClick={() => {
@@ -372,7 +372,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
               <select
                 value={filters.subject}
                 onChange={(e) => setFilters(prev => ({ ...prev, subject: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="">Alle Fächer</option>
                 {filterOptions.subjects.map(s => (
@@ -384,7 +384,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
             {/* Class Filter */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-sm text-gray-600">Klasse</label>
+                <label className="block text-sm text-gray-600 dark:text-gray-400">Klasse</label>
                 {filters.class && (
                   <button
                     onClick={() => {
@@ -402,7 +402,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
               <select
                 value={filters.class}
                 onChange={(e) => setFilters(prev => ({ ...prev, class: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="">Alle Klassen</option>
                 {filterOptions.classes.map(c => (
@@ -414,7 +414,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
             {/* Topic Filter */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-sm text-gray-600">Thema</label>
+                <label className="block text-sm text-gray-600 dark:text-gray-400">Thema</label>
                 {filters.topic && (
                   <button
                     onClick={() => {
@@ -432,7 +432,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
               <select
                 value={filters.topic}
                 onChange={(e) => setFilters(prev => ({ ...prev, topic: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="">Alle Themen</option>
                 {filterOptions.topics.map(t => (
@@ -445,11 +445,11 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
           {/* Author Filter and Show hidden toggle */}
           <div className="space-y-3">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Autor</label>
+              <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">Autor</label>
               <select
                 value={filters.author}
                 onChange={(e) => setFilters(prev => ({ ...prev, author: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="">Alle Autoren</option>
                 {filterOptions.authors.map(a => (
@@ -463,28 +463,28 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                 type="checkbox"
                 checked={filters.showHidden}
                 onChange={(e) => setFilters(prev => ({ ...prev, showHidden: e.target.checked }))}
-                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-700"
               />
-              <span className="text-sm text-gray-600">Versteckte Quizze anzeigen</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Versteckte Quizze anzeigen</span>
             </label>
           </div>
         </div>
       )}
 
       {/* Results count */}
-      <div className="text-sm text-gray-500">
+      <div className="text-sm text-gray-500 dark:text-gray-400">
         {filteredQuizzes.length} von {quizzes.length} Quizzen
       </div>
 
       {/* Quiz List */}
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-2 text-gray-500">Lade Quizze...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 dark:border-indigo-400 mx-auto"></div>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">Lade Quizze...</p>
         </div>
       ) : filteredQuizzes.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-500">
+        <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <p className="text-gray-500 dark:text-gray-400">
             {quizzes.length === 0 
               ? "Noch keine Quizze vorhanden. Erstelle dein erstes Quiz!"
               : "Keine Quizze gefunden. Passe deine Filter an."
@@ -496,19 +496,19 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
           {filteredQuizzes.map(quiz => (
             <div
               key={quiz.id}
-              className={`bg-white border rounded-lg p-4 hover:shadow-md transition-shadow ${
-                quiz.hidden ? 'opacity-60 border-gray-200' : 'border-gray-300'
-              }`}
+              className={`bg-white dark:bg-gray-800 border rounded-lg p-4 hover:shadow-md transition-shadow ${
+                quiz.hidden ? 'border-gray-200 dark:border-gray-700' : 'border-gray-300 dark:border-gray-600'
+              } relative`}
             >
-              <div className="flex flex-col gap-1">
+              <div className={`flex flex-col gap-1 ${quiz.hidden ? 'opacity-60' : ''}`}>
                 {/* Header: Title and Actions */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate">
+                    <h3 className="font-semibold text-gray-900 dark:text-white truncate">
                       {quiz.shortTitle || quiz.title}
                     </h3>
                     {quiz.hidden && (
-                      <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded shrink-0">
+                      <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded shrink-0">
                         Versteckt
                       </span>
                     )}
@@ -518,45 +518,45 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                   <div className="hidden sm:flex items-center gap-1 shrink-0">
                     <button
                       onClick={() => handleToggleHidden(quiz)}
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
                       title={quiz.hidden ? "Sichtbar machen" : "Verstecken"}
                     >
                       {quiz.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                     </button>
                     <button
                       onClick={() => handleCopyLink(quiz)}
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
                       title="Link kopieren"
                     >
                       <QrCode className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setReassignQuiz(quiz)}
-                      className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 dark:text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors"
                       title="Fach/Klasse/Thema ändern"
                     >
                       <ArrowLeftRight className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setEditingQuiz(quiz)}
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
                       title="Bearbeiten"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setDeletingQuiz(quiz)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                       title="Löschen"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
 
-                  {/* Actions Mobile */}
-                  <div className="sm:hidden relative mobile-menu-container">
+                  {/* Actions Mobile - Button only */}
+                  <div className="sm:hidden shrink-0">
                     <button
-                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                      className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg"
                       title="Aktionen"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -565,91 +565,92 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                     >
                       <MoreVertical className="w-4 h-4" />
                     </button>
-
-                    {openMobileMenuId === quiz.id && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                        <button 
-                          onClick={() => {
-                            handleToggleHidden(quiz);
-                            setOpenMobileMenuId(null);
-                          }} 
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          {quiz.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                          {quiz.hidden ? 'Sichtbar machen' : 'Verstecken'}
-                        </button>
-                        <button 
-                          onClick={() => {
-                            handleCopyLink(quiz);
-                            setOpenMobileMenuId(null);
-                          }} 
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <QrCode className="w-4 h-4" />
-                          Link kopieren
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setReassignQuiz(quiz);
-                            setOpenMobileMenuId(null);
-                          }} 
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <ArrowLeftRight className="w-4 h-4" />
-                          Neu zuordnen
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setEditingQuiz(quiz);
-                            setOpenMobileMenuId(null);
-                          }} 
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <Pencil className="w-4 h-4" />
-                          Bearbeiten
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setDeletingQuiz(quiz);
-                            setOpenMobileMenuId(null);
-                          }} 
-                          className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Löschen
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1.5 mt-0">
                   {quiz.subjectName && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-yellow-800 truncate">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 dark:bg-orange-100/30 text-yellow-800 dark:text-yellow-400 truncate">
                       {quiz.subjectName}
                     </span>
                   )}
                   {quiz.className && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 truncate">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 truncate">
                       {quiz.className}
                     </span>
                   )}
                   {quiz.topicName && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 truncate">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 truncate">
                       {quiz.topicName}
                     </span>
                   )}
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-600 truncate">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 truncate">
                     {quiz.questions?.length || 0} Fragen
                   </span>
                   {quiz.authorId && authorAbbreviations.get(quiz.authorId) && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 truncate">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 truncate">
                       {authorAbbreviations.get(quiz.authorId)}
                     </span>
                   )}
                 </div>
               </div>
+
+              {/* Mobile Menu - Outside opacity context */}
+              {openMobileMenuId === quiz.id && (
+                <div className="sm:hidden absolute right-4 top-16 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 mobile-menu-container">
+                  <button 
+                    onClick={() => {
+                      handleToggleHidden(quiz);
+                      setOpenMobileMenuId(null);
+                    }} 
+                    className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                  >
+                    {quiz.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    {quiz.hidden ? 'Sichtbar machen' : 'Verstecken'}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      handleCopyLink(quiz);
+                      setOpenMobileMenuId(null);
+                    }} 
+                    className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                  >
+                    <QrCode className="w-4 h-4" />
+                    Link kopieren
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setReassignQuiz(quiz);
+                      setOpenMobileMenuId(null);
+                    }} 
+                    className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                  >
+                    <ArrowLeftRight className="w-4 h-4" />
+                    Neu zuordnen
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setEditingQuiz(quiz);
+                      setOpenMobileMenuId(null);
+                    }} 
+                    className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    Bearbeiten
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setDeletingQuiz(quiz);
+                      setOpenMobileMenuId(null);
+                    }} 
+                    className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Löschen
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

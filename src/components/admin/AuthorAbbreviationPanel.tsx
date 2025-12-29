@@ -118,8 +118,8 @@ export default function AuthorAbbreviationPanel() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
-        <div className="flex items-center justify-center gap-2 text-gray-500">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mt-6">
+        <div className="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
           <Loader2 className="w-5 h-5 animate-spin" />
           <span>Lade Autoren-Info...</span>
         </div>
@@ -128,14 +128,14 @@ export default function AuthorAbbreviationPanel() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mt-6">
       <div className="flex items-center gap-3 mb-4">
-        <User className="w-6 h-6 text-indigo-600" />
-        <h3 className="text-xl font-bold text-gray-900">Autoren-Abkürzung</h3>
+        <User className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white">Autoren-Abkürzung</h3>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <p className="text-sm text-blue-800">
+      <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <p className="text-sm text-blue-800 dark:text-blue-300">
           Diese Abkürzung wird bei allen Quizzen angezeigt, die du erstellt hast. 
           Sie sollte kurz und eindeutig sein (z.B. Initialen).
         </p>
@@ -143,19 +143,19 @@ export default function AuthorAbbreviationPanel() {
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Angemeldet als
           </label>
           <input
             type="text"
             value={userEmail || ""}
             disabled
-            className="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
+            className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Deine Abkürzung
           </label>
           <input
@@ -164,9 +164,9 @@ export default function AuthorAbbreviationPanel() {
             onChange={(e) => setAbbreviation(e.target.value)}
             placeholder="z.B. MK, TH, JD"
             maxLength={10}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Max. 10 Zeichen
           </p>
         </div>
@@ -194,8 +194,8 @@ export default function AuthorAbbreviationPanel() {
         </button>
 
         {originalAbbreviation && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <p className="text-sm text-green-800">
+          <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
+            <p className="text-sm text-green-800 dark:text-green-300">
               ✓ Deine aktuelle Abkürzung: <span className="font-semibold">{originalAbbreviation}</span>
             </p>
           </div>

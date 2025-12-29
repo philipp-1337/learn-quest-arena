@@ -248,29 +248,29 @@ export default function QuizEditorModal({
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto max-h-screen">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-8 z-10 flex flex-col max-h-[90vh] p-0">
-        <div className="flex justify-between items-center sticky top-0 bg-white pb-4 border-b z-10 px-6 pt-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl my-8 z-10 flex flex-col max-h-[90vh] p-0">
+        <div className="flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 pb-4 border-b dark:border-gray-700 z-10 px-6 pt-6">
           <div className="flex flex-col gap-2 w-full lg:flex-row lg:gap-4">
             <div className="flex flex-col flex-2">
-              <label htmlFor="quiz-title" className="text-xs font-medium text-gray-600 mb-1">Quiz-Titel</label>
+              <label htmlFor="quiz-title" className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Quiz-Titel</label>
               <input
                 id="quiz-title"
                 type="text"
                 value={editedQuiz.title}
                 onChange={e => setEditedQuiz(q => ({ ...q, title: e.target.value }))}
-                className="text-xl font-bold text-gray-900 force-break bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="text-xl font-bold text-gray-900 dark:text-white force-break bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 placeholder="Quiz-Titel eingeben"
                 lang="de"
               />
             </div>
             <div className="flex flex-col flex-1">
-              <label htmlFor="quiz-short-title" className="text-xs font-medium text-gray-600 mb-1">Kurztitel (für Admin-Anzeige & URL)</label>
+              <label htmlFor="quiz-short-title" className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Kurztitel (für Admin-Anzeige & URL)</label>
               <input
                 id="quiz-short-title"
                 type="text"
                 value={editedQuiz.shortTitle}
                 onChange={e => setEditedQuiz(q => ({ ...q, shortTitle: e.target.value }))}
-                className="text-xl font-bold text-gray-900 force-break bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="text-xl font-bold text-gray-900 dark:text-white force-break bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 placeholder="Kurztitel"
                 lang="de"
               />
@@ -282,8 +282,8 @@ export default function QuizEditorModal({
         {!currentQuestion && (
           <div className="space-y-8 mb-10 flex-1 overflow-y-auto px-6">
             <div className="flex justify-between items-center my-6">
-              <h4 className="text-xl font-semibold text-gray-900 tracking-tight force-break" lang="de">
-                Fragen <span className="text-base font-normal text-gray-500">({editedQuiz.questions.length})</span>
+              <h4 className="text-xl font-semibold text-gray-900 dark:text-white tracking-tight force-break" lang="de">
+                Fragen <span className="text-base font-normal text-gray-500 dark:text-gray-400">({editedQuiz.questions.length})</span>
               </h4>
               <button
                 onClick={handleAddQuestion}
@@ -296,7 +296,7 @@ export default function QuizEditorModal({
             </div>
 
             {editedQuiz.questions.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 Noch keine Fragen vorhanden. Klicke auf "Frage hinzufügen" um zu
                 starten.
               </div>
@@ -305,12 +305,12 @@ export default function QuizEditorModal({
                 {editedQuiz.questions.map((q: Question, index: number) => (
                   <div
                     key={index}
-                    className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900"
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="font-semibold text-gray-900">
+                          <span className="font-semibold text-gray-900 dark:text-white">
                             {index + 1}. {q.question}
                             <span className="ml-2 text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded align-middle">
                               {q.answerType === 'text' ? 'Text' : 'Bilder'}
@@ -329,8 +329,8 @@ export default function QuizEditorModal({
                                 <span
                                   className={
                                     i === q.correctAnswerIndex
-                                      ? 'text-green-700 font-medium'
-                                      : 'text-gray-600'
+                                      ? 'text-green-700 dark:text-green-400 font-medium'
+                                      : 'text-gray-600 dark:text-gray-400'
                                   }
                                 >
                                   {answer.content}
@@ -345,8 +345,8 @@ export default function QuizEditorModal({
                                   <span
                                     className={
                                       i === q.correctAnswerIndex
-                                        ? 'text-green-700 font-medium'
-                                        : 'text-gray-600'
+                                        ? 'text-green-700 dark:text-green-400 font-medium'
+                                        : 'text-gray-600 dark:text-gray-400'
                                     }
                                   >
                                     {answer.alt || 'Bild'}
@@ -360,7 +360,7 @@ export default function QuizEditorModal({
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleEditQuestion(index)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                          className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded"
                           title="Frage bearbeiten"
                           aria-label="Frage bearbeiten"
                         >
@@ -386,7 +386,7 @@ export default function QuizEditorModal({
         {/* Question Editor */}
         {currentQuestion && (
           <div className="space-y-4 mb-6 flex-1 overflow-y-auto px-6">
-            <h4 className="text-lg font-semibold text-gray-900 my-4 force-break" lang="de">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white my-4 force-break" lang="de">
               {currentQuestion.isEditing ? 'Frage bearbeiten' : 'Neue Frage'}
             </h4>
 
@@ -403,13 +403,13 @@ export default function QuizEditorModal({
                     question: e.target.value,
                   })
                 }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="Was ist 2 + 2?"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Antwort-Typ
               </label>
               <div className="flex gap-3">
@@ -417,7 +417,7 @@ export default function QuizEditorModal({
                   onClick={() => handleAnswerTypeChange('text')}
                   className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${currentQuestion.answerType === 'text'
                       ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                     }`}
                 >
                   Text
@@ -426,7 +426,7 @@ export default function QuizEditorModal({
                   onClick={() => handleAnswerTypeChange('image')}
                   className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${currentQuestion.answerType === 'image'
                       ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                     }`}
                 >
                   Bilder
@@ -436,7 +436,7 @@ export default function QuizEditorModal({
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Antworten ({currentQuestion.answers.length}/5)
                 </label>
                 <button
@@ -468,7 +468,7 @@ export default function QuizEditorModal({
                             answers: newAnswers,
                           });
                         }}
-                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                         placeholder={`Antwort ${i + 1}`}
                       />
                       <button
@@ -480,7 +480,7 @@ export default function QuizEditorModal({
                         }
                         className={`px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap ${currentQuestion.correctAnswerIndex === i
                             ? 'bg-green-600 text-white'
-                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                           }`}
                         title={currentQuestion.correctAnswerIndex === i ? 'Korrekte Antwort' : 'Als korrekt markieren'}
                         aria-label={currentQuestion.correctAnswerIndex === i ? 'Korrekte Antwort' : 'Als korrekt markieren'}
@@ -498,7 +498,7 @@ export default function QuizEditorModal({
                       <button
                         onClick={() => handleRemoveAnswer(i)}
                         disabled={currentQuestion.answers.length <= 2}
-                        className="px-3 py-3 rounded-lg text-red-600 hover:bg-red-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                        className="px-3 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
                         title="Antwort löschen"
                         aria-label="Antwort löschen"
                       >
@@ -646,16 +646,17 @@ export default function QuizEditorModal({
 
         {/* Hidden Toggle */}
         {!currentQuestion && (
-          <div className="flex flex-col gap-3 pt-4 border-t sticky bottom-0 bg-white px-6 pb-6 z-10">
+          <div className="flex flex-col gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800 px-6 pb-6 z-10">
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 id="hidden-toggle"
                 checked={!!editedQuiz.hidden}
                 onChange={e => setEditedQuiz(q => ({ ...q, hidden: e.target.checked }))}
+                className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-700"
               />
-              <label htmlFor="hidden-toggle" className="text-sm">
-                Quiz ist <span className={editedQuiz.hidden ? 'text-red-500' : 'text-green-600'}>{editedQuiz.hidden ? 'ausgeblendet' : 'sichtbar'}</span>
+              <label htmlFor="hidden-toggle" className="text-sm text-gray-700 dark:text-gray-300">
+                Quiz ist <span className={editedQuiz.hidden ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400'}>{editedQuiz.hidden ? 'ausgeblendet' : 'sichtbar'}</span>
               </label>
             </div>
             <div className="flex gap-3">
@@ -669,7 +670,7 @@ export default function QuizEditorModal({
               </button>
               <button
                 onClick={onClose}
-                className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300"
+                className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600"
                 title="Schließen"
                 aria-label="Schließen"
               >

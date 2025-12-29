@@ -72,7 +72,7 @@ export default function RenameCategoryModal({
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <Edit3 className="w-6 h-6 text-indigo-600" />
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               {typeLabels[type]} umbenennen
             </h2>
           </div>
@@ -98,7 +98,7 @@ export default function RenameCategoryModal({
 
           {/* Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Neuer Name
             </label>
             <input
@@ -106,7 +106,7 @@ export default function RenameCategoryModal({
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               disabled={isRenaming}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
               placeholder={`Neuer Name für "${currentName}"`}
               autoFocus
             />

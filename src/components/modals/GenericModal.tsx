@@ -29,13 +29,14 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white bg-slate-800 rounded-xl shadow-2xl p-6 w-full max-w-md relative">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-md relative">
         <button
           onClick={onClose}
           className="
             absolute right-4 top-4
-            text-black text-xl font-bold
+            text-black dark:text-white text-xl font-bold
             w-8 h-8 rounded-lg
+            hover:bg-gray-100 dark:hover:bg-gray-700
             transition-all cursor-pointer
             flex items-center justify-center"
         >

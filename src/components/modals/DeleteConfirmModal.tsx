@@ -11,12 +11,12 @@ export default function DeleteConfirmModal({
 }: DeleteConfirmModalProps) {
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
-        <h3 className="text-2xl font-bold text-gray-900 mb-4 force-break" lang="de">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-md">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 force-break" lang="de">
           Wirklich löschen?
         </h3>
 
-        <p className="text-gray-700 mb-6">
+        <p className="text-gray-700 dark:text-gray-300 mb-6">
           Möchtest du "{itemName}" wirklich löschen? Diese Aktion kann nicht
           rückgängig gemacht werden.
         </p>
@@ -32,7 +32,7 @@ export default function DeleteConfirmModal({
           </button>
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+            className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
             title="Abbrechen"
             aria-label="Abbrechen"
           >
