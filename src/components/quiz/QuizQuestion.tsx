@@ -42,24 +42,24 @@ export default function QuizQuestion({
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl w-full">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-2xl w-full">
         {/* Progress and Timer */}
         <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
             <span>Frage {currentQuestion + 1} von {totalQuestions}</span>
-            <span className="font-mono text-indigo-600 font-semibold">{formatTime(elapsedTime)}</span>
+            <span className="font-mono text-indigo-600 dark:text-indigo-400 font-semibold">{formatTime(elapsedTime)}</span>
             <span>{Math.round(((currentQuestion + 1) / totalQuestions) * 100)}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div 
-              className="bg-indigo-600 h-2 rounded-full transition-all"
+              className="bg-indigo-600 dark:bg-indigo-500 h-2 rounded-full transition-all"
               style={{ width: `${((currentQuestion + 1) / totalQuestions) * 100}%` }}
             />
           </div>
         </div>
 
         {/* Question */}
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 force-break" lang="de">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8 force-break" lang="de">
           {question.question}
         </h2>
 
@@ -97,7 +97,7 @@ export default function QuizQuestion({
 
         <button
           onClick={onBack || onHome}
-          className="w-full mt-4 text-gray-600 hover:text-gray-900"
+          className="w-full mt-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           title="Quiz abbrechen"
           aria-label="Quiz abbrechen"
         >

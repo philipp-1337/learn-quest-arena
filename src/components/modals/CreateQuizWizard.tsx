@@ -204,16 +204,16 @@ export default function CreateQuizWizard({
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Neues Quiz erstellen</h2>
-            <p className="text-sm text-gray-500 mt-1">Schritt {currentStepIndex + 1} von {steps.length}: {stepTitles[step]}</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Neues Quiz erstellen</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Schritt {currentStepIndex + 1} von {steps.length}: {stepTitles[step]}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+            className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             <X className="w-5 h-5" />
           </button>
@@ -226,7 +226,7 @@ export default function CreateQuizWizard({
               <div
                 key={s}
                 className={`flex-1 h-1.5 rounded-full transition-colors ${
-                  index <= currentStepIndex ? 'bg-indigo-600' : 'bg-gray-200'
+                  index <= currentStepIndex ? 'bg-indigo-600 dark:bg-indigo-500' : 'bg-gray-200 dark:bg-gray-700'
                 }`}
               />
             ))}
@@ -291,7 +291,7 @@ export default function CreateQuizWizard({
 
               {/* Quiz title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Quiz-Titel *
                 </label>
                 <input
@@ -299,12 +299,12 @@ export default function CreateQuizWizard({
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="z.B. Grundlagen der Addition"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   autoFocus
                 />
               </div>
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Das Quiz wird zunächst als <span className="font-medium">versteckt</span> erstellt. 
                 Nach dem Hinzufügen von Fragen kannst du es sichtbar machen.
               </p>
@@ -467,7 +467,7 @@ function SelectOrCreateStep({
 
   return (
     <div className="space-y-4">
-      <p className="text-gray-600">
+      <p className="text-gray-600 dark:text-gray-400">
         Wähle ein bestehendes {label} aus oder erstelle ein neues.
       </p>
 
@@ -480,8 +480,8 @@ function SelectOrCreateStep({
               onClick={() => handleOptionClick(option)}
               className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
                 selectedId === option.id && !showNewInput
-                  ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100'
               }`}
             >
               {option.name}
@@ -494,10 +494,10 @@ function SelectOrCreateStep({
       {options.length > 0 && (
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200" />
+            <div className="w-full border-t border-gray-200 dark:border-gray-700" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">oder</span>
+            <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">oder</span>
           </div>
         </div>
       )}
@@ -510,7 +510,7 @@ function SelectOrCreateStep({
             value={inputValue}
             onChange={(e) => handleInputChange(e.target.value)}
             placeholder={placeholder}
-            className="w-full px-4 py-3 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-indigo-50"
+            className="w-full px-4 py-3 border border-indigo-300 dark:border-indigo-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             autoFocus
           />
           {similarOption && (
@@ -542,7 +542,7 @@ function SelectOrCreateStep({
       ) : (
         <button
           onClick={handleNewClick}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-indigo-400 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Neues {label} erstellen

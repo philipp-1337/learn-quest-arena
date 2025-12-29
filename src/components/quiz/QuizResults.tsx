@@ -53,8 +53,8 @@ export default function QuizResults({
   const isOkay = percentage >= 60;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-3xl w-full border border-gray-100">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-3xl w-full border border-gray-100 dark:border-gray-700">
         {/* Header mit Icon */}
         <div className="text-center mb-6">
           <div className="mb-4">
@@ -68,39 +68,39 @@ export default function QuizResults({
               <Award className="w-20 h-20 text-orange-500 mx-auto" />
             )}
           </div>
-          <h2 className="text-4xl font-bold text-gray-900 mb-2">
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
             {isPerfect ? '🎉 Perfekt!' : isGood ? 'Sehr gut!' : isOkay ? 'Gut gemacht!' : 'Weiter so!'}
           </h2>
-          <p className="text-gray-600">Quiz abgeschlossen</p>
+          <p className="text-gray-600 dark:text-gray-400">Quiz abgeschlossen</p>
         </div>
 
         {/* Haupt-Statistik */}
         <div className={`rounded-xl p-6 mb-6 ${
           isPerfect 
-            ? 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200' 
+            ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/40 dark:to-emerald-900/40 border border-green-200 dark:border-green-700' 
             : isGood
-            ? 'bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200'
-            : 'bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200'
+            ? 'bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-purple-900/40 border border-indigo-200 dark:border-indigo-700'
+            : 'bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/40 dark:to-yellow-900/40 border border-orange-200 dark:border-orange-700'
         }`}>
           {isPerfect ? (
             <div className="text-center">
-              <div className="text-5xl font-bold text-green-700 mb-2">
+              <div className="text-5xl font-bold text-green-700 dark:text-green-300 mb-2">
                 🏆 {totalQuestions}/{totalQuestions}
               </div>
-              <p className="text-lg text-green-800 font-semibold">
+              <p className="text-lg text-green-800 dark:text-green-200 font-semibold">
                 Alle Fragen korrekt gelöst!
               </p>
             </div>
           ) : (
             <div className="text-center">
-              <div className="text-6xl font-bold text-indigo-600 mb-2">
+              <div className="text-6xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">
                 {correctCount}/{totalAnswered}
               </div>
-              <p className="text-xl text-gray-700">
+              <p className="text-xl text-gray-700 dark:text-gray-300">
                 Richtige Antworten
               </p>
               <div className={`inline-flex items-center gap-1 px-4 py-2 rounded-full mt-3 ${
-                isGood ? 'bg-green-200 text-green-800' : isOkay ? 'bg-blue-200 text-blue-800' : 'bg-orange-200 text-orange-800'
+                isGood ? 'bg-green-200 dark:bg-green-900/60 text-green-800 dark:text-green-200' : isOkay ? 'bg-blue-200 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200' : 'bg-orange-200 dark:bg-orange-900/60 text-orange-800 dark:text-orange-200'
               } text-sm font-bold`}>
                 {percentage}%
               </div>
@@ -111,27 +111,27 @@ export default function QuizResults({
         {/* Detaillierte Statistiken */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           {/* Zeit */}
-          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+          <div className="bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-700 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-5 h-5 text-indigo-600" />
-              <p className="text-xs text-indigo-700 uppercase tracking-wide font-semibold">
+              <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+              <p className="text-xs text-indigo-700 dark:text-indigo-300 uppercase tracking-wide font-semibold">
                 Gesamtzeit
               </p>
             </div>
-            <p className="text-2xl font-bold text-indigo-900">
+            <p className="text-2xl font-bold text-indigo-900 dark:text-indigo-200">
               {formatTime(elapsedTime)}
             </p>
           </div>
 
           {/* Versuche */}
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+          <div className="bg-purple-50 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Target className="w-5 h-5 text-purple-600" />
-              <p className="text-xs text-purple-700 uppercase tracking-wide font-semibold">
+              <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <p className="text-xs text-purple-700 dark:text-purple-300 uppercase tracking-wide font-semibold">
                 Durchläufe
               </p>
             </div>
-            <p className="text-2xl font-bold text-purple-900">
+            <p className="text-2xl font-bold text-purple-900 dark:text-purple-200">
               {totalTries}
             </p>
           </div>
@@ -141,8 +141,8 @@ export default function QuizResults({
         {wrongQuestions.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              <h3 className="text-lg font-semibold text-red-600">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+              <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">
                 Zu wiederholende Fragen ({wrongQuestions.length})
               </h3>
             </div>
@@ -150,13 +150,13 @@ export default function QuizResults({
               {wrongQuestions.map((q, idx) => (
                 <div 
                   key={q.index} 
-                  className="bg-red-50 border border-red-200 rounded-lg p-3 hover:bg-red-100 transition-colors"
+                  className="bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-lg p-3 hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors"
                 >
                   <div className="flex gap-3">
-                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-red-200 text-red-800 font-bold flex items-center justify-center text-sm">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-red-200 dark:bg-red-800/60 text-red-800 dark:text-red-200 font-bold flex items-center justify-center text-sm">
                       {idx + 1}
                     </span>
-                    <p className="text-gray-800 text-sm flex-1 force-break" lang="de">
+                    <p className="text-gray-800 dark:text-gray-200 text-sm flex-1 force-break" lang="de">
                       {q.question}
                     </p>
                   </div>
@@ -168,11 +168,11 @@ export default function QuizResults({
 
         {/* Progress Bar */}
         <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
             <span>Fortschritt</span>
             <span className="font-semibold">{correctCount}/{totalQuestions} gelöst</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
             <div
               className={`h-3 rounded-full transition-all ${
                 isPerfect ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 
@@ -217,7 +217,7 @@ export default function QuizResults({
             
             <button
               onClick={onBack}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-900 py-4 px-6 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+              className="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white py-4 px-6 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
               title="Zurück"
               aria-label="Zurück"
             >
@@ -228,7 +228,7 @@ export default function QuizResults({
           
           <button
             onClick={onHome}
-            className="w-full text-gray-600 hover:text-gray-900 py-2 transition-colors flex items-center justify-center gap-2"
+            className="w-full text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white py-2 transition-colors flex items-center justify-center gap-2"
             title="Zum Start"
             aria-label="Zum Start"
           >

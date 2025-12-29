@@ -98,7 +98,7 @@ export default function ReassignQuizModal({
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <MoveHorizontal className="w-6 h-6 text-indigo-600" />
-            <h2 className="text-xl font-bold text-gray-900">Quiz neu zuordnen</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Quiz neu zuordnen</h2>
           </div>
           <button
             onClick={onClose}
@@ -120,14 +120,14 @@ export default function ReassignQuizModal({
 
           {/* Subject */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Fach
             </label>
             <select
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
               disabled={isProcessing}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
             >
               <option value="">Kein Fach</option>
               {subjects.map(s => (
@@ -138,14 +138,14 @@ export default function ReassignQuizModal({
 
           {/* Class */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Klasse
             </label>
             <select
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
               disabled={isProcessing}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
             >
               <option value="">Keine Klasse</option>
               {classes.map(c => (
@@ -156,13 +156,14 @@ export default function ReassignQuizModal({
 
           {/* Topic */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Thema
             </label>
             <select
               value={selectedTopic}
               onChange={(e) => setSelectedTopic(e.target.value)}
               disabled={isProcessing}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
             >
               <option value="">Kein Thema</option>

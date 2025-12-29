@@ -140,9 +140,9 @@ export default function QuizChallengeManager({
   return (
     <div className="space-y-6">
       {/* Challenge List */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Quiz-Challenge</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Quiz-Challenge</h2>
           <button
             onClick={handleCreateChallenge}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -169,7 +169,7 @@ export default function QuizChallengeManager({
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     {challenge.title}
                   </h3>
                   <p className="text-sm text-gray-600">
@@ -193,14 +193,14 @@ export default function QuizChallengeManager({
 
       {/* Level and Question Selector */}
       {selectedChallenge && (
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
             Fragen für: {selectedChallenge.title}
           </h3>
 
           {/* Level Selector */}
           <div className="mb-6">
-            <h4 className="text-lg font-semibold text-gray-800 mb-3">Wähle ein Level</h4>
+            <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">Wähle ein Level</h4>
             <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
               {selectedChallenge.levels.map((level) => (
                 <button
@@ -279,7 +279,7 @@ export default function QuizChallengeManager({
                               className="mt-1"
                             />
                             <div className="flex-1">
-                              <p className="font-medium text-gray-900 mb-1">
+                              <p className="font-medium text-gray-900 dark:text-white mb-1">
                                 {question.question}
                               </p>
                               <p className="text-xs text-gray-500">
@@ -324,10 +324,10 @@ export default function QuizChallengeManager({
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <p className="font-medium text-gray-900 mb-1">
+                            <p className="font-medium text-gray-900 dark:text-white mb-1">
                               {question.question}
                             </p>
-                            <p className="text-xs text-gray-500 mb-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                               {question.topicName} • {question.quizTitle}
                             </p>
                             <div className="space-y-1">

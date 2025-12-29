@@ -319,12 +319,12 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-2xl font-bold text-gray-900 force-break" lang="de">Quiz Import</h3>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white force-break" lang="de">Quiz Import</h3>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             title="Schließen"
             aria-label="Schließen"
           >
@@ -373,12 +373,12 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
         {/* File Upload */}
         <div className="mb-6">
           <label className="block w-full">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-indigo-500 hover:bg-indigo-50 transition-colors cursor-pointer">
-              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-700 font-medium mb-1">
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors cursor-pointer">
+              <Upload className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-3" />
+              <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">
                 Datei hier ablegen oder klicken
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 JSON oder CSV (max. 10MB)
               </p>
               <input
@@ -438,7 +438,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
         {/* Format Examples */}
         <div className="border-t pt-4">
           <details className="text-sm">
-            <summary className="font-semibold text-gray-900 cursor-pointer mb-2">
+            <summary className="font-semibold text-gray-900 dark:text-white cursor-pointer mb-2">
               Format-Beispiele anzeigen
             </summary>
             <div className="space-y-4">

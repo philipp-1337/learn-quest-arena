@@ -49,12 +49,12 @@ export default function UsernameManualEntry({
       onSubmit={handleSubmit}
     >
       {/* Erklärung für manuelle Namenseingabe */}
-      <p className="mb-2 text-gray-700">
+      <p className="mb-2 text-gray-700 dark:text-gray-300">
         Gib einen Nutzernamen im Format{" "}
         <span className="font-mono font-semibold">Tiername-XXXXXX</span> ein
         (z.B. <span className="font-mono">Fuchs-AB1234</span>).
       </p>
-      <div className="mb-3 text-xs text-gray-500">
+      <div className="mb-3 text-xs text-gray-500 dark:text-gray-400">
         Es funktionieren nur Namen, die über diese Quiz-App erstellt wurden und
         mit denen bereits Quizze bearbeitet wurden.
       </div>
@@ -63,7 +63,7 @@ export default function UsernameManualEntry({
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Tiername-XXXXXX"
-        className="border rounded px-3 py-1 mb-2"
+        className="border rounded px-3 py-1 mb-2 dark:bg-gray-900 dark:text-white w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
       />
       <div className="flex gap-2 w-full justify-center">
         <button

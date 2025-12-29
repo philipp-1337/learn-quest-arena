@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { CustomToast } from "../misc/CustomToast";
 import { toast } from "sonner";
+import { CustomToast } from "../misc/CustomToast";
+import { showConfirmationToast } from "../../utils/confirmationToast";
 import { UserPlus, Briefcase } from "lucide-react";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { generateUniqueUsernames } from "../../utils/usernameGenerator";
@@ -86,56 +87,41 @@ export default function UsernamePicker({
 
   // Hilfsfunktion: User-Dokument anlegen, falls nicht vorhanden
   const handleSelectName = (name: string) => {
-    toast.custom((t) => (
-      <CustomToast
-        message={
-          <div>
-            <div className="mb-2">Möchtest du den Namen <span className="font-bold">{name}</span> wirklich wählen?</div>
-            <div className="flex gap-2 justify-end mt-2">
-              <button
-                className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700"
-                onClick={async () => {
-                  toast.dismiss(t);
-                  try {
-                    const db = getFirestore();
-                    await setDoc(
-                      doc(db, "users", name),
-                      { createdAt: new Date() },
-                      { merge: true }
-                    );
-                    onUsernameSelected(name);
-                  } catch (err) {
-                    setError(
-                      "Fehler beim Anlegen des Nutzers: " +
-                        (err instanceof Error ? err.message : String(err))
-                    );
-                  }
-                }}
-              >
-                Ja
-              </button>
-              <button
-                className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
-                onClick={() => toast.dismiss(t)}
-              >
-                Nein
-              </button>
-            </div>
-          </div>
+    showConfirmationToast({
+      message: (
+        <>
+          Möchtest du den Namen <span className="font-bold">{name}</span> wirklich wählen?
+        </>
+      ),
+      onConfirm: async () => {
+        try {
+          const db = getFirestore();
+          await setDoc(
+            doc(db, "users", name),
+            { createdAt: new Date() },
+            { merge: true }
+          );
+          onUsernameSelected(name);
+        } catch (err) {
+          setError(
+            "Fehler beim Anlegen des Nutzers: " +
+              (err instanceof Error ? err.message : String(err))
+          );
         }
-        type="info"
-      />
-    ), { duration: 10000 });
+      },
+      confirmText: 'Ja',
+      cancelText: 'Nein',
+    });
   };
 
   // handleConfirmName removed, logic moved to toast button
 
   return (
     <div className="mb-3 flex flex-col items-center gap-2">
-      <p className="mb-2 text-gray-600">
+      <p className="mb-2 text-gray-600 dark:text-gray-400">
         Erstelle deinen eigenen Namen und speichere deinen Fortschritt.
       </p>
-      <div className="mb-3 text-xs text-red-600">
+      <div className="mb-3 text-xs text-red-600 dark:text-red-300">
         Merke dir deinen Namen gut!
         <br />
         Du brauchst ihn beim nächsten Besuch.
@@ -173,7 +159,7 @@ export default function UsernamePicker({
             <button
               key={name}
               onClick={() => handleSelectName(name)}
-              className="px-3 py-1 bg-gray-100 rounded border hover:bg-indigo-100 w-full sm:w-auto mb-2 sm:mb-0"
+              className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded border hover:bg-indigo-100 w-full sm:w-auto mb-2 sm:mb-0 dark:hover:bg-indigo-900/30 text-gray-900 dark:text-gray-200 hover:text-indigo-900"
             >
               {name}
             </button>
@@ -186,7 +172,7 @@ export default function UsernamePicker({
         onClick={onManualEntryRequested}
         title="Vorhandenen Namen eingeben"
         aria-label="Vorhandenen Namen eingeben"
-        className="text-xs text-indigo-500 underline mt-1"
+        className="text-xs text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 hover:underline mt-1"
       >
         Vorhandenen Namen eingeben
       </button>

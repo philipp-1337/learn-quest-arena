@@ -8,12 +8,10 @@ import {
   Sparkles,
   // Timer 
 } from 'lucide-react';
-import { toast } from 'sonner';
 import { loadAllUserProgress } from '../../utils/loadAllUserProgress';
 import type { UserQuizProgress } from '../../types/userProgress';
 import type { Subject, Quiz } from '../../types/quizTypes';
-
-import { CustomToast } from '../misc/CustomToast';
+import { showConfirmationToast } from '../../utils/confirmationToast';
 
 
 interface UserViewProps {
@@ -67,15 +65,15 @@ const ProgressAccordionItem: React.FC<{
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-colors">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
       <button
         onClick={onToggle}
         className={`w-full px-4 py-4 flex items-center justify-between transition-colors ${
           isCompleted 
-            ? 'bg-green-50 hover:bg-green-100' 
+            ? 'bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/40' 
             : completionPercentage > 0
-            ? 'bg-yellow-50 hover:bg-yellow-100'
-            : 'bg-gray-50 hover:bg-gray-100'
+            ? 'bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-900/30 dark:hover:bg-yellow-900/40'
+            : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700'
         }`}
       >
         <div className="flex items-center gap-3 flex-1 text-left min-w-0">
@@ -88,8 +86,8 @@ const ProgressAccordionItem: React.FC<{
           
           {/* Title */}
           <div className="flex-1 min-w-0 max-w-xs">
-            <h3 className="font-semibold text-gray-900 truncate block">{displayTitle}</h3>
-            <p className="text-xs text-gray-500 mt-1">
+            <h3 className="font-semibold text-gray-900 dark:text-white truncate block">{displayTitle}</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {correctAnswers}/{totalQuestions} korrekt ({completionPercentage}%)
             </p>
           </div>
@@ -112,21 +110,21 @@ const ProgressAccordionItem: React.FC<{
 
       {/* Accordion Content */}
       {isOpen && (
-        <div className="px-4 py-4 bg-white border-t border-gray-200 space-y-3">
+        <div className="px-4 py-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 space-y-3">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Versuche</p>
-              <p className="text-lg font-semibold text-gray-900 mt-1">{progress.totalTries}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-semibold">Versuche</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-white mt-1">{progress.totalTries}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Fortschritt</p>
-              <p className="text-lg font-semibold text-gray-900 mt-1">{correctAnswers}/{totalQuestions}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-semibold">Fortschritt</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-white mt-1">{correctAnswers}/{totalQuestions}</p>
             </div>
           </div>
 
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Letzte Aktivität</p>
-            <p className="text-sm text-gray-700">
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-semibold mb-1">Letzte Aktivität</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300">
               {new Date(progress.lastUpdated).toLocaleString('de-DE', {
                 year: 'numeric',
                 month: '2-digit',
@@ -271,11 +269,11 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Dein Fortschritt</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Dein Fortschritt</h1>
       {loading ? (
-        <div className="text-gray-600">Lade Fortschritt...</div>
+        <div className="text-gray-600 dark:text-gray-400">Lade Fortschritt...</div>
       ) : progressList.length === 0 ? (
-        <div className="text-gray-600">
+        <div className="text-gray-600 dark:text-gray-400">
           {username === "Gast"
             ? "Wähle deinen Namen, wenn du Fortschritt speichern willst."
             : "Kein Fortschritt vorhanden."}
@@ -299,13 +297,13 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
 
 const UserView: React.FC<UserViewProps> = ({ username, onClose, onChooseName, subjects }) => {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50 backdrop-blur-sm z-50">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl border border-gray-100 relative">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 backdrop-blur-sm z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-2xl border border-gray-100 dark:border-gray-700 relative">
         {/* Back Button */}
         <button
           type="button"
           onClick={onClose}
-          className="mb-6 text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2 group"
+          className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2 group"
           aria-label="Zurück zur Startseite"
           title="Zurück zur Startseite"
         >
@@ -315,13 +313,13 @@ const UserView: React.FC<UserViewProps> = ({ username, onClose, onChooseName, su
 
         {/* Header */}
         <div className="mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 force-break" lang="de">Nutzername</h1>
-          <p className="text-gray-600 force-break" lang="de">Dein zufällig generierter Nutzername</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 force-break" lang="de">Nutzername</h1>
+          <p className="text-gray-600 dark:text-gray-400 force-break" lang="de">Dein zufällig generierter Nutzername</p>
         </div>
 
 
         {/* Username Display mit Icon-Button */}
-        <div className="mb-6 flex items-center justify-between text-2xl text-gray-800 font-mono break-all select-all border border-gray-200 rounded-lg py-4 px-4 bg-gray-50">
+        <div className="mb-6 flex items-center justify-between text-2xl text-gray-800 dark:text-gray-200 font-mono break-all select-all border border-gray-200 dark:border-gray-700 rounded-lg py-4 px-4 bg-gray-50 dark:bg-gray-900">
           <span className="truncate">{username}</span>
           <button
             onClick={async () => {
@@ -334,36 +332,17 @@ const UserView: React.FC<UserViewProps> = ({ username, onClose, onChooseName, su
                 hasProgress = false;
               }
               if (username !== 'Gast' || hasProgress) {
-                toast.custom(
-                  (t) => (
-                    <CustomToast
-                      message={
-                        <>
-                          <div className="mb-2">Wenn du deinen Namen änderst, geht dein Fortschritt verloren. Bist du sicher?</div>
-                          <div className="flex gap-2 justify-end">
-                            <button
-                              className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-                              onClick={() => {
-                                toast.dismiss(t);
-                                onChooseName();
-                              }}
-                            >Weiter</button>
-                            <button
-                              className="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
-                              onClick={() => toast.dismiss(t)}
-                            >Abbrechen</button>
-                          </div>
-                        </>
-                      }
-                    />
-                  ),
-                  { duration: 10000 }
-                );
+                showConfirmationToast({
+                  message: 'Wenn du deinen Namen änderst, geht dein Fortschritt verloren. Bist du sicher?',
+                  onConfirm: onChooseName,
+                  confirmText: 'Weiter',
+                  cancelText: 'Abbrechen',
+                });
               } else {
                 onChooseName();
               }
             }}
-            className="ml-2 p-2 rounded-full hover:bg-indigo-100 text-indigo-600 hover:text-indigo-900 transition-colors"
+            className="ml-2 p-2 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors"
             title="Anderen Namen wählen"
             aria-label="Anderen Namen wählen"
             type="button"
