@@ -1,5 +1,6 @@
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import { useState, useRef, useEffect, type ComponentType } from "react";
+import useDarkMode from "../../hooks/useDarkMode";
 
 export interface MenuItem {
   icon: ComponentType<{ className?: string }>;
@@ -27,6 +28,7 @@ export default function AppHeader({
 }: AppHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -44,44 +46,58 @@ export default function AppHeader({
     if (isMobile) {
       // Mobile menu item styling
       if (item.variant === 'danger') {
-        return "w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors";
+        return "w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors";
       }
       if (item.variant === 'primary' || item.isActive) {
-        return "w-full flex items-center gap-3 px-4 py-3 text-indigo-600 hover:bg-indigo-50 transition-colors";
+        return "w-full flex items-center gap-3 px-4 py-3 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors";
       }
       if (item.variant === 'secondary') {
-        return "w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-100 transition-colors";
+        return "w-full flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors";
       }
-      return "w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors";
+      return "w-full flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors";
     }
 
     // Desktop button styling
     if (item.variant === 'danger') {
-      return "relative group p-2 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors";
+      return "relative group p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors";
     }
     if (item.variant === 'primary' || item.isActive) {
-      return "relative group p-2 rounded-full text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors";
+      return "relative group p-2 rounded-full text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors";
     }
     if (item.variant === 'secondary') {
-      return "relative group p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors";
+      return "relative group p-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors";
     }
-    return "relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors";
+    return "relative group p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors";
   };
 
   // Filter items for desktop (exclude hideOnDesktop)
   const desktopItems = menuItems.filter(item => !item.hideOnDesktop);
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-5 mb-5">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 mb-5">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             {title}
             {titleIcon}
           </h1>
-          <p className="text-gray-600">{subtitle}</p>
+          <p className="text-gray-600 dark:text-gray-400">{subtitle}</p>
         </div>
         <div className="flex flex-row gap-2 items-end relative" ref={menuRef}>
+          {/* Dark Mode Toggle - visible on desktop */}
+          <button
+            onClick={toggleDarkMode}
+            className="hidden md:block relative group p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label={isDarkMode ? "Heller Modus" : "Dunkler Modus"}
+            title={isDarkMode ? "Heller Modus" : "Dunkler Modus"}
+          >
+            {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+            {/* Tooltip */}
+            <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+              {isDarkMode ? "Heller Modus" : "Dunkler Modus"}
+            </span>
+          </button>
+
           {/* Desktop Buttons - visible on md and larger */}
           <div className="hidden md:flex flex-row gap-2">
             {desktopItems.map((item, index) => {
@@ -96,7 +112,7 @@ export default function AppHeader({
                 >
                   <Icon className="w-6 h-6" />
                   {/* Tooltip */}
-                  <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+                  <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
                     {item.label}
                   </span>
                 </button>
@@ -107,7 +123,7 @@ export default function AppHeader({
           {/* Mobile Menu Button - visible below md */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-full text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             aria-label="Menü"
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -115,7 +131,19 @@ export default function AppHeader({
 
           {/* Mobile Dropdown Menu */}
           {isMenuOpen && (
-            <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-50 md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              {/* Dark Mode Toggle in Mobile Menu */}
+              <button
+                onClick={() => {
+                  toggleDarkMode();
+                  setIsMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                <span className="font-medium">{isDarkMode ? "Heller Modus" : "Dunkler Modus"}</span>
+              </button>
+              <div className="my-1 border-t border-gray-100 dark:border-gray-700"></div>
               {menuItems.map((item, index) => {
                 const Icon = item.icon;
                 const needsDivider = 
@@ -128,7 +156,7 @@ export default function AppHeader({
                 return (
                   <div key={index}>
                     {needsDivider && (
-                      <div className="my-1 border-t border-gray-100"></div>
+                      <div className="my-1 border-t border-gray-100 dark:border-gray-700"></div>
                     )}
                     <button
                       onClick={() => {

@@ -13,12 +13,12 @@ export default function ClassSelector({ classes, onSelect }: ClassSelectorProps)
         <button
           key={cls.id}
           onClick={() => onSelect(cls)}
-          className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+          className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
           title={cls.name}
           aria-label={cls.name}
         >
-          <Users className="w-10 h-10 text-purple-600 mb-3 mx-auto" />
-          <h3 className="text-xl font-bold text-gray-900 force-break" lang="de">{cls.name}</h3>
+          <Users className="w-10 h-10 text-purple-600 dark:text-purple-400 mb-3 mx-auto" />
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white force-break" lang="de">{cls.name}</h3>
         </button>
       ))}
     </div>
