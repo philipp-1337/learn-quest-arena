@@ -22,13 +22,13 @@ export default function AnswerButton({
   let buttonClass = "w-full p-6 rounded-xl transition-all ";
   
   if (!showFeedback) {
-    buttonClass += "bg-gray-100 hover:bg-gray-200 text-gray-900";
+    buttonClass += "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white";
   } else if (isCorrect) {
-    buttonClass += "bg-green-100 text-green-900 border-2 border-green-500";
+    buttonClass += "bg-green-100 dark:bg-green-700 text-green-900 dark:text-green-200 border-2 border-green-500";
   } else if (isSelected && !isCorrect) {
-    buttonClass += "bg-red-100 text-red-900 border-2 border-red-500";
+    buttonClass += "bg-red-100 dark:bg-red-700 text-red-900 dark:text-red-200 border-2 border-red-500";
   } else {
-    buttonClass += "bg-gray-100 text-gray-900";
+    buttonClass += "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white";
   }
 
   return (

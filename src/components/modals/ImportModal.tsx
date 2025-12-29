@@ -334,12 +334,12 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
 
         {/* Instructions */}
         <div className="mb-6 space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+          <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-2 flex items-center gap-2">
               <ClipboardList className="w-5 h-5" />
               Anleitung
             </h4>
-            <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+            <ol className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-decimal list-inside">
               <li>Lade eine Vorlage herunter (JSON oder CSV)</li>
               <li>Fülle die Vorlage mit deinen Quiz-Daten</li>
               <li>Lade die Datei hier hoch</li>
@@ -443,8 +443,8 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             </summary>
             <div className="space-y-4">
               <div>
-                <h5 className="font-medium text-gray-700 mb-2">JSON Format:</h5>
-                <pre className="bg-gray-100 p-3 rounded text-xs overflow-x-auto">
+                <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">JSON Format:</h5>
+                <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-xs text-gray-600 dark:text-gray-300 overflow-x-auto">
 {`{
   "subject": "Mathematik",
   "class": "Klasse 3",
@@ -470,13 +470,13 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
                 </pre>
               </div>
               <div>
-                <h5 className="font-medium text-gray-700 mb-2">CSV Format:</h5>
-                <pre className="bg-gray-100 p-3 rounded text-xs overflow-x-auto">
+                <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">CSV Format:</h5>
+                <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-xs text-gray-600 dark:text-gray-300 overflow-x-auto">
 {`Subject,Class,Topic,Quiz,Question,Answer1,Answer2,Answer3,CorrectAnswer
 Mathematik,Klasse 3,Multiplikation,Einmaleins,Was ist 3 × 4?,12,10,15,1
 Mathematik,Klasse 3,Multiplikation,Einmaleins,Was ist 5 × 2?,10,12,8,1`}
                 </pre>
-                <p className="text-xs text-gray-600 mt-2">
+                <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">
                   <strong>Hinweis:</strong> CorrectAnswer ist 1-basiert (1 bis 5)
                 </p>
               </div>
@@ -488,7 +488,7 @@ Mathematik,Klasse 3,Multiplikation,Einmaleins,Was ist 5 × 2?,10,12,8,1`}
         <div className="mt-6 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+            className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
             Schließen
           </button>

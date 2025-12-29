@@ -80,7 +80,7 @@ export default function ProtectedEmail() {
           setIsModalOpen(true);
           setShowCaptcha(true);
         }}
-        className="inline-flex items-center gap-1.5 hover:underline cursor-pointer"
+        className="inline-flex items-center gap-1.5 hover:underline cursor-pointer dark:text-white transition-all"
       >
         <span>E-Mail anzeigen</span>
       </button>
