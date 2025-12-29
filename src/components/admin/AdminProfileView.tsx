@@ -1,7 +1,16 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Save, Loader2, LogOut } from "lucide-react";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
 
@@ -11,7 +20,11 @@ interface AdminProfileViewProps {
   onLogout: () => void;
 }
 
-export default function AdminProfileView({ onClose, onAbbreviationUpdated, onLogout }: AdminProfileViewProps) {
+export default function AdminProfileView({
+  onClose,
+  onAbbreviationUpdated,
+  onLogout,
+}: AdminProfileViewProps) {
   const [abbreviation, setAbbreviation] = useState("");
   const [originalAbbreviation, setOriginalAbbreviation] = useState("");
   const [loading, setLoading] = useState(true);
@@ -24,12 +37,12 @@ export default function AdminProfileView({ onClose, onAbbreviationUpdated, onLog
   useEffect(() => {
     const loadAbbreviation = async () => {
       if (!userId) return;
-      
+
       setLoading(true);
       try {
         const db = getFirestore();
-        const authorDoc = await getDoc(doc(db, 'author', userId));
-        
+        const authorDoc = await getDoc(doc(db, "author", userId));
+
         if (authorDoc.exists()) {
           const abbrev = authorDoc.data().authorAbbreviation || "";
           setAbbreviation(abbrev);
@@ -50,7 +63,7 @@ export default function AdminProfileView({ onClose, onAbbreviationUpdated, onLog
 
   const handleSave = async () => {
     if (!userId) return;
-    
+
     // Validate abbreviation
     const trimmed = abbreviation.trim();
     if (!trimmed) {
@@ -62,7 +75,10 @@ export default function AdminProfileView({ onClose, onAbbreviationUpdated, onLog
 
     if (trimmed.length > 10) {
       toast.custom(() => (
-        <CustomToast message="Abkürzung darf max. 10 Zeichen lang sein" type="error" />
+        <CustomToast
+          message="Abkürzung darf max. 10 Zeichen lang sein"
+          type="error"
+        />
       ));
       return;
     }
@@ -72,17 +88,19 @@ export default function AdminProfileView({ onClose, onAbbreviationUpdated, onLog
       setSaving(true);
       try {
         const db = getFirestore();
-        const authorsRef = collection(db, 'author');
-        const q = query(authorsRef, where('authorAbbreviation', '==', trimmed));
+        const authorsRef = collection(db, "author");
+        const q = query(authorsRef, where("authorAbbreviation", "==", trimmed));
         const querySnapshot = await getDocs(q);
-        
+
         // Check if any other user has this abbreviation
-        const existingUser = querySnapshot.docs.find(doc => doc.id !== userId);
+        const existingUser = querySnapshot.docs.find(
+          (doc) => doc.id !== userId
+        );
         if (existingUser) {
           toast.custom(() => (
-            <CustomToast 
-              message={`Die Abkürzung "${trimmed}" wird bereits verwendet`} 
-              type="error" 
+            <CustomToast
+              message={`Die Abkürzung "${trimmed}" wird bereits verwendet`}
+              type="error"
             />
           ));
           setSaving(false);
@@ -91,7 +109,10 @@ export default function AdminProfileView({ onClose, onAbbreviationUpdated, onLog
       } catch (error) {
         console.error("Error checking abbreviation:", error);
         toast.custom(() => (
-          <CustomToast message="Fehler beim Prüfen der Abkürzung" type="error" />
+          <CustomToast
+            message="Fehler beim Prüfen der Abkürzung"
+            type="error"
+          />
         ));
         setSaving(false);
         return;
@@ -101,16 +122,20 @@ export default function AdminProfileView({ onClose, onAbbreviationUpdated, onLog
     setSaving(true);
     try {
       const db = getFirestore();
-      await setDoc(doc(db, 'author', userId), {
-        authorAbbreviation: trimmed,
-        updatedAt: Date.now(),
-      }, { merge: true });
+      await setDoc(
+        doc(db, "author", userId),
+        {
+          authorAbbreviation: trimmed,
+          updatedAt: Date.now(),
+        },
+        { merge: true }
+      );
 
       setOriginalAbbreviation(trimmed);
       toast.custom(() => (
         <CustomToast message="Abkürzung gespeichert" type="success" />
       ));
-      
+
       // Trigger refresh callback
       if (onAbbreviationUpdated) {
         onAbbreviationUpdated();
@@ -144,8 +169,15 @@ export default function AdminProfileView({ onClose, onAbbreviationUpdated, onLog
 
         {/* Header */}
         <div className="mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2" lang="de">Admin-Profil</h1>
-          <p className="text-gray-600 dark:text-gray-400" lang="de">Verwalte deine Profil-Einstellungen</p>
+          <h1
+            className="text-3xl font-bold text-gray-900 dark:text-white mb-2"
+            lang="de"
+          >
+            Admin-Profil
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400" lang="de">
+            Verwalte deine Profil-Einstellungen
+          </p>
         </div>
 
         {/* Content */}
@@ -157,16 +189,9 @@ export default function AdminProfileView({ onClose, onAbbreviationUpdated, onLog
             </div>
           ) : (
             <>
-              <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-                <p className="text-sm text-blue-800 dark:text-blue-300">
-                  Diese Abkürzung wird bei allen Quizzen angezeigt, die du erstellt hast. 
-                  Sie sollte kurz und eindeutig sein (z.B. Initialen).
-                </p>
-              </div>
-
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-m font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Angemeldet als
                   </label>
                   <input
@@ -178,7 +203,7 @@ export default function AdminProfileView({ onClose, onAbbreviationUpdated, onLog
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-m font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Deine Abkürzung
                   </label>
                   <input
@@ -197,10 +222,20 @@ export default function AdminProfileView({ onClose, onAbbreviationUpdated, onLog
                 {originalAbbreviation && (
                   <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
                     <p className="text-sm text-green-800 dark:text-green-300">
-                      ✓ Deine aktuelle Abkürzung: <span className="font-semibold">{originalAbbreviation}</span>
+                      ✓ Deine aktuelle Abkürzung:{" "}
+                      <span className="font-semibold">
+                        {originalAbbreviation}
+                      </span>
                     </p>
                   </div>
                 )}
+              </div>
+              <div className="mt-6 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  Diese Abkürzung wird bei allen Quizzen angezeigt, die du
+                  erstellt hast. Sie sollte kurz und eindeutig sein (z.B.
+                  Initialen).
+                </p>
               </div>
             </>
           )}
