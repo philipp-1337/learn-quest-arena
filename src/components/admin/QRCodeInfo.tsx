@@ -2,7 +2,7 @@ import { QrCode } from 'lucide-react';
 
 export default function QRCodeInfo() {
   return (
-    <div className="mt-8 bg-indigo-50 border border-indigo-200 rounded-xl p-6">
+    <div className="mt-6 bg-indigo-50 border border-indigo-200 rounded-xl p-6">
       <div className="flex items-start gap-4">
         <QrCode className="w-8 h-8 text-indigo-600 flex-shrink-0 mt-1" />
         <div>

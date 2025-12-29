@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Database, Play, CheckCircle, AlertCircle, Loader2, RefreshCw, Wand2 } from "lucide-react";
+import { Database, Play, CheckCircle, AlertCircle, Loader2, RefreshCw, Wand2, UserX } from "lucide-react";
 import type { Subject, MigrationStatus } from "../../types/quizTypes";
 import {
   migrateQuizzesToCollection,
@@ -7,6 +7,7 @@ import {
   extractAllQuizzesFromSubjects,
   getQuizzesCollectionCount,
   renormalizeQuizIds,
+  resetAllAuthorIds,
 } from "../../utils/quizzesCollection";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
@@ -19,6 +20,7 @@ export default function QuizMigrationPanel({ subjects }: QuizMigrationPanelProps
   const [migrationStatus, setMigrationStatus] = useState<MigrationStatus | null>(null);
   const [isMigrating, setIsMigrating] = useState(false);
   const [isNormalizing, setIsNormalizing] = useState(false);
+  const [isResettingAuthors, setIsResettingAuthors] = useState(false);
   const [progress, setProgress] = useState<{ current: number; total: number; message: string } | null>(null);
   const [collectionCount, setCollectionCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,6 +120,45 @@ export default function QuizMigrationPanel({ subjects }: QuizMigrationPanelProps
     }
   };
 
+  const handleResetAuthors = async () => {
+    if (!window.confirm('Möchtest du wirklich die Autor-Zuordnung aller Quizze entfernen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+      return;
+    }
+
+    setIsResettingAuthors(true);
+    setProgress({ current: 0, total: collectionCount, message: "Autoren werden zurückgesetzt..." });
+
+    try {
+      const result = await resetAllAuthorIds((current, total, message) => {
+        setProgress({ current, total, message });
+      });
+
+      if (result.failed === 0) {
+        toast.custom(() => (
+          <CustomToast 
+            message={`Erfolgreich! ${result.success} Quizze aktualisiert.`} 
+            type="success" 
+          />
+        ));
+      } else {
+        toast.custom(() => (
+          <CustomToast 
+            message={`Abgeschlossen mit Fehlern. Erfolg: ${result.success}, Fehler: ${result.failed}`} 
+            type="error" 
+          />
+        ));
+      }
+    } catch (error) {
+      console.error("Author reset failed:", error);
+      toast.custom(() => (
+        <CustomToast message="Zurücksetzen fehlgeschlagen" type="error" />
+      ));
+    } finally {
+      setIsResettingAuthors(false);
+      setProgress(null);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="bg-white rounded-xl shadow-lg p-6">
@@ -162,7 +203,7 @@ export default function QuizMigrationPanel({ subjects }: QuizMigrationPanelProps
       </div>
 
       {/* Progress Bar */}
-      {(isMigrating || isNormalizing) && progress && (
+      {(isMigrating || isNormalizing || isResettingAuthors) && progress && (
         <div className="mb-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>{progress.message}</span>
@@ -171,7 +212,7 @@ export default function QuizMigrationPanel({ subjects }: QuizMigrationPanelProps
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
               className={`h-2.5 rounded-full transition-all duration-300 ${
-                isNormalizing ? "bg-purple-600" : "bg-indigo-600"
+                isNormalizing ? "bg-purple-600" : isResettingAuthors ? "bg-red-600" : "bg-indigo-600"
               }`}
               style={{ width: `${(progress.current / progress.total) * 100}%` }}
             />
@@ -180,7 +221,7 @@ export default function QuizMigrationPanel({ subjects }: QuizMigrationPanelProps
       )}
 
       {/* Last Migration Status */}
-      {migrationStatus && !isMigrating && !isNormalizing && (
+      {migrationStatus && !isMigrating && !isNormalizing && !isResettingAuthors && (
         <div className={`rounded-lg p-4 mb-6 ${
           migrationStatus.status === "completed" ? "bg-green-50 border border-green-200" :
           migrationStatus.status === "failed" ? "bg-red-50 border border-red-200" :
@@ -224,6 +265,43 @@ export default function QuizMigrationPanel({ subjects }: QuizMigrationPanelProps
 
       {/* Action Buttons */}
       <div className="space-y-3">
+        {/* Reset Authors - Only show if collection has data */}
+        {collectionCount > 0 && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-start gap-3 mb-3">
+              <UserX className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <h4 className="font-semibold text-red-900 mb-1">Autoren-Zuordnung zurücksetzen</h4>
+                <p className="text-sm text-red-800 mb-3">
+                  Entfernt die authorId und authorEmail von allen Quizzen. Nützlich, wenn bei einer Migration 
+                  versehentlich alle Quizze einem Benutzer zugeordnet wurden.
+                </p>
+                <button
+                  onClick={handleResetAuthors}
+                  disabled={isResettingAuthors || isMigrating || isNormalizing || collectionCount === 0}
+                  className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-semibold transition-colors ${
+                    isResettingAuthors || isMigrating || isNormalizing || collectionCount === 0
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-red-600 text-white hover:bg-red-700"
+                  }`}
+                >
+                  {isResettingAuthors ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Setze zurück...
+                    </>
+                  ) : (
+                    <>
+                      <UserX className="w-5 h-5" />
+                      Alle Autoren zurücksetzen ({collectionCount} Quizze)
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Re-Normalization Info & Button - Only show if collection has data */}
         {collectionCount > 0 && (
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
@@ -237,9 +315,9 @@ export default function QuizMigrationPanel({ subjects }: QuizMigrationPanelProps
                 </p>
                 <button
                   onClick={handleRenormalize}
-                  disabled={isNormalizing || isMigrating || collectionCount === 0}
+                  disabled={isNormalizing || isMigrating || isResettingAuthors || collectionCount === 0}
                   className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-semibold transition-colors ${
-                    isNormalizing || isMigrating || collectionCount === 0
+                    isNormalizing || isMigrating || isResettingAuthors || collectionCount === 0
                       ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                       : "bg-purple-600 text-white hover:bg-purple-700"
                   }`}
@@ -265,9 +343,9 @@ export default function QuizMigrationPanel({ subjects }: QuizMigrationPanelProps
         <div className="flex gap-3">
           <button
             onClick={handleMigration}
-            disabled={isMigrating || isNormalizing || totalEmbeddedQuizzes === 0}
+            disabled={isMigrating || isNormalizing || isResettingAuthors || totalEmbeddedQuizzes === 0}
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-colors ${
-              isMigrating || isNormalizing || totalEmbeddedQuizzes === 0
+              isMigrating || isNormalizing || isResettingAuthors || totalEmbeddedQuizzes === 0
                 ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                 : "bg-indigo-600 text-white hover:bg-indigo-700"
             }`}
@@ -286,7 +364,7 @@ export default function QuizMigrationPanel({ subjects }: QuizMigrationPanelProps
           </button>
           <button
             onClick={refreshStatus}
-            disabled={isLoading || isMigrating || isNormalizing}
+            disabled={isLoading || isMigrating || isNormalizing || isResettingAuthors}
             className="p-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
             title="Status aktualisieren"
           >

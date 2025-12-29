@@ -12,6 +12,7 @@ import ExportModal from "../modals/ExportModal";
 import QuizListManager from "./QuizListManager";
 import QuizChallengeManager from "./QuizChallengeManager";
 import QuizMigrationPanel from "./QuizMigrationPanel";
+import AuthorAbbreviationPanel from "./AuthorAbbreviationPanel";
 
 // ============================================
 // ADMIN VIEW COMPONENT
@@ -206,6 +207,9 @@ export default function AdminView({
               <QuizMigrationPanel subjects={subjects} />
             )}
           </div>
+
+          {/* Author Abbreviation Panel */}
+          <AuthorAbbreviationPanel />
 
           {/* QR Code Info */}
           <QRCodeInfo />

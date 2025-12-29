@@ -3,7 +3,7 @@
  * This module provides functions for CRUD operations on the standalone quizzes collection.
  */
 
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, where, orderBy } from "firebase/firestore";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, deleteField, updateDoc, query, where, orderBy } from "firebase/firestore";
 import type { QuizDocument, Quiz, Subject, MigrationStatus, QuizWithContext } from "../types/quizTypes";
 import { getAuth } from "firebase/auth";
 import { createDeterministicId } from "./slugify";
@@ -245,6 +245,59 @@ export async function updateQuizDocument(
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     console.error("Error updating quiz document:", errorMessage);
     return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * Resets the authorId field for all quizzes in the collection.
+ * Useful for fixing migration issues where all quizzes were incorrectly assigned to one user.
+ */
+export async function resetAllAuthorIds(
+  progressCallback?: (current: number, total: number, message: string) => void
+): Promise<{ success: number; failed: number; errors: string[] }> {
+  const db = getFirestore();
+  const errors: string[] = [];
+  let success = 0;
+  let failed = 0;
+
+  try {
+    // Load all quiz documents
+    const quizzes = await loadAllQuizDocuments();
+    const total = quizzes.length;
+
+    progressCallback?.(0, total, "Starte Zurücksetzen der Autoren...");
+
+    // Update each quiz to remove authorId and authorEmail
+    for (let i = 0; i < quizzes.length; i++) {
+      const quiz = quizzes[i];
+      progressCallback?.(i + 1, total, `Verarbeite ${quiz.title}...`);
+
+      try {
+        const ref = doc(db, QUIZZES_COLLECTION, quiz.id);
+        
+        // Use deleteField to remove the fields completely
+        await updateDoc(ref, {
+          authorId: deleteField(),
+          authorEmail: deleteField(),
+          updatedAt: Date.now(),
+        });
+        
+        success++;
+      } catch (err) {
+        failed++;
+        const errorMsg = `Fehler bei Quiz "${quiz.title}": ${err instanceof Error ? err.message : "Unknown error"}`;
+        errors.push(errorMsg);
+        console.error(errorMsg);
+      }
+    }
+
+    progressCallback?.(total, total, "Abgeschlossen!");
+    return { success, failed, errors };
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
+    console.error("Error resetting author IDs:", errorMessage);
+    errors.push(errorMessage);
+    return { success, failed, errors };
   }
 }
 

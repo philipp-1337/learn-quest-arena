@@ -83,5 +83,14 @@ service cloud.firestore {
       // Nur Admins können Migrationsstatus lesen und schreiben
       allow read, write: if request.auth != null;
     }
+    
+    // Author Collection - Speichert Author-Abbreviations
+    match /author/{authorId} {
+      // Nur eingeloggte Admins können Author-Daten lesen
+      allow read: if request.auth != null;
+      
+      // Nur eingeloggte Admins können Author-Daten erstellen/ändern/löschen
+      allow create, update, delete: if request.auth != null;
+    }
   }
 }

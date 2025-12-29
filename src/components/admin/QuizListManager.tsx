@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, QrCode, ChevronDown, Edit3, MoreVertical, ArrowLeftRight } from "lucide-react";
+import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, QrCode, ChevronDown, Edit3, MoreVertical, ArrowLeftRight, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
 import type { QuizDocument } from "../../types/quizTypes";
@@ -10,6 +10,8 @@ import CreateQuizWizard from "../modals/CreateQuizWizard";
 import RenameCategoryModal from "../modals/RenameCategoryModal";
 import ReassignQuizModal from "../modals/ReassignQuizModal";
 import { slugify } from "../../utils/slugify";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 interface QuizListManagerProps {
   onRefetch?: () => Promise<void>;
@@ -21,17 +23,21 @@ interface FilterState {
   class: string;
   topic: string;
   showHidden: boolean;
+  authorFilter: 'all' | 'withAuthor' | 'withoutAuthor';
 }
 
 export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
   const [quizzes, setQuizzes] = useState<QuizDocument[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authorAbbreviations, setAuthorAbbreviations] = useState<Map<string, string>>(new Map());
+  const [selectedQuizIds, setSelectedQuizIds] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     subject: "",
     class: "",
     topic: "",
     showHidden: true,
+    authorFilter: 'all',
   });
   const [showFilters, setShowFilters] = useState(false);
   const [showCreateWizard, setShowCreateWizard] = useState(false);
@@ -46,12 +52,45 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     count: number;
   } | null>(null);
 
+  // Load author abbreviations for all unique authorIds
+  const loadAuthorAbbreviations = async (authorIds: string[]) => {
+    const db = getFirestore();
+    const abbrevMap = new Map<string, string>();
+    
+    // Load abbreviations for each unique authorId
+    const uniqueAuthorIds = [...new Set(authorIds)].filter(id => id); // Remove duplicates and empty values
+    
+    await Promise.all(
+      uniqueAuthorIds.map(async (authorId) => {
+        try {
+          const authorDoc = await getDoc(doc(db, 'author', authorId));
+          if (authorDoc.exists()) {
+            const data = authorDoc.data();
+            if (data.authorAbbreviation) {
+              abbrevMap.set(authorId, data.authorAbbreviation);
+            }
+          }
+        } catch (error) {
+          console.error(`Error loading abbreviation for author ${authorId}:`, error);
+        }
+      })
+    );
+    
+    setAuthorAbbreviations(abbrevMap);
+  };
+
   // Load quizzes from collection
   const loadQuizzes = async () => {
     setLoading(true);
     try {
       const docs = await loadAllQuizDocuments();
       setQuizzes(docs);
+      
+      // Load author abbreviations
+      const authorIds = docs.map(q => q.authorId).filter(Boolean);
+      if (authorIds.length > 0) {
+        await loadAuthorAbbreviations(authorIds);
+      }
     } catch (error) {
       console.error("Error loading quizzes:", error);
       toast.custom(() => (
@@ -128,6 +167,10 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
       // Hidden filter
       if (!filters.showHidden && quiz.hidden) return false;
+
+      // Author filter
+      if (filters.authorFilter === 'withAuthor' && !quiz.authorId) return false;
+      if (filters.authorFilter === 'withoutAuthor' && quiz.authorId) return false;
 
       return true;
     }).sort((a, b) => a.title.localeCompare(b.title));
@@ -227,6 +270,92 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     ));
   };
 
+  const handleAssignAuthor = async (quizIds: string[]) => {
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
+    const userEmail = auth.currentUser?.email;
+
+    if (!userId) {
+      toast.custom(() => (
+        <CustomToast message="Nicht angemeldet" type="error" />
+      ));
+      return;
+    }
+
+    // Check if user has set their abbreviation
+    const db = getFirestore();
+    const authorDoc = await getDoc(doc(db, 'author', userId));
+    
+    if (!authorDoc.exists() || !authorDoc.data().authorAbbreviation) {
+      toast.custom(() => (
+        <CustomToast 
+          message="Bitte setze zuerst deine Autoren-Abkürzung im Admin-Bereich" 
+          type="error" 
+        />
+      ));
+      return;
+    }
+
+    let success = 0;
+    let failed = 0;
+
+    for (const quizId of quizIds) {
+      const result = await updateQuizDocument(quizId, {
+        authorId: userId,
+        authorEmail: userEmail || undefined,
+      });
+
+      if (result.success) {
+        success++;
+        // Update local state
+        setQuizzes(prev => prev.map(q => 
+          q.id === quizId ? { ...q, authorId: userId, authorEmail: userEmail || undefined } : q
+        ));
+      } else {
+        failed++;
+      }
+    }
+
+    if (failed === 0) {
+      toast.custom(() => (
+        <CustomToast 
+          message={`${success} Quiz${success > 1 ? 'ze' : ''} zugewiesen`} 
+          type="success" 
+        />
+      ));
+      // Clear selection after successful assignment
+      setSelectedQuizIds(new Set());
+    } else {
+      toast.custom(() => (
+        <CustomToast 
+          message={`Teilweise erfolgreich: ${success} zugewiesen, ${failed} fehlgeschlagen`} 
+          type="error" 
+        />
+      ));
+    }
+  };
+
+  const toggleQuizSelection = (quizId: string) => {
+    setSelectedQuizIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(quizId)) {
+        newSet.delete(quizId);
+      } else {
+        newSet.add(quizId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const quizzesWithoutAuthor = filteredQuizzes.filter(q => !q.authorId);
+    if (selectedQuizIds.size === quizzesWithoutAuthor.length) {
+      setSelectedQuizIds(new Set());
+    } else {
+      setSelectedQuizIds(new Set(quizzesWithoutAuthor.map(q => q.id)));
+    }
+  };
+
   const clearFilters = () => {
     setFilters({
       search: "",
@@ -234,10 +363,11 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
       class: "",
       topic: "",
       showHidden: true,
+      authorFilter: 'all',
     });
   };
 
-  const hasActiveFilters = filters.search || filters.subject || filters.class || filters.topic || !filters.showHidden;
+  const hasActiveFilters = filters.search || filters.subject || filters.class || filters.topic || !filters.showHidden || filters.authorFilter !== 'all';
 
   return (
     <div className="space-y-4">
@@ -392,22 +522,81 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
             </div>
           </div>
 
-          {/* Show hidden toggle */}
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.showHidden}
-              onChange={(e) => setFilters(prev => ({ ...prev, showHidden: e.target.checked }))}
-              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-            />
-            <span className="text-sm text-gray-600">Versteckte Quizze anzeigen</span>
-          </label>
+          {/* Author Filter and Show hidden toggle */}
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Autor-Filter</label>
+              <select
+                value={filters.authorFilter}
+                onChange={(e) => setFilters(prev => ({ ...prev, authorFilter: e.target.value as 'all' | 'withAuthor' | 'withoutAuthor' }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="all">Alle Quizze</option>
+                <option value="withAuthor">Mit Autor</option>
+                <option value="withoutAuthor">Ohne Autor</option>
+              </select>
+            </div>
+
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={filters.showHidden}
+                onChange={(e) => setFilters(prev => ({ ...prev, showHidden: e.target.checked }))}
+                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span className="text-sm text-gray-600">Versteckte Quizze anzeigen</span>
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk assign author for quizzes without author */}
+      {filters.authorFilter === 'withoutAuthor' && filteredQuizzes.length > 0 && (
+        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <UserPlus className="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <h4 className="font-semibold text-indigo-900 mb-1">Quizze mir zuweisen</h4>
+              <p className="text-sm text-indigo-800 mb-3">
+                Wähle einzelne Quizze aus oder weise alle {filteredQuizzes.length} angezeigten Quiz{filteredQuizzes.length > 1 ? 'ze' : ''} ohne Autor dir zu.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {selectedQuizIds.size > 0 && (
+                  <button
+                    onClick={() => handleAssignAuthor(Array.from(selectedQuizIds))}
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    {selectedQuizIds.size} ausgewählte{selectedQuizIds.size > 1 ? '' : 's'} Quiz{selectedQuizIds.size > 1 ? 'ze' : ''} zuweisen
+                  </button>
+                )}
+                <button
+                  onClick={() => handleAssignAuthor(filteredQuizzes.map(q => q.id))}
+                  className="flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors font-semibold"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Alle {filteredQuizzes.length} zuweisen
+                </button>
+                {filteredQuizzes.length > 1 && (
+                  <button
+                    onClick={toggleSelectAll}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    {selectedQuizIds.size === filteredQuizzes.length ? 'Alle abwählen' : 'Alle auswählen'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Results count */}
-      <div className="text-sm text-gray-500">
-        {filteredQuizzes.length} von {quizzes.length} Quizzen
+      <div className="flex items-center justify-between text-sm text-gray-500">
+        <span>{filteredQuizzes.length} von {quizzes.length} Quizzen</span>
+        {selectedQuizIds.size > 0 && (
+          <span className="text-indigo-600 font-medium">{selectedQuizIds.size} ausgewählt</span>
+        )}
       </div>
 
       {/* Quiz List */}
@@ -434,10 +623,20 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                 quiz.hidden ? 'opacity-60 border-gray-200' : 'border-gray-300'
               }`}
             >
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1">
                 {/* Header: Title and Actions */}
                 <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    {/* Checkbox for selection (only for quizzes without author when filter is active) */}
+                    {!quiz.authorId && filters.authorFilter === 'withoutAuthor' && (
+                      <input
+                        type="checkbox"
+                        checked={selectedQuizIds.has(quiz.id)}
+                        onChange={() => toggleQuizSelection(quiz.id)}
+                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer shrink-0"
+                        title="Quiz auswählen"
+                      />
+                    )}
                     <h3 className="font-semibold text-gray-900 truncate">
                       {quiz.shortTitle || quiz.title}
                     </h3>
@@ -450,6 +649,15 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
                   {/* Actions Desktop */}
                   <div className="hidden sm:flex items-center gap-1 shrink-0">
+                    {!quiz.authorId && (
+                      <button
+                        onClick={() => handleAssignAuthor([quiz.id])}
+                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        title="Mir zuweisen"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                      </button>
+                    )}
                     <button
                       onClick={() => handleToggleHidden(quiz)}
                       className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
@@ -502,6 +710,18 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
                     {openMobileMenuId === quiz.id && (
                       <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                        {!quiz.authorId && (
+                          <button 
+                            onClick={() => {
+                              handleAssignAuthor([quiz.id]);
+                              setOpenMobileMenuId(null);
+                            }} 
+                            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-green-600"
+                          >
+                            <UserPlus className="w-4 h-4" />
+                            Mir zuweisen
+                          </button>
+                        )}
                         <button 
                           onClick={() => {
                             handleToggleHidden(quiz);
@@ -558,7 +778,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                 </div>
 
                 {/* Tags */}
-                <div className="flex flex-wrap gap-1.5 mt-2">
+                <div className="flex flex-wrap gap-1.5 mt-0">
                   {quiz.subjectName && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-yellow-800 truncate">
                       {quiz.subjectName}
@@ -577,6 +797,11 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-600 truncate">
                     {quiz.questions?.length || 0} Fragen
                   </span>
+                  {quiz.authorId && authorAbbreviations.get(quiz.authorId) && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 truncate">
+                      {authorAbbreviations.get(quiz.authorId)}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
