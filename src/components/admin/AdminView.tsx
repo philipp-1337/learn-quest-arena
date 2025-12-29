@@ -9,10 +9,10 @@ import AdminStats from "./AdminStats";
 import QRCodeInfo from "./QRCodeInfo";
 import ImportModal from "../modals/ImportModal";
 import ExportModal from "../modals/ExportModal";
+import AdminProfileModal from "../modals/AdminProfileModal";
 import QuizListManager from "./QuizListManager";
 import QuizChallengeManager from "./QuizChallengeManager";
 import QuizMigrationPanel from "./QuizMigrationPanel";
-import AuthorAbbreviationPanel from "./AuthorAbbreviationPanel";
 
 // ============================================
 // ADMIN VIEW COMPONENT
@@ -35,8 +35,10 @@ export default function AdminView({
   const [subjects] = useState<Subject[]>(initialSubjects);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
   const [activeTab, setActiveTab] = useState<'quiz' | 'challenge' | 'migration'>('quiz');
+  const [quizListKey, setQuizListKey] = useState(0);
   const auth = getAuth();
 
   // Only show migration tab for specific user
@@ -87,11 +89,19 @@ export default function AdminView({
       });
   };
 
+  const handleAbbreviationUpdated = () => {
+    // Force QuizListManager to re-render and reload data
+    setQuizListKey(prev => prev + 1);
+  };
+
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <AdminHeader onLogout={handleLogout} />
+        <AdminHeader 
+          onLogout={handleLogout}
+          onProfileClick={() => setShowProfileModal(true)}
+        />
 
         <div className="max-w-7xl mx-auto">
           {/* Stats Cards */}
@@ -171,7 +181,7 @@ export default function AdminView({
                   </div>
                 </div>
 
-                <QuizListManager onRefetch={onRefetch} />
+                <QuizListManager key={quizListKey} onRefetch={onRefetch} />
               </>
             )}
 
@@ -208,9 +218,6 @@ export default function AdminView({
             )}
           </div>
 
-          {/* Author Abbreviation Panel */}
-          <AuthorAbbreviationPanel />
-
           {/* QR Code Info */}
           <QRCodeInfo />
         </div>
@@ -230,6 +237,14 @@ export default function AdminView({
         {showExportModal && (
           <ExportModal
             onClose={() => setShowExportModal(false)}
+          />
+        )}
+
+        {/* Profile Modal */}
+        {showProfileModal && (
+          <AdminProfileModal
+            onClose={() => setShowProfileModal(false)}
+            onAbbreviationUpdated={handleAbbreviationUpdated}
           />
         )}
       </div>

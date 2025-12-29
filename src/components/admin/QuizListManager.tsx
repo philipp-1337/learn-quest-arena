@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, QrCode, ChevronDown, Edit3, MoreVertical, ArrowLeftRight, UserPlus } from "lucide-react";
+import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, QrCode, ChevronDown, Edit3, MoreVertical, ArrowLeftRight } from "lucide-react";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
 import type { QuizDocument } from "../../types/quizTypes";
@@ -11,7 +11,6 @@ import RenameCategoryModal from "../modals/RenameCategoryModal";
 import ReassignQuizModal from "../modals/ReassignQuizModal";
 import { slugify } from "../../utils/slugify";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
 
 interface QuizListManagerProps {
   onRefetch?: () => Promise<void>;
@@ -23,21 +22,20 @@ interface FilterState {
   class: string;
   topic: string;
   showHidden: boolean;
-  authorFilter: 'all' | 'withAuthor' | 'withoutAuthor';
+  author: string;
 }
 
 export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
   const [quizzes, setQuizzes] = useState<QuizDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [authorAbbreviations, setAuthorAbbreviations] = useState<Map<string, string>>(new Map());
-  const [selectedQuizIds, setSelectedQuizIds] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     subject: "",
     class: "",
     topic: "",
     showHidden: true,
-    authorFilter: 'all',
+    author: "",
   });
   const [showFilters, setShowFilters] = useState(false);
   const [showCreateWizard, setShowCreateWizard] = useState(false);
@@ -126,6 +124,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     const subjects = new Map<string, string>();
     const classes = new Map<string, string>();
     const topics = new Map<string, string>();
+    const authors = new Map<string, string>();
 
     quizzes.forEach(q => {
       // Use normalized IDs (subjectId is already normalized after migration)
@@ -133,14 +132,22 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
       if (q.subjectId && q.subjectName) subjects.set(q.subjectId, q.subjectName);
       if (q.classId && q.className) classes.set(q.classId, q.className);
       if (q.topicId && q.topicName) topics.set(q.topicId, q.topicName);
+      // Add authors
+      if (q.authorId) {
+        const abbrev = authorAbbreviations.get(q.authorId);
+        if (abbrev) {
+          authors.set(q.authorId, abbrev);
+        }
+      }
     });
 
     return {
       subjects: Array.from(subjects.entries()).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
       classes: Array.from(classes.entries()).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
       topics: Array.from(topics.entries()).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+      authors: Array.from(authors.entries()).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
     };
-  }, [quizzes]);
+  }, [quizzes, authorAbbreviations]);
 
   // Filter quizzes based on current filters
   const filteredQuizzes = useMemo(() => {
@@ -169,8 +176,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
       if (!filters.showHidden && quiz.hidden) return false;
 
       // Author filter
-      if (filters.authorFilter === 'withAuthor' && !quiz.authorId) return false;
-      if (filters.authorFilter === 'withoutAuthor' && quiz.authorId) return false;
+      if (filters.author && quiz.authorId !== filters.author) return false;
 
       return true;
     }).sort((a, b) => a.title.localeCompare(b.title));
@@ -270,92 +276,6 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     ));
   };
 
-  const handleAssignAuthor = async (quizIds: string[]) => {
-    const auth = getAuth();
-    const userId = auth.currentUser?.uid;
-    const userEmail = auth.currentUser?.email;
-
-    if (!userId) {
-      toast.custom(() => (
-        <CustomToast message="Nicht angemeldet" type="error" />
-      ));
-      return;
-    }
-
-    // Check if user has set their abbreviation
-    const db = getFirestore();
-    const authorDoc = await getDoc(doc(db, 'author', userId));
-    
-    if (!authorDoc.exists() || !authorDoc.data().authorAbbreviation) {
-      toast.custom(() => (
-        <CustomToast 
-          message="Bitte setze zuerst deine Autoren-Abkürzung im Admin-Bereich" 
-          type="error" 
-        />
-      ));
-      return;
-    }
-
-    let success = 0;
-    let failed = 0;
-
-    for (const quizId of quizIds) {
-      const result = await updateQuizDocument(quizId, {
-        authorId: userId,
-        authorEmail: userEmail || undefined,
-      });
-
-      if (result.success) {
-        success++;
-        // Update local state
-        setQuizzes(prev => prev.map(q => 
-          q.id === quizId ? { ...q, authorId: userId, authorEmail: userEmail || undefined } : q
-        ));
-      } else {
-        failed++;
-      }
-    }
-
-    if (failed === 0) {
-      toast.custom(() => (
-        <CustomToast 
-          message={`${success} Quiz${success > 1 ? 'ze' : ''} zugewiesen`} 
-          type="success" 
-        />
-      ));
-      // Clear selection after successful assignment
-      setSelectedQuizIds(new Set());
-    } else {
-      toast.custom(() => (
-        <CustomToast 
-          message={`Teilweise erfolgreich: ${success} zugewiesen, ${failed} fehlgeschlagen`} 
-          type="error" 
-        />
-      ));
-    }
-  };
-
-  const toggleQuizSelection = (quizId: string) => {
-    setSelectedQuizIds(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(quizId)) {
-        newSet.delete(quizId);
-      } else {
-        newSet.add(quizId);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleSelectAll = () => {
-    const quizzesWithoutAuthor = filteredQuizzes.filter(q => !q.authorId);
-    if (selectedQuizIds.size === quizzesWithoutAuthor.length) {
-      setSelectedQuizIds(new Set());
-    } else {
-      setSelectedQuizIds(new Set(quizzesWithoutAuthor.map(q => q.id)));
-    }
-  };
-
   const clearFilters = () => {
     setFilters({
       search: "",
@@ -363,11 +283,11 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
       class: "",
       topic: "",
       showHidden: true,
-      authorFilter: 'all',
+      author: "",
     });
   };
 
-  const hasActiveFilters = filters.search || filters.subject || filters.class || filters.topic || !filters.showHidden || filters.authorFilter !== 'all';
+  const hasActiveFilters = filters.search || filters.subject || filters.class || filters.topic || !filters.showHidden || filters.author;
 
   return (
     <div className="space-y-4">
@@ -525,15 +445,16 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
           {/* Author Filter and Show hidden toggle */}
           <div className="space-y-3">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Autor-Filter</label>
+              <label className="block text-sm text-gray-600 mb-1">Autor</label>
               <select
-                value={filters.authorFilter}
-                onChange={(e) => setFilters(prev => ({ ...prev, authorFilter: e.target.value as 'all' | 'withAuthor' | 'withoutAuthor' }))}
+                value={filters.author}
+                onChange={(e) => setFilters(prev => ({ ...prev, author: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
               >
-                <option value="all">Alle Quizze</option>
-                <option value="withAuthor">Mit Autor</option>
-                <option value="withoutAuthor">Ohne Autor</option>
+                <option value="">Alle Autoren</option>
+                {filterOptions.authors.map(a => (
+                  <option key={a.id} value={a.id}>{a.name}</option>
+                ))}
               </select>
             </div>
 
@@ -550,53 +471,9 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
         </div>
       )}
 
-      {/* Bulk assign author for quizzes without author */}
-      {filters.authorFilter === 'withoutAuthor' && filteredQuizzes.length > 0 && (
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <UserPlus className="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <h4 className="font-semibold text-indigo-900 mb-1">Quizze mir zuweisen</h4>
-              <p className="text-sm text-indigo-800 mb-3">
-                Wähle einzelne Quizze aus oder weise alle {filteredQuizzes.length} angezeigten Quiz{filteredQuizzes.length > 1 ? 'ze' : ''} ohne Autor dir zu.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {selectedQuizIds.size > 0 && (
-                  <button
-                    onClick={() => handleAssignAuthor(Array.from(selectedQuizIds))}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
-                  >
-                    <UserPlus className="w-4 h-4" />
-                    {selectedQuizIds.size} ausgewählte{selectedQuizIds.size > 1 ? '' : 's'} Quiz{selectedQuizIds.size > 1 ? 'ze' : ''} zuweisen
-                  </button>
-                )}
-                <button
-                  onClick={() => handleAssignAuthor(filteredQuizzes.map(q => q.id))}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors font-semibold"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  Alle {filteredQuizzes.length} zuweisen
-                </button>
-                {filteredQuizzes.length > 1 && (
-                  <button
-                    onClick={toggleSelectAll}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                  >
-                    {selectedQuizIds.size === filteredQuizzes.length ? 'Alle abwählen' : 'Alle auswählen'}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Results count */}
-      <div className="flex items-center justify-between text-sm text-gray-500">
-        <span>{filteredQuizzes.length} von {quizzes.length} Quizzen</span>
-        {selectedQuizIds.size > 0 && (
-          <span className="text-indigo-600 font-medium">{selectedQuizIds.size} ausgewählt</span>
-        )}
+      <div className="text-sm text-gray-500">
+        {filteredQuizzes.length} von {quizzes.length} Quizzen
       </div>
 
       {/* Quiz List */}
@@ -626,17 +503,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
               <div className="flex flex-col gap-1">
                 {/* Header: Title and Actions */}
                 <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    {/* Checkbox for selection (only for quizzes without author when filter is active) */}
-                    {!quiz.authorId && filters.authorFilter === 'withoutAuthor' && (
-                      <input
-                        type="checkbox"
-                        checked={selectedQuizIds.has(quiz.id)}
-                        onChange={() => toggleQuizSelection(quiz.id)}
-                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer shrink-0"
-                        title="Quiz auswählen"
-                      />
-                    )}
+                  <div className="flex items-center gap-2 min-w-0">
                     <h3 className="font-semibold text-gray-900 truncate">
                       {quiz.shortTitle || quiz.title}
                     </h3>
@@ -649,15 +516,6 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
                   {/* Actions Desktop */}
                   <div className="hidden sm:flex items-center gap-1 shrink-0">
-                    {!quiz.authorId && (
-                      <button
-                        onClick={() => handleAssignAuthor([quiz.id])}
-                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                        title="Mir zuweisen"
-                      >
-                        <UserPlus className="w-4 h-4" />
-                      </button>
-                    )}
                     <button
                       onClick={() => handleToggleHidden(quiz)}
                       className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
@@ -710,18 +568,6 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
                     {openMobileMenuId === quiz.id && (
                       <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                        {!quiz.authorId && (
-                          <button 
-                            onClick={() => {
-                              handleAssignAuthor([quiz.id]);
-                              setOpenMobileMenuId(null);
-                            }} 
-                            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-green-600"
-                          >
-                            <UserPlus className="w-4 h-4" />
-                            Mir zuweisen
-                          </button>
-                        )}
                         <button 
                           onClick={() => {
                             handleToggleHidden(quiz);

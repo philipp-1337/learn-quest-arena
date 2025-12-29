@@ -1,11 +1,12 @@
-import { Sword, LogOut } from "lucide-react";
+import { Sword, LogOut, UserCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface AdminHeaderProps {
   onLogout: () => void;
+  onProfileClick: () => void;
 }
 
-export default function AdminHeader({ onLogout }: AdminHeaderProps) {
+export default function AdminHeader({ onLogout, onProfileClick }: AdminHeaderProps) {
   const navigate = useNavigate();
   return (
     <div className="bg-white rounded-2xl shadow-lg p-5 mb-5">
@@ -30,6 +31,19 @@ export default function AdminHeader({ onLogout }: AdminHeaderProps) {
             {/* Tooltip */}
             <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
               Zum Quiz
+            </span>
+          </button>
+          {/* Profile Button */}
+          <button
+            onClick={onProfileClick}
+            className="relative group p-2 rounded-full text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+            title="Profil"
+            aria-label="Profil"
+          >
+            <UserCircle className="w-6 h-6" />
+            {/* Tooltip */}
+            <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+              Profil
             </span>
           </button>
           {/* Logout Button */}

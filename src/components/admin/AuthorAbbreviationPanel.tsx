@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { User, Save, Loader2 } from "lucide-react";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
 
@@ -59,6 +59,37 @@ export default function AuthorAbbreviationPanel() {
         <CustomToast message="Abkürzung darf max. 10 Zeichen lang sein" type="error" />
       ));
       return;
+    }
+
+    // Check if abbreviation is already taken (only if changed)
+    if (trimmed !== originalAbbreviation) {
+      setSaving(true);
+      try {
+        const db = getFirestore();
+        const authorsRef = collection(db, 'author');
+        const q = query(authorsRef, where('authorAbbreviation', '==', trimmed));
+        const querySnapshot = await getDocs(q);
+        
+        // Check if any other user has this abbreviation
+        const existingUser = querySnapshot.docs.find(doc => doc.id !== userId);
+        if (existingUser) {
+          toast.custom(() => (
+            <CustomToast 
+              message={`Die Abkürzung "${trimmed}" wird bereits verwendet`} 
+              type="error" 
+            />
+          ));
+          setSaving(false);
+          return;
+        }
+      } catch (error) {
+        console.error("Error checking abbreviation:", error);
+        toast.custom(() => (
+          <CustomToast message="Fehler beim Prüfen der Abkürzung" type="error" />
+        ));
+        setSaving(false);
+        return;
+      }
     }
 
     setSaving(true);
