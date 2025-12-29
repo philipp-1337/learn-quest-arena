@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import UsernamePicker from "../user/UsernamePicker";
 import UsernameManualEntry from "../user/UsernameManualEntry";
 import { Cog, Sword, User, Trophy, Sparkles, BadgeInfoIcon } from "lucide-react";
+import AppHeader, { type MenuItem } from "../shared/AppHeader";
 import { useQuizState } from "../../hooks/useQuizState";
 import { getAuth } from "firebase/auth";
 import { useQuizNavigation } from "../../hooks/useQuizNavigation";
@@ -338,76 +339,55 @@ export default function QuizView({
     ? selectedClass.topics.filter(hasVisibleQuizInTopic)
     : [];
 
+  const menuItems: MenuItem[] = [
+    {
+      icon: User,
+      label: username !== "Gast" ? username : "Gast",
+      onClick: () => setShowUserView(true),
+      isActive: username !== "Gast",
+    },
+    {
+      icon: Cog,
+      label: "Admin",
+      onClick: onAdminClick,
+      variant: 'secondary',
+    },
+  ];
+
+  const headerIcon = (
+    <svg className="inline w-7 h-7 ml-1" viewBox="0 0 24 24">
+      <defs>
+        <linearGradient id="swordGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="hsl(221 83% 53%)" />  {/* blue-500 */}
+          <stop offset="100%" stopColor="hsl(264 79% 61%)" /> {/* purple-500 */}
+        </linearGradient>
+      </defs>
+      <Sword stroke="url(#swordGradient)" strokeWidth={2} />
+    </svg>
+  );
+
+  const breadcrumbComponent = (
+    <Breadcrumb
+      selectedSubject={selectedSubject}
+      selectedClass={selectedClass}
+      selectedTopic={selectedTopic}
+      onNavigateHome={handleReset}
+      onNavigateToSubject={handleNavigateToSubject}
+      onNavigateToClass={handleNavigateToClass}
+    />
+  );
+
   return (
     <div className="flex flex-col min-h-screen p-4">
       <div className="max-w-4xl mx-auto w-full flex-1">
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-lg p-5 mb-5">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Learn Quest
-                <svg className="inline w-8 h-8 ml-1" viewBox="0 0 24 24">
-                  <defs>
-                    <linearGradient id="swordGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="hsl(221 83% 53%)" />  {/* blue-500 */}
-                      <stop offset="100%" stopColor="hsl(264 79% 61%)" /> {/* purple-500 */}
-                    </linearGradient>
-                  </defs>
-                  <Sword stroke="url(#swordGradient)" strokeWidth={2} />
-                </svg>
-              </h1>
-              <p className="text-gray-600">
-                Fordere dein Wissen heraus!
-              </p>
-            </div>
-            <div className="flex flex-row gap-2 items-end">
-              {/* Admin Icon */}
-              <button
-                onClick={onAdminClick}
-                className={`relative group p-2 rounded-full transition-all ${
-                  isAuthenticated
-                    ? "text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                }`}
-                aria-label={isAuthenticated ? "Admin eingeloggt" : "Admin-Bereich"}
-                title={isAuthenticated ? "Admin eingeloggt" : "Admin-Bereich"}
-              >
-                <Cog className="w-6 h-6" />
-                {/* Tooltip */}
-                <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-                  {isAuthenticated ? "Admin eingeloggt" : "Admin-Bereich"}
-                </span>
-              </button>
-              {/* User Icon */}
-              <button
-                onClick={() => setShowUserView(true)}
-                className={`relative group p-2 rounded-full transition-all ${
-                  username !== "Gast"
-                    ? "text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                }`}
-                aria-label={username !== "Gast" ? `${username}` : "Gast"}
-                title={username !== "Gast" ? `${username}` : "Gast"}
-              >
-                <User className="w-6 h-6" />
-                {/* Tooltip */}
-                <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-                  {username !== "Gast" ? `${username}` : "Gast"}
-                </span>
-              </button>
-            </div>
-          </div>
-          {/* Breadcrumb */}
-          <Breadcrumb
-            selectedSubject={selectedSubject}
-            selectedClass={selectedClass}
-            selectedTopic={selectedTopic}
-            onNavigateHome={handleReset}
-            onNavigateToSubject={handleNavigateToSubject}
-            onNavigateToClass={handleNavigateToClass}
-          />
-        </div>
+        <AppHeader
+          title="Learn Quest"
+          subtitle="Fordere dein Wissen heraus!"
+          titleIcon={headerIcon}
+          menuItems={menuItems}
+          breadcrumb={breadcrumbComponent}
+        />
 
         {/* Quiz Challenge Section - Show before subject selection */}
         {!selectedSubject && challenges.length > 0 && isAuthenticated && (

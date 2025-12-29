@@ -362,6 +362,49 @@ export default function CreateQuizWizard({
   );
 }
 
+// Helper function to normalize strings for comparison
+function normalizeForComparison(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, '') // Remove all whitespace
+    .replace(/^(der|die|das)/, ''); // Remove common German articles at the start
+}
+
+// Helper function to find similar existing options
+function findSimilarOption(
+  inputValue: string,
+  options: { id: string; name: string }[]
+): { exact: { id: string; name: string } | null; similar: { id: string; name: string } | null } {
+  const trimmedInput = inputValue.trim();
+  if (trimmedInput.length === 0) {
+    return { exact: null, similar: null };
+  }
+
+  const normalizedInput = normalizeForComparison(trimmedInput);
+
+  // Check for exact match (case-insensitive)
+  const exactMatch = options.find(
+    option => option.name.toLowerCase() === trimmedInput.toLowerCase()
+  );
+
+  if (exactMatch) {
+    return { exact: exactMatch, similar: null };
+  }
+
+  // Check for similar match (substring or contains)
+  const similarMatch = options.find(option => {
+    const normalizedOption = normalizeForComparison(option.name);
+    
+    // Check if one is contained in the other
+    return (
+      normalizedInput.includes(normalizedOption) ||
+      normalizedOption.includes(normalizedInput)
+    );
+  });
+
+  return { exact: null, similar: similarMatch || null };
+}
+
 // Sub-component for select or create functionality
 interface SelectOrCreateStepProps {
   label: string;
@@ -382,21 +425,44 @@ function SelectOrCreateStep({
 }: SelectOrCreateStepProps) {
   const [showNewInput, setShowNewInput] = useState(newValue.length > 0);
   const [inputValue, setInputValue] = useState(newValue);
+  const [similarOption, setSimilarOption] = useState<{ id: string; name: string } | null>(null);
 
   const handleOptionClick = (option: { id: string; name: string }) => {
     setShowNewInput(false);
     setInputValue("");
+    setSimilarOption(null);
     onSelect(option);
   };
 
   const handleNewClick = () => {
     setShowNewInput(true);
+    setSimilarOption(null);
     onSelect(null, "");
   };
 
   const handleInputChange = (value: string) => {
     setInputValue(value);
+    
+    const { exact, similar } = findSimilarOption(value, options);
+    
+    if (exact) {
+      // Automatically select the exact match
+      setShowNewInput(false);
+      setInputValue("");
+      setSimilarOption(null);
+      onSelect(exact);
+      return;
+    }
+    
+    // Show warning for similar match
+    setSimilarOption(similar);
     onSelect(null, value);
+  };
+
+  const handleUseSimilar = () => {
+    if (similarOption) {
+      handleOptionClick(similarOption);
+    }
   };
 
   return (
@@ -438,7 +504,7 @@ function SelectOrCreateStep({
 
       {/* New input */}
       {showNewInput ? (
-        <div>
+        <div className="space-y-3">
           <input
             type="text"
             value={inputValue}
@@ -447,6 +513,31 @@ function SelectOrCreateStep({
             className="w-full px-4 py-3 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-indigo-50"
             autoFocus
           />
+          {similarOption && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <div className="flex-shrink-0 mt-0.5">
+                  <svg className="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-yellow-800">
+                    Ähnlicher Eintrag gefunden
+                  </p>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Es existiert bereits: <span className="font-semibold">{similarOption.name}</span>
+                  </p>
+                  <button
+                    onClick={handleUseSimilar}
+                    className="mt-2 text-sm font-medium text-yellow-800 hover:text-yellow-900 underline"
+                  >
+                    Stattdessen verwenden
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <button

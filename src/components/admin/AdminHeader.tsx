@@ -1,5 +1,6 @@
 import { Sword, LogOut, UserCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import AppHeader, { type MenuItem } from "../shared/AppHeader";
 
 interface AdminHeaderProps {
   onLogout: () => void;
@@ -8,59 +9,32 @@ interface AdminHeaderProps {
 
 export default function AdminHeader({ onLogout, onProfileClick }: AdminHeaderProps) {
   const navigate = useNavigate();
+
+  const menuItems: MenuItem[] = [
+    {
+      icon: Sword,
+      label: "Zum Quiz",
+      onClick: () => navigate("/"),
+    },
+    {
+      icon: UserCircle,
+      label: "Profil",
+      onClick: onProfileClick,
+      variant: 'primary',
+    },
+    {
+      icon: LogOut,
+      label: "Abmelden",
+      onClick: onLogout,
+      variant: 'danger',
+    },
+  ];
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-5 mb-5">
-      <div className="flex justify-between items-center">
-        <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Administration</h1>
-        <p className="text-gray-600">
-          Für Lehrerkräfte von morgen.
-        </p>
-        </div>
-        <div className="flex flex-row gap-2 items-end">
-          {/* Quiz Button */}
-          <button
-            onClick={() => {
-              navigate("/"); // Navigate to home
-            }}
-            className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-            aria-label="Zum Quiz"
-            title="Zum Quiz"
-          >
-            <Sword className="w-6 h-6" />
-            {/* Tooltip */}
-            <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-              Zum Quiz
-            </span>
-          </button>
-          {/* Profile Button */}
-          <button
-            onClick={onProfileClick}
-            className="relative group p-2 rounded-full text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-            title="Profil"
-            aria-label="Profil"
-          >
-            <UserCircle className="w-6 h-6" />
-            {/* Tooltip */}
-            <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-              Profil
-            </span>
-          </button>
-          {/* Logout Button */}
-          <button
-            onClick={onLogout}
-            className="relative group p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-            title="Abmelden"
-            aria-label="Abmelden"
-          >
-            <LogOut className="w-6 h-6" />
-            {/* Tooltip */}
-            <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform bg-gray-800 text-white text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-              Abmelden
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
+    <AppHeader
+      title="Administration"
+      subtitle="Für Lehrerkräfte von morgen."
+      menuItems={menuItems}
+    />
   );
 }
