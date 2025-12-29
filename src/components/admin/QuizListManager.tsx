@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, Link, ChevronDown, Edit3, MoveHorizontal } from "lucide-react";
+import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, QrCode, ChevronDown, Edit3, MoreVertical, ArrowLeftRight } from "lucide-react";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
 import type { QuizDocument } from "../../types/quizTypes";
@@ -38,6 +38,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
   const [editingQuiz, setEditingQuiz] = useState<QuizDocument | null>(null);
   const [deletingQuiz, setDeletingQuiz] = useState<QuizDocument | null>(null);
   const [reassignQuiz, setReassignQuiz] = useState<QuizDocument | null>(null);
+  const [openMobileMenuId, setOpenMobileMenuId] = useState<string | null>(null);
   const [renameModal, setRenameModal] = useState<{
     type: 'subject' | 'class' | 'topic';
     id: string;
@@ -64,6 +65,21 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
   useEffect(() => {
     loadQuizzes();
   }, []);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openMobileMenuId) {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.mobile-menu-container')) {
+          setOpenMobileMenuId(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openMobileMenuId]);
 
   // Extract unique values for filter dropdowns
   // Group by normalized IDs (which are based on names) to avoid duplicates
@@ -418,78 +434,149 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                 quiz.hidden ? 'opacity-60 border-gray-200' : 'border-gray-300'
               }`}
             >
-              <div className="flex items-start gap-3">
-                {/* Quiz info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-gray-900 truncate">{quiz.shortTitle || quiz.title}</h3>
+              <div className="flex flex-col gap-2">
+                {/* Header: Title and Actions */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <h3 className="font-semibold text-gray-900 truncate">
+                      {quiz.shortTitle || quiz.title}
+                    </h3>
                     {quiz.hidden && (
-                      <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">
+                      <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded shrink-0">
                         Versteckt
                       </span>
                     )}
                   </div>
-                  
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {quiz.subjectName && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-yellow-800">
-                        {quiz.subjectName}
-                      </span>
+
+                  {/* Actions Desktop */}
+                  <div className="hidden sm:flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => handleToggleHidden(quiz)}
+                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      title={quiz.hidden ? "Sichtbar machen" : "Verstecken"}
+                    >
+                      {quiz.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </button>
+                    <button
+                      onClick={() => handleCopyLink(quiz)}
+                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      title="Link kopieren"
+                    >
+                      <QrCode className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setReassignQuiz(quiz)}
+                      className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                      title="Fach/Klasse/Thema ändern"
+                    >
+                      <ArrowLeftRight className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setEditingQuiz(quiz)}
+                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      title="Bearbeiten"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setDeletingQuiz(quiz)}
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Löschen"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Actions Mobile */}
+                  <div className="sm:hidden relative mobile-menu-container">
+                    <button
+                      className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                      title="Aktionen"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenMobileMenuId(openMobileMenuId === quiz.id ? null : quiz.id);
+                      }}
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+
+                    {openMobileMenuId === quiz.id && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                        <button 
+                          onClick={() => {
+                            handleToggleHidden(quiz);
+                            setOpenMobileMenuId(null);
+                          }} 
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          {quiz.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                          {quiz.hidden ? 'Sichtbar machen' : 'Verstecken'}
+                        </button>
+                        <button 
+                          onClick={() => {
+                            handleCopyLink(quiz);
+                            setOpenMobileMenuId(null);
+                          }} 
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <QrCode className="w-4 h-4" />
+                          Link kopieren
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setReassignQuiz(quiz);
+                            setOpenMobileMenuId(null);
+                          }} 
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <ArrowLeftRight className="w-4 h-4" />
+                          Neu zuordnen
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setEditingQuiz(quiz);
+                            setOpenMobileMenuId(null);
+                          }} 
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Pencil className="w-4 h-4" />
+                          Bearbeiten
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setDeletingQuiz(quiz);
+                            setOpenMobileMenuId(null);
+                          }} 
+                          className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Löschen
+                        </button>
+                      </div>
                     )}
-                    {quiz.className && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                        {quiz.className}
-                      </span>
-                    )}
-                    {quiz.topicName && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                        {quiz.topicName}
-                      </span>
-                    )}
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-600">
-                      {quiz.questions?.length || 0} Fragen
-                    </span>
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setReassignQuiz(quiz)}
-                    className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                    title="Fach/Klasse/Thema ändern"
-                  >
-                    <MoveHorizontal className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleCopyLink(quiz)}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                    title="Link kopieren"
-                  >
-                    <Link className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleToggleHidden(quiz)}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                    title={quiz.hidden ? "Sichtbar machen" : "Verstecken"}
-                  >
-                    {quiz.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                  </button>
-                  <button
-                    onClick={() => setEditingQuiz(quiz)}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                    title="Bearbeiten"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setDeletingQuiz(quiz)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Löschen"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {quiz.subjectName && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-yellow-800 truncate">
+                      {quiz.subjectName}
+                    </span>
+                  )}
+                  {quiz.className && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 truncate">
+                      {quiz.className}
+                    </span>
+                  )}
+                  {quiz.topicName && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 truncate">
+                      {quiz.topicName}
+                    </span>
+                  )}
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-600 truncate">
+                    {quiz.questions?.length || 0} Fragen
+                  </span>
                 </div>
               </div>
             </div>

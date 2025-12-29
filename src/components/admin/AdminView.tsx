@@ -104,42 +104,44 @@ export default function AdminView({
           {/* Content Management */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             {/* Tab Navigation */}
-            <div className="flex gap-4 mb-6 border-b">
-              <button
-                onClick={() => setActiveTab('quiz')}
-                className={`pb-3 px-4 font-semibold transition-colors ${
-                  activeTab === 'quiz'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Standard Quiz
-              </button>
-              <button
-                onClick={() => setActiveTab('challenge')}
-                className={`relative pb-3 px-4 font-semibold transition-colors ${
-                  activeTab === 'challenge'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Quiz-Challenge
-                <span className="absolute -top-1 -right-2 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
-                  <Sparkles className="w-3 h-3 text-white" />
-                </span>
-              </button>
-              {canAccessMigration && (
+            <div className="overflow-x-auto mb-6 -mx-6 px-6">
+              <div className="flex gap-4 min-w-max">
                 <button
-                  onClick={() => setActiveTab('migration')}
-                  className={`relative pb-3 px-4 font-semibold transition-colors flex items-center gap-2 ${
-                    activeTab === 'migration'
+                  onClick={() => setActiveTab('quiz')}
+                  className={`pb-3 px-4 font-semibold transition-colors whitespace-nowrap ${
+                    activeTab === 'quiz'
                       ? 'text-blue-600 border-b-2 border-blue-600'
-                      : 'text-gray-500 hover:text-gray-700'
+                      : 'text-gray-500 hover:text-gray-700 border-b-2 border-transparent'
                   }`}
                 >
-                  Migration
+                  Standard Quiz
                 </button>
-              )}
+                <button
+                  onClick={() => setActiveTab('challenge')}
+                  className={`relative pb-3 px-4 font-semibold transition-colors whitespace-nowrap ${
+                    activeTab === 'challenge'
+                      ? 'text-blue-600 border-b-2 border-blue-600'
+                      : 'text-gray-500 hover:text-gray-700 border-b-2 border-transparent'
+                  }`}
+                >
+                  Quiz-Challenge
+                  <span className="absolute top-0 right-1 rounded-full flex items-center justify-center">
+                    <Sparkles className="w-3 h-3 text-purple-600" />
+                  </span>
+                </button>
+                {canAccessMigration && (
+                  <button
+                    onClick={() => setActiveTab('migration')}
+                    className={`relative pb-3 px-4 font-semibold transition-colors flex items-center gap-2 whitespace-nowrap ${
+                      activeTab === 'migration'
+                        ? 'text-blue-600 border-b-2 border-blue-600'
+                        : 'text-gray-500 hover:text-gray-700 border-b-2 border-transparent'
+                    }`}
+                  >
+                    Migration
+                  </button>
+                )}
+              </div>
             </div>
 
             {activeTab === 'quiz' && (
