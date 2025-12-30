@@ -92,7 +92,10 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     } catch (error) {
       console.error("Error loading quizzes:", error);
       toast.custom(() => (
-        <CustomToast message="Fehler beim Laden der Quizze" type="error" />
+        <CustomToast 
+          message="Fehler beim Laden der Quizze" 
+          type="error" 
+        />
       ));
     } finally {
       setLoading(false);
@@ -205,12 +208,18 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     if (result.success) {
       setQuizzes(prev => prev.filter(q => q.id !== deletingQuiz.id));
       toast.custom(() => (
-        <CustomToast message="Quiz gelöscht" type="success" />
+        <CustomToast 
+          message="Quiz gelöscht" 
+          type="success" 
+        />
       ));
       if (onRefetch) await onRefetch();
     } else {
       toast.custom(() => (
-        <CustomToast message="Fehler beim Löschen" type="error" />
+        <CustomToast 
+          message="Fehler beim Löschen" 
+          type="error" 
+        />
       ));
     }
     setDeletingQuiz(null);
@@ -221,7 +230,10 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     const url = `${baseUrl}/quiz/${slugify(quiz.subjectName || '')}/${slugify(quiz.className || '')}/${slugify(quiz.topicName || '')}/${slugify(quiz.title)}`;
     navigator.clipboard.writeText(url);
     toast.custom(() => (
-      <CustomToast message="Link kopiert!" type="success" />
+      <CustomToast 
+        message="Link kopiert!" 
+        type="success" 
+      />
     ));
   };
 
@@ -244,7 +256,10 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
         q.id === updatedQuiz.id ? { ...q, ...updatedQuiz } : q
       ));
       toast.custom(() => (
-        <CustomToast message="Quiz gespeichert" type="success" />
+        <CustomToast 
+          message="Quiz gespeichert" 
+          type="success" 
+        />
       ));
     }
     setEditingQuiz(null);
@@ -272,7 +287,10 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     clearFilters();
     
     toast.custom(() => (
-      <CustomToast message="Kategorie erfolgreich umbenannt" type="success" />
+      <CustomToast 
+        message="Kategorie erfolgreich umbenannt" 
+        type="success" 
+      />
     ));
   };
 
@@ -708,7 +726,10 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
           onSuccess={async () => {
             await loadQuizzes();
             toast.custom(() => (
-              <CustomToast message="Quiz neu zugeordnet" type="success" />
+              <CustomToast 
+                message="Quiz neu zugeordnet" 
+                type="success" 
+              />
             ));
           }}
         />

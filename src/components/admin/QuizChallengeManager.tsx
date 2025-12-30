@@ -3,6 +3,7 @@ import { Plus, Trash2, X } from 'lucide-react';
 import type { QuizChallenge, Question } from '../../types/quizTypes';
 import useFirestore from '../../hooks/useFirestore';
 import { toast } from 'sonner';
+import { CustomToast } from '../misc/CustomToast';
 import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
 import { getQuestionId } from '../../utils/questionIdHelper';
 import { loadAllQuizDocuments } from '../../utils/quizzesCollection';
@@ -79,7 +80,12 @@ export default function QuizChallengeManager({
 
     await saveDocument(`quizChallenges/${newChallenge.id}`, newChallenge);
     onChallengesChange([...challenges, newChallenge]);
-    toast.success('Quiz-Challenge erstellt');
+    toast.custom(() => (
+      <CustomToast 
+        message="Quiz-Challenge erstellt" 
+        type="success" 
+      />
+    ));
   };
 
   const handleDeleteChallenge = async (challengeId: string) => {
@@ -87,7 +93,12 @@ export default function QuizChallengeManager({
 
     await deleteDocument(`quizChallenges/${challengeId}`);
     onChallengesChange(challenges.filter(c => c.id !== challengeId));
-    toast.success('Quiz-Challenge gelöscht');
+    toast.custom(() => (
+      <CustomToast 
+        message="Quiz-Challenge gelöscht" 
+        type="success" 
+      />
+    ));
   };
 
   const handleToggleQuestion = (questionId: string) => {
@@ -116,7 +127,12 @@ export default function QuizChallengeManager({
     );
     setSelectedChallenge(updatedChallenge);
     setShowQuestionSelector(false);
-    toast.success('Fragen gespeichert');
+    toast.custom(() => (
+      <CustomToast 
+        message="Fragen gespeichert" 
+        type="success" 
+      />
+    ));
   };
 
   const handleRemoveQuestion = async (questionId: string) => {
@@ -134,7 +150,12 @@ export default function QuizChallengeManager({
       challenges.map(c => c.id === updatedChallenge.id ? updatedChallenge : c)
     );
     setSelectedChallenge(updatedChallenge);
-    toast.success('Frage entfernt');
+    toast.custom(() => (
+      <CustomToast 
+        message="Frage entfernt" 
+        type="success" 
+      />
+    ));
   };
 
   return (

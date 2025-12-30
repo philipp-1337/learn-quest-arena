@@ -150,7 +150,10 @@ export default function CreateQuizWizard({
 
     if (!user) {
       toast.custom(() => (
-        <CustomToast message="Nicht eingeloggt" type="error" />
+        <CustomToast 
+          message="Nicht eingeloggt" 
+          type="error" 
+        />
       ));
       return;
     }
@@ -184,18 +187,27 @@ export default function CreateQuizWizard({
 
       if (result.success) {
         toast.custom(() => (
-          <CustomToast message="Quiz erstellt! Füge jetzt Fragen hinzu." type="success" />
+          <CustomToast 
+            message="Quiz erstellt! Füge jetzt Fragen hinzu." 
+            type="success" 
+          />
         ));
         onQuizCreated();
       } else {
         toast.custom(() => (
-          <CustomToast message={`Fehler: ${result.error}`} type="error" />
+          <CustomToast 
+            message={`Fehler: ${result.error}`} 
+            type="error" 
+          />
         ));
       }
     } catch (error) {
       console.error("Error creating quiz:", error);
       toast.custom(() => (
-        <CustomToast message="Fehler beim Erstellen des Quiz" type="error" />
+        <CustomToast 
+          message="Fehler beim Erstellen des Quiz" 
+          type="error" 
+        />
       ));
     } finally {
       setIsSubmitting(false);

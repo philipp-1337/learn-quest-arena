@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Edit2, Trash2, Check, X, Lightbulb, MessageCircleWarning } from 'lucide-react';
 import type { Quiz, Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
+import { CustomToast } from '../misc/CustomToast';
 
 interface QuizEditorModalProps {
   quiz: Quiz;
@@ -128,9 +129,12 @@ export default function QuizEditorModal({
 
       // Check original file size
       if (file.size > MAX_IMAGE_SIZE) {
-        toast.error(
-          `Bild zu groß! Max. 500 KB. Dein Bild: ${(file.size / 1024).toFixed(1)} KB`
-        );
+        toast.custom(() => (
+          <CustomToast 
+            message={`Bild zu groß! Max. 500 KB. Dein Bild: ${(file.size / 1024).toFixed(1)} KB`} 
+            type="error" 
+          />
+        ));
 
         // Ask user if they want compression help
         const shouldCompress = window.confirm(
@@ -138,9 +142,12 @@ export default function QuizEditorModal({
         );
 
         if (shouldCompress) {
-          toast.info(
-            'Komprimiere dein Bild online oder mit einem Tool und lade es erneut hoch.'
-          );
+          toast.custom(() => (
+            <CustomToast 
+              message="Komprimiere dein Bild online oder mit einem Tool und lade es erneut hoch." 
+              type="info" 
+            />
+          ));
         }
         return;
       }
@@ -161,9 +168,12 @@ export default function QuizEditorModal({
         // Check Base64 size
         if (base64String.length > MAX_BASE64_SIZE) {
           toast.dismiss(loadingToast);
-          toast.error(
-            'Base64-Daten zu groß! Bitte komprimiere das Bild stärker.'
-          );
+          toast.custom(() => (
+            <CustomToast 
+              message="Base64-Daten zu groß! Bitte komprimiere das Bild stärker." 
+              type="error" 
+            />
+          ));
           return;
         }
 
@@ -182,13 +192,23 @@ export default function QuizEditorModal({
         });
 
         toast.dismiss(loadingToast);
-        toast.success('Bild erfolgreich hochgeladen!');
+        toast.custom(() => (
+          <CustomToast 
+            message="Bild erfolgreich hochgeladen!" 
+            type="success" 
+          />
+        ));
       };
 
       reader.readAsDataURL(compressedFile);
     } catch (error) {
       console.error('Fehler beim Hochladen des Bildes:', error);
-      toast.error('Fehler beim Verarbeiten des Bildes. Versuche es erneut.');
+      toast.custom(() => (
+        <CustomToast 
+          message="Fehler beim Verarbeiten des Bildes. Versuche es erneut." 
+          type="error" 
+        />
+      ));
     }
   };
 

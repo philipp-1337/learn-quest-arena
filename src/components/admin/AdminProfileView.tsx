@@ -51,7 +51,10 @@ export default function AdminProfileView({
       } catch (error) {
         console.error("Error loading abbreviation:", error);
         toast.custom(() => (
-          <CustomToast message="Fehler beim Laden der Abkürzung" type="error" />
+          <CustomToast 
+            message="Fehler beim Laden der Abkürzung" 
+            type="error" 
+          />
         ));
       } finally {
         setLoading(false);
@@ -68,16 +71,19 @@ export default function AdminProfileView({
     const trimmed = abbreviation.trim();
     if (!trimmed) {
       toast.custom(() => (
-        <CustomToast message="Bitte gib eine Abkürzung ein" type="error" />
+        <CustomToast 
+          message="Bitte gib eine Abkürzung ein" 
+          type="error" 
+        />
       ));
       return;
     }
 
     if (trimmed.length > 10) {
       toast.custom(() => (
-        <CustomToast
-          message="Abkürzung darf max. 10 Zeichen lang sein"
-          type="error"
+        <CustomToast 
+          message="Abkürzung darf max. 10 Zeichen lang sein" 
+          type="error" 
         />
       ));
       return;
@@ -98,9 +104,9 @@ export default function AdminProfileView({
         );
         if (existingUser) {
           toast.custom(() => (
-            <CustomToast
-              message={`Die Abkürzung "${trimmed}" wird bereits verwendet`}
-              type="error"
+            <CustomToast 
+              message={`Die Abkürzung "${trimmed}" wird bereits verwendet`} 
+              type="error" 
             />
           ));
           setSaving(false);
@@ -109,9 +115,9 @@ export default function AdminProfileView({
       } catch (error) {
         console.error("Error checking abbreviation:", error);
         toast.custom(() => (
-          <CustomToast
-            message="Fehler beim Prüfen der Abkürzung"
-            type="error"
+          <CustomToast 
+            message="Fehler beim Prüfen der Abkürzung" 
+            type="error" 
           />
         ));
         setSaving(false);
@@ -133,7 +139,10 @@ export default function AdminProfileView({
 
       setOriginalAbbreviation(trimmed);
       toast.custom(() => (
-        <CustomToast message="Abkürzung gespeichert" type="success" />
+        <CustomToast 
+          message="Abkürzung gespeichert" 
+          type="success" 
+        />
       ));
 
       // Trigger refresh callback
@@ -143,7 +152,10 @@ export default function AdminProfileView({
     } catch (error) {
       console.error("Error saving abbreviation:", error);
       toast.custom(() => (
-        <CustomToast message="Fehler beim Speichern" type="error" />
+        <CustomToast 
+          message="Fehler beim Speichern" 
+          type="error" 
+        />
       ));
     } finally {
       setSaving(false);

@@ -23,11 +23,21 @@ export default function UsernamePicker({
 
   const handleGenerate = async () => {
     if (generateClicks >= 3) {
-      toast.error("Du kannst nur 3x einen Namen generieren.");
+      toast.custom(() => (
+        <CustomToast 
+          message="Du kannst nur 3x einen Namen generieren." 
+          type="error" 
+        />
+      ));
       return;
     }
     if (generateClicks === 1) {
-      toast.warning("Achtung: Du kannst nur noch ein weiteres Mal einen Namen generieren!");
+      toast.custom(() => (
+        <CustomToast 
+          message="Achtung: Du kannst nur noch ein weiteres Mal einen Namen generieren!" 
+          type="error" 
+        />
+      ));
     }
     setGenerateClicks((prev) => prev + 1);
     setLoading(true);
