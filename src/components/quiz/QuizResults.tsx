@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import type { Question } from '../../types/quizTypes';
 import { showCompletedQuizWarning } from '../../utils/showCompletedQuizWarning';
+import { formatTime } from '../../utils/formatTime';
 
 interface QuizResultsProps {
   statistics: {
@@ -40,13 +41,6 @@ export default function QuizResults({
   onHome,
 }: QuizResultsProps) {
   const { correctCount, totalAnswered, percentage, totalQuestions, allSolved, totalTries, elapsedTime } = statistics;
-
-  const formatTime = (ms: number) => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
 
   const isPerfect = allSolved && wrongQuestions.length === 0;
   const isGood = percentage >= 80;

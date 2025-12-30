@@ -4,6 +4,7 @@ import type { Quiz } from '../../types/quizTypes';
 import type { UserQuizProgress } from '../../types/userProgress';
 import { loadAllUserProgress } from '../../utils/loadAllUserProgress';
 import { showCompletedQuizWarning } from '../../utils/showCompletedQuizWarning';
+import { filterVisibleQuizzes } from '../../utils/quizVisibilityHelpers';
 import type { QuizStartMode } from '../../hooks/useQuizPlayer';
 
 // Re-export the type for convenience
@@ -43,7 +44,7 @@ export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps)
   }, [username]);
 
   // Nur nicht-ausgeblendete Quizze anzeigen
-  const visibleQuizzes = quizzes.filter((q: Quiz) => !q.hidden);
+  const visibleQuizzes = filterVisibleQuizzes(quizzes);
 
   return (
     <div className="space-y-4">

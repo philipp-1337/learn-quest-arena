@@ -15,9 +15,15 @@ import { QuizSelector, type QuizStartMode } from "./QuizSelector";
 import QuizPlayer from "./QuizPlayer";
 import QuizChallengePlayer from "./QuizChallengePlayer";
 import Footer from "../footer/Footer";
-import type { Subject, Quiz, QuizChallenge, QuizChallengeLevel } from "../../types/quizTypes";
+import type { Subject, Class, Topic, Quiz, QuizChallenge, QuizChallengeLevel } from "../../types/quizTypes";
 import type { UserQuizChallengeProgress } from "../../types/userProgress";
 import useFirestore from "../../hooks/useFirestore";
+import { 
+  filterVisibleSubjects, 
+  filterVisibleClasses, 
+  filterVisibleTopics, 
+  filterVisibleQuizzes 
+} from "../../utils/quizVisibilityHelpers";
 
 interface QuizViewProps {
   subjects: Subject[];
@@ -120,13 +126,13 @@ export default function QuizView({
     navigateToSubject(subject);
   };
 
-  const handleClassSelect = (classItem: any) => {
+  const handleClassSelect = (classItem: Class) => {
     if (!selectedSubject) return;
     selectClass(classItem);
     navigateToClass(selectedSubject, classItem);
   };
 
-  const handleTopicSelect = (topic: any) => {
+  const handleTopicSelect = (topic: Topic) => {
     if (!selectedSubject || !selectedClass) return;
     selectTopic(topic);
     navigateToTopic(selectedSubject, selectedClass, topic);
@@ -315,28 +321,13 @@ export default function QuizView({
     );
   }
 
-  // Hilfsfunktionen zum Filtern
-  function hasVisibleQuizInTopic(topic: { quizzes: Quiz[] }): boolean {
-    return topic.quizzes.some((q: Quiz) => !q.hidden);
-  }
-  function hasVisibleQuizInClass(cls: {
-    topics: { quizzes: Quiz[] }[];
-  }): boolean {
-    return cls.topics.some(hasVisibleQuizInTopic);
-  }
-  function hasVisibleQuizInSubject(subject: {
-    classes: { topics: { quizzes: Quiz[] }[] }[];
-  }): boolean {
-    return subject.classes.some(hasVisibleQuizInClass);
-  }
-
   // Gefilterte Daten
-  const visibleSubjects = subjects.filter(hasVisibleQuizInSubject);
+  const visibleSubjects = filterVisibleSubjects(subjects);
   const visibleClasses = selectedSubject
-    ? selectedSubject.classes.filter(hasVisibleQuizInClass)
+    ? filterVisibleClasses(selectedSubject.classes)
     : [];
   const visibleTopics = selectedClass
-    ? selectedClass.topics.filter(hasVisibleQuizInTopic)
+    ? filterVisibleTopics(selectedClass.topics)
     : [];
 
   const menuItems: MenuItem[] = [
@@ -449,13 +440,13 @@ export default function QuizView({
         {selectedTopic &&
           (username ? (
             <QuizSelector
-              quizzes={selectedTopic.quizzes.filter((q) => !q.hidden)}
+              quizzes={filterVisibleQuizzes(selectedTopic.quizzes)}
               onSelect={handleQuizSelect}
               username={username}
             />
           ) : (
             <QuizSelector
-              quizzes={selectedTopic.quizzes.filter((q) => !q.hidden)}
+              quizzes={filterVisibleQuizzes(selectedTopic.quizzes)}
               onSelect={handleQuizSelect}
             />
           ))}

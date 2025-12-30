@@ -82,7 +82,7 @@ export default function UsernamePicker({
         if (timeoutId) clearTimeout(timeoutId);
         setUsernames(names);
       }
-    } catch (e) {
+    } catch {
       if (!didTimeout) {
         if (timeoutId) clearTimeout(timeoutId);
         setError("Fehler beim Generieren der Usernamen.");
