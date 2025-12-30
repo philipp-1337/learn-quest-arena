@@ -316,7 +316,7 @@ export default function CreateQuizWizard({
         <div className="px-6 py-4 border-t border-gray-200 flex justify-between">
           <button
             onClick={currentStepIndex === 0 ? onClose : goBack}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
             {currentStepIndex === 0 ? (
               <>Abbrechen</>

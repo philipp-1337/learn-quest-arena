@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Save, Loader2, LogOut } from "lucide-react";
+import { ArrowLeft, Save, Loader2, LogOut, AlertTriangle, Check } from "lucide-react";
 import { getAuth } from "firebase/auth";
 import {
   getFirestore,
@@ -219,23 +219,26 @@ export default function AdminProfileView({
                   </p>
                 </div>
 
-                {originalAbbreviation && (
-                  <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                    <p className="text-sm text-green-800 dark:text-green-300">
-                      ✓ Deine aktuelle Abkürzung:{" "}
-                      <span className="font-semibold">
-                        {originalAbbreviation}
+                <div className={!originalAbbreviation 
+                  ? "bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3"
+                  : "bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-3"
+                }>
+                  <p className={`text-sm ${!originalAbbreviation ? "text-red-800 dark:text-red-300" : "text-green-800 dark:text-green-300"} flex items-center gap-2`}>
+                    {!originalAbbreviation ? <AlertTriangle className="w-4 h-4 flex-shrink-0" /> : <Check className="w-4 h-4 flex-shrink-0" />}
+                    {!originalAbbreviation ? (
+                      <span>
+                        Du hast noch keine Abkürzung festgelegt. Bitte leg deine individuelle Abkürzung fest. Diese Abkürzung wird bei allen Quizzen angezeigt, die du erstellt hast. Sie sollte kurz und eindeutig sein (z.B. Initialen).
                       </span>
-                    </p>
-                  </div>
-                )}
-              </div>
-              <div className="mt-6 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <p className="text-sm text-blue-800 dark:text-blue-300">
-                  Diese Abkürzung wird bei allen Quizzen angezeigt, die du
-                  erstellt hast. Sie sollte kurz und eindeutig sein (z.B.
-                  Initialen).
-                </p>
+                    ) : (
+                      <span>
+                        Deine aktuelle Abkürzung:{" "}
+                      <span className="font-semibold">
+                        {originalAbbreviation}. 
+                      </span> Diese Abkürzung wird bei allen Quizzen angezeigt, die du erstellt hast. Sie sollte kurz und eindeutig sein (z.B. Initialen).
+                      </span>
+                    )}
+                  </p>
+                </div>
               </div>
             </>
           )}

@@ -1,4 +1,4 @@
-import { Sword, UserCog } from "lucide-react";
+import { Sword, UserRoundCheck, UserRoundX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getAuth } from "firebase/auth";
@@ -41,7 +41,7 @@ export default function AdminHeader({ onProfileClick }: AdminHeaderProps) {
 
   const menuItems: MenuItem[] = [
     {
-      icon: UserCog,
+      icon: hasAbbreviation ? UserRoundCheck : UserRoundX,
       label: "Profil",
       onClick: onProfileClick,
       hasNotification: !hasAbbreviation,
