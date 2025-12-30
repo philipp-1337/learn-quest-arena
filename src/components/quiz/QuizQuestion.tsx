@@ -1,5 +1,6 @@
 import AnswerButton from './AnswerButton';
 import type { Question, Answer } from '../../types/quizTypes';
+import { formatTime } from '../../utils/formatTime';
 
 interface QuizQuestionProps {
   question: Question;
@@ -31,14 +32,6 @@ export default function QuizQuestion({
   showResultOverride,
 }: QuizQuestionProps) {
   const showFeedback = showResultOverride !== undefined ? showResultOverride : selectedAnswer !== null;
-
-  // Format elapsed time
-  const formatTime = (ms: number) => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

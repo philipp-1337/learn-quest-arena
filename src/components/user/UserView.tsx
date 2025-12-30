@@ -12,6 +12,8 @@ import { loadAllUserProgress } from '../../utils/loadAllUserProgress';
 import type { UserQuizProgress } from '../../types/userProgress';
 import type { Subject, Quiz } from '../../types/quizTypes';
 import { showConfirmationToast } from '../../utils/confirmationToast';
+import { formatTime } from '../../utils/formatTime';
+import { findQuizOnly } from '../../utils/quizHierarchySearch';
 
 
 interface UserViewProps {
@@ -56,13 +58,6 @@ const ProgressAccordionItem: React.FC<{
     };
   }, [progress.questions]);
   const { dueForReview, masteredQuestions, learningQuestions, newQuestions } = srsStats;
-
-  const formatTime = (ms: number) => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
 
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
@@ -214,18 +209,6 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
   const [loading, setLoading] = useState(true);
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
-  const findQuizById = (quizId: string): Quiz | undefined => {
-    for (const subject of subjects) {
-      for (const cls of subject.classes) {
-        for (const topic of cls.topics) {
-          const quiz = topic.quizzes.find(q => q.id === quizId);
-          if (quiz) return quiz;
-        }
-      }
-    }
-    return undefined;
-  };
-
   useEffect(() => {
     async function fetchProgress() {
       setLoading(true);
@@ -244,11 +227,11 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
         // Quiz-Daten enrichen
         const enrichedProgress: ProgressItemWithQuiz[] = allProgress.map(progress => ({
           ...progress,
-          quiz: findQuizById(progress.quizId),
+          quiz: findQuizOnly(subjects, progress.quizId),
         }));
 
         setProgressList(enrichedProgress);
-      } catch (e) {
+      } catch {
         setProgressList([]);
       } finally {
         setLoading(false);

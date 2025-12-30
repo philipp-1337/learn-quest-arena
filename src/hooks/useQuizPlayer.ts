@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Quiz, Question, Answer } from '../types/quizTypes';
 import type { QuestionSRSData } from '../types/userProgress';
 import { getQuestionId } from '../utils/questionIdHelper';
+import { calculateNextReviewDate, calculateDifficultyLevel } from '../utils/srsHelpers';
 
 // Quiz start mode - determines how to start the quiz
 export type QuizStartMode = 'fresh' | 'continue';
@@ -18,27 +19,6 @@ function findOriginalQuestionIndex(question: Question, quiz: Quiz): number {
     q.question === question.question && 
     q.correctAnswerIndex === question.correctAnswerIndex
   );
-}
-
-// SRS Hilfsfunktionen
-function calculateNextReviewDate(correctStreak: number, isCorrect: boolean): number {
-  // Einfaches SRS: Intervall verdoppelt sich bei richtigen Antworten
-  // Intervalle: 1 Tag, 2 Tage, 4 Tage, 8 Tage, 16 Tage, 32 Tage
-  const baseInterval = 24 * 60 * 60 * 1000; // 1 Tag in Millisekunden
-  const streak = isCorrect ? correctStreak + 1 : 0;
-  const multiplier = Math.pow(2, Math.min(streak, 5));
-  return Date.now() + (baseInterval * multiplier);
-}
-
-function calculateDifficultyLevel(correctStreak: number, attempts: number): number {
-  // Schwierigkeitsstufe basierend auf Erfolgsstreak und Versuchen
-  // 0 = neu, 1-2 = lernend, 3-4 = bekannt, 5 = gemeistert
-  if (correctStreak >= 5) return 5;
-  if (correctStreak >= 3) return 4;
-  if (correctStreak >= 2) return 3;
-  if (correctStreak >= 1) return 2;
-  if (attempts > 0) return 1;
-  return 0;
 }
 
 // Akzeptiert jetzt auch das neue Modell mit SRS
