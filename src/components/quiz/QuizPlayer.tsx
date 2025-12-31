@@ -86,7 +86,7 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
       );
       newXP = xpCalculation.totalXP;
       
-      // Lade vorherigen XP-Wert aus initialState
+      // Delta berechnen: neuer XP minus alter XP
       const previousXP = initialState?.xp || 0;
       xpDelta = newXP - previousXP;
       
@@ -102,6 +102,7 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
       lastUpdated: Date.now(),
       totalElapsedTime: elapsedTime,
       ...(completed && { completedTime: quizPlayer.completedTime || elapsedTime }),
+      // lastXP speichert den vorherigen XP-Wert für zukünftige Delta-Berechnungen
       ...(username && username !== 'Gast' && newXP > 0 && { xp: newXP, lastXP: initialState?.xp || 0 }),
     };
     saveUserQuizProgress(progress);
