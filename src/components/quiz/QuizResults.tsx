@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { 
   Trophy, 
   PartyPopper, 
@@ -9,10 +10,14 @@ import {
   AlertCircle,
   Home,
   ArrowLeft,
+  ChevronDown,
+  Zap,
+  TrendingUp,
 } from 'lucide-react';
 import type { Question } from '../../types/quizTypes';
 import { showCompletedQuizWarning } from '../../utils/showCompletedQuizWarning';
 import { formatTime } from '../../utils/formatTime';
+import { calculateGrade } from '../../utils/gradeCalculation';
 
 interface QuizResultsProps {
   statistics: {
@@ -30,6 +35,8 @@ interface QuizResultsProps {
   onRepeatWrong: () => void;
   onBack: () => void;
   onHome: () => void;
+  xpEarned?: number;
+  xpDelta?: number;
 }
 
 export default function QuizResults({
@@ -39,12 +46,16 @@ export default function QuizResults({
   onRepeatWrong,
   onBack,
   onHome,
+  xpEarned = 0,
+  xpDelta = 0,
 }: QuizResultsProps) {
   const { correctCount, totalAnswered, percentage, totalQuestions, allSolved, totalTries, elapsedTime } = statistics;
+  const [wrongQuestionsExpanded, setWrongQuestionsExpanded] = useState(false);
 
   const isPerfect = allSolved && wrongQuestions.length === 0;
   const isGood = percentage >= 80;
   const isOkay = percentage >= 60;
+  const gradeInfo = calculateGrade(percentage);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -53,112 +64,85 @@ export default function QuizResults({
         <div className="text-center mb-6">
           <div className="mb-4">
             {isPerfect ? (
-              <Trophy className="w-20 h-20 text-yellow-400 mx-auto drop-shadow-lg" />
+              <Trophy className="w-16 h-16 text-yellow-400 mx-auto drop-shadow-lg" />
             ) : isGood ? (
-              <PartyPopper className="w-20 h-20 text-green-500 mx-auto" />
+              <PartyPopper className="w-16 h-16 text-green-500 mx-auto" />
             ) : isOkay ? (
-              <ThumbsUp className="w-20 h-20 text-blue-500 mx-auto" />
+              <ThumbsUp className="w-16 h-16 text-blue-500 mx-auto" />
             ) : (
-              <Award className="w-20 h-20 text-orange-500 mx-auto" />
+              <Award className="w-16 h-16 text-orange-500 mx-auto" />
             )}
           </div>
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             {isPerfect ? '🎉 Perfekt!' : isGood ? 'Sehr gut!' : isOkay ? 'Gut gemacht!' : 'Weiter so!'}
           </h2>
           <p className="text-gray-600 dark:text-gray-400">Quiz abgeschlossen</p>
         </div>
 
-        {/* Haupt-Statistik */}
-        <div className={`rounded-xl p-6 mb-6 ${
-          isPerfect 
-            ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/40 dark:to-emerald-900/40 border border-green-200 dark:border-green-700' 
-            : isGood
-            ? 'bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-purple-900/40 border border-indigo-200 dark:border-indigo-700'
-            : 'bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/40 dark:to-yellow-900/40 border border-orange-200 dark:border-orange-700'
-        }`}>
-          {isPerfect ? (
-            <div className="text-center">
-              <div className="text-5xl font-bold text-green-700 dark:text-green-300 mb-2">
-                🏆 {totalQuestions}/{totalQuestions}
-              </div>
-              <p className="text-lg text-green-800 dark:text-green-200 font-semibold">
-                Alle Fragen korrekt gelöst!
+        {/* Three-Box Duolingo-Style Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {/* Box 1: Score & Grade */}
+          <div className={`rounded-xl p-5 border ${gradeInfo.bgColor} ${gradeInfo.borderColor}`}>
+            <div className="flex items-center gap-2 mb-3">
+              <Target className={`w-5 h-5 ${gradeInfo.color}`} />
+              <p className={`text-xs uppercase tracking-wide font-semibold ${gradeInfo.color}`}>
+                Ergebnis
               </p>
             </div>
-          ) : (
             <div className="text-center">
-              <div className="text-6xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">
+              <div className={`text-4xl font-bold mb-1 ${gradeInfo.color}`}>
                 {correctCount}/{totalAnswered}
               </div>
-              <p className="text-xl text-gray-700 dark:text-gray-300">
-                Richtige Antworten
-              </p>
-              <div className={`inline-flex items-center gap-1 px-4 py-2 rounded-full mt-3 ${
-                isGood ? 'bg-green-200 dark:bg-green-900/60 text-green-800 dark:text-green-200' : isOkay ? 'bg-blue-200 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200' : 'bg-orange-200 dark:bg-orange-900/60 text-orange-800 dark:text-orange-200'
-              } text-sm font-bold`}>
-                {percentage}%
+              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-bold ${gradeInfo.bgColor} ${gradeInfo.color} border ${gradeInfo.borderColor}`}>
+                {percentage}% • Note {gradeInfo.grade}
               </div>
+              <p className={`text-xs mt-2 ${gradeInfo.color}`}>{gradeInfo.label}</p>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Detaillierte Statistiken */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          {/* Zeit */}
-          <div className="bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-700 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
+          {/* Box 2: Time */}
+          <div className="bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-700 rounded-xl p-5">
+            <div className="flex items-center gap-2 mb-3">
               <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               <p className="text-xs text-indigo-700 dark:text-indigo-300 uppercase tracking-wide font-semibold">
-                Gesamtzeit
+                Zeit
               </p>
             </div>
-            <p className="text-2xl font-bold text-indigo-900 dark:text-indigo-200">
-              {formatTime(elapsedTime)}
-            </p>
+            <div className="text-center">
+              <p className="text-4xl font-bold text-indigo-900 dark:text-indigo-200">
+                {formatTime(elapsedTime)}
+              </p>
+              <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-2">
+                Durchlauf {totalTries}
+              </p>
+            </div>
           </div>
 
-          {/* Versuche */}
-          <div className="bg-purple-50 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+          {/* Box 3: XP */}
+          <div className="bg-purple-50 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 rounded-xl p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               <p className="text-xs text-purple-700 dark:text-purple-300 uppercase tracking-wide font-semibold">
-                Durchläufe
+                Erfahrung
               </p>
             </div>
-            <p className="text-2xl font-bold text-purple-900 dark:text-purple-200">
-              {totalTries}
-            </p>
+            <div className="text-center">
+              <p className="text-4xl font-bold text-purple-900 dark:text-purple-200">
+                {xpEarned} XP
+              </p>
+              {xpDelta !== 0 && (
+                <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold mt-2 ${
+                  xpDelta > 0 
+                    ? 'bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-300' 
+                    : 'bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300'
+                }`}>
+                  <TrendingUp className="w-3 h-3" />
+                  {xpDelta > 0 ? '+' : ''}{xpDelta} XP
+                </div>
+              )}
+            </div>
           </div>
         </div>
-
-        {/* Falsche Fragen */}
-        {wrongQuestions.length > 0 && (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-              <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">
-                Zu wiederholende Fragen ({wrongQuestions.length})
-              </h3>
-            </div>
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {wrongQuestions.map((q, idx) => (
-                <div 
-                  key={q.index} 
-                  className="bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-lg p-3 hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors"
-                >
-                  <div className="flex gap-3">
-                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-red-200 dark:bg-red-800/60 text-red-800 dark:text-red-200 font-bold flex items-center justify-center text-sm">
-                      {idx + 1}
-                    </span>
-                    <p className="text-gray-800 dark:text-gray-200 text-sm flex-1 force-break" lang="de">
-                      {q.question}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Progress Bar */}
         <div className="mb-6">
@@ -177,6 +161,48 @@ export default function QuizResults({
             />
           </div>
         </div>
+
+        {/* Wrong Questions Accordion */}
+        {wrongQuestions.length > 0 && (
+          <div className="mb-6">
+            <button
+              onClick={() => setWrongQuestionsExpanded(!wrongQuestionsExpanded)}
+              className="w-full flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">
+                  Zu wiederholende Fragen ({wrongQuestions.length})
+                </h3>
+              </div>
+              <ChevronDown
+                className={`w-5 h-5 text-red-600 dark:text-red-400 transition-transform ${
+                  wrongQuestionsExpanded ? 'transform rotate-180' : ''
+                }`}
+              />
+            </button>
+            
+            {wrongQuestionsExpanded && (
+              <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
+                {wrongQuestions.map((q, idx) => (
+                  <div 
+                    key={q.index} 
+                    className="bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-lg p-3"
+                  >
+                    <div className="flex gap-3">
+                      <span className="flex-shrink-0 w-8 h-8 rounded-full bg-red-200 dark:bg-red-800/60 text-red-800 dark:text-red-200 font-bold flex items-center justify-center text-sm">
+                        {idx + 1}
+                      </span>
+                      <p className="text-gray-800 dark:text-gray-200 text-sm flex-1 force-break" lang="de">
+                        {q.question}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="space-y-3">
