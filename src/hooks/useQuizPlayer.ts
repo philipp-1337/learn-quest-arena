@@ -31,6 +31,8 @@ export type QuizPlayerInitialState = {
     [questionId: string]: QuestionSRSData;
   };
   completed?: boolean;
+  xp?: number;
+  lastXP?: number;
 };
 
 export function useQuizPlayer(

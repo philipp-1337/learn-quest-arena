@@ -34,6 +34,8 @@ export interface UserQuizProgress {
   lastUpdated: number;           // Timestamp
   totalElapsedTime?: number;     // Gesamt-Zeit in Millisekunden über alle Sessions hinweg
   completedTime?: number;        // Zeit in Millisekunden, die benötigt wurde um das Quiz zu 100% zu lösen
+  xp?: number;                   // Erfahrungspunkte für dieses Quiz
+  lastXP?: number;               // Letzte XP-Punkte (für Delta-Berechnung)
 }
 
 // Quiz Challenge Progress

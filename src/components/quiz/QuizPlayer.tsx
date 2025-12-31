@@ -7,6 +7,7 @@ import { saveUserQuizProgress, loadUserQuizProgress } from '../../utils/userProg
 import type { UserQuizProgress } from '../../types/userProgress';
 import { getQuestionId } from '../../utils/questionIdHelper';
 import { ensureSRSFields } from '../../utils/srsHelpers';
+import { calculateXP } from '../../utils/xpCalculation';
 
 
 
@@ -41,6 +42,8 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
     setCompletedTime
   } = quizPlayer;
 
+  const [xpData, setXpData] = useState<{ xpEarned: number; xpDelta: number }>({ xpEarned: 0, xpDelta: 0 });
+
   // Fortschritt speichern nach jeder Aktion (neues Modell mit Question IDs)
   useEffect(() => {
     if (!username) return;
@@ -68,6 +71,27 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
     if (completed && !quizPlayer.completedTime) {
       setCompletedTime(elapsedTime);
     }
+
+    // XP berechnen - nur wenn Quiz läuft oder gerade abgeschlossen wurde
+    const statistics = getStatistics();
+    let newXP = 0;
+    let xpDelta = 0;
+    
+    if (username && username !== 'Gast' && statistics.totalAnswered > 0) {
+      const xpCalculation = calculateXP(
+        statistics.percentage,
+        elapsedTime,
+        quiz.questions.length,
+        totalTries
+      );
+      newXP = xpCalculation.totalXP;
+      
+      // Lade vorherigen XP-Wert aus initialState
+      const previousXP = initialState?.xp || 0;
+      xpDelta = newXP - previousXP;
+      
+      setXpData({ xpEarned: newXP, xpDelta });
+    }
     
     const progress: UserQuizProgress = {
       username: username as string,
@@ -78,6 +102,7 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
       lastUpdated: Date.now(),
       totalElapsedTime: elapsedTime,
       ...(completed && { completedTime: quizPlayer.completedTime || elapsedTime }),
+      ...(username && username !== 'Gast' && newXP > 0 && { xp: newXP, lastXP: initialState?.xp || 0 }),
     };
     saveUserQuizProgress(progress);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -95,6 +120,8 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
         onRepeatWrong={handleRepeatWrong}
         onBack={onBack}
         onHome={onHome}
+        xpEarned={xpData.xpEarned}
+        xpDelta={xpData.xpDelta}
       />
     );
   }

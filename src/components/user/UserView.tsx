@@ -117,6 +117,17 @@ const ProgressAccordionItem: React.FC<{
             </div>
           </div>
 
+          {/* XP Display if available */}
+          {progress.xp !== undefined && progress.xp > 0 && (
+            <div className="bg-purple-50 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 rounded-lg p-3">
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <p className="text-xs text-purple-700 dark:text-purple-300 uppercase tracking-wide font-semibold">Erfahrungspunkte</p>
+              </div>
+              <p className="text-lg font-semibold text-purple-900 dark:text-purple-200 mt-1">{progress.xp} XP</p>
+            </div>
+          )}
+
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-semibold mb-1">Letzte Aktivität</p>
             <p className="text-sm text-gray-700 dark:text-gray-300">
@@ -208,6 +219,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
   const [progressList, setProgressList] = useState<ProgressItemWithQuiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+  const [totalXP, setTotalXP] = useState(0);
 
   useEffect(() => {
     async function fetchProgress() {
@@ -231,8 +243,13 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
         }));
 
         setProgressList(enrichedProgress);
+        
+        // Berechne Gesamt-XP: Summiere XP von allen Quizzes
+        const calculatedTotalXP = allProgress.reduce((sum, progress) => sum + (progress.xp || 0), 0);
+        setTotalXP(calculatedTotalXP);
       } catch {
         setProgressList([]);
+        setTotalXP(0);
       } finally {
         setLoading(false);
       }
@@ -253,6 +270,29 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ username, subjects }) => 
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Dein Fortschritt</h1>
+      
+      {/* Total XP Display */}
+      {totalXP > 0 && (
+        <div className="mb-6 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/40 dark:to-indigo-900/40 border border-purple-200 dark:border-purple-700 rounded-xl p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-purple-100 dark:bg-purple-900/60 p-3 rounded-full">
+                <Zap className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <p className="text-sm text-purple-700 dark:text-purple-300 font-semibold uppercase tracking-wide">
+                  Gesamt-Erfahrung
+                </p>
+                <p className="text-3xl font-bold text-purple-900 dark:text-purple-200">
+                  {totalXP} XP
+                </p>
+              </div>
+            </div>
+            <Sparkles className="w-8 h-8 text-purple-400 dark:text-purple-600" />
+          </div>
+        </div>
+      )}
+      
       {loading ? (
         <div className="text-gray-600 dark:text-gray-400">Lade Fortschritt...</div>
       ) : progressList.length === 0 ? (
