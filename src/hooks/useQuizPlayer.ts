@@ -5,7 +5,7 @@ import { getQuestionId } from '../utils/questionIdHelper';
 import { calculateNextReviewDate, calculateDifficultyLevel } from '../utils/srsHelpers';
 
 // Quiz start mode - determines how to start the quiz
-export type QuizStartMode = 'fresh' | 'continue';
+export type QuizStartMode = 'fresh' | 'continue' | 'review';
 
 // Helper function to find the original index of a question in the quiz
 function findOriginalQuestionIndex(question: Question, quiz: Quiz): number {
@@ -42,6 +42,7 @@ export function useQuizPlayer(
 ) {
   // Fragen einmalig mischen (gleiche Reihenfolge für die Session)
   // Bei 'continue' Modus: Nur falsch beantwortete Fragen anzeigen
+  // Bei 'review' Modus: Nur fällige Wiederholungsfragen anzeigen
   const [shuffledQuestions] = useState(() => {
     let questionsToUse = [...quiz.questions];
     
@@ -52,6 +53,17 @@ export function useQuizPlayer(
         const questionData = initialState.questions?.[qId];
         // Only include questions that were attempted but not answered correctly
         return questionData && !questionData.answered && questionData.attempts > 0;
+      });
+    }
+    
+    // In 'review' mode, filter to only questions due for review (SRS)
+    if (startMode === 'review' && initialState?.questions) {
+      const now = Date.now();
+      questionsToUse = questionsToUse.filter((q, idx) => {
+        const qId = getQuestionId(q, quiz.id, idx);
+        const questionData = initialState.questions?.[qId];
+        // Only include questions that have a review date and are due
+        return questionData && questionData.nextReviewDate && questionData.nextReviewDate <= now && questionData.answered;
       });
     }
     

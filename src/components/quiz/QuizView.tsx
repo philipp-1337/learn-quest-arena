@@ -7,6 +7,7 @@ import AppHeader, { type MenuItem } from "../shared/AppHeader";
 import { useQuizState } from "../../hooks/useQuizState";
 import { getAuth } from "firebase/auth";
 import { useQuizNavigation } from "../../hooks/useQuizNavigation";
+import { useLocation } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import SubjectSelector from "./SubjectSelector";
 import ClassSelector from "./ClassSelector";
@@ -35,6 +36,7 @@ export default function QuizView({
   onAdminClick,
 }: QuizViewProps) {
   const { fetchCollection, saveDocument } = useFirestore();
+  const location = useLocation();
   const [subjects, setSubjects] = useState(initialSubjects);
   const [loading, setLoading] = useState(true);
   const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
@@ -76,6 +78,15 @@ export default function QuizView({
   useEffect(() => {
     setSubjects(initialSubjects);
   }, [initialSubjects]);
+
+  // Read quiz start mode from URL query parameter
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const mode = searchParams.get('mode');
+    if (mode === 'fresh' || mode === 'continue' || mode === 'review') {
+      setQuizStartMode(mode);
+    }
+  }, [location.search]);
 
   // Check if data is loaded
   useEffect(() => {

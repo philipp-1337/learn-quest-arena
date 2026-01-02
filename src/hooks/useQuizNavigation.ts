@@ -17,16 +17,20 @@ export function useQuizNavigation() {
     navigate(`/quiz/${slugify(subject.name)}/${slugify(classItem.name)}/${slugify(topic.name)}`);
   };
 
-  const navigateToQuiz = (subject: Subject, classItem: Class, topic: Topic, quiz: Quiz) => {
+  const navigateToQuiz = (subject: Subject, classItem: Class, topic: Topic, quiz: Quiz, mode?: 'fresh' | 'continue' | 'review') => {
     const subjectSlug = slugify(subject.name);
     const classSlug = slugify(classItem.name);
     const topicSlug = slugify(topic.name);
     const quizSlug = slugify(quiz.title);
 
     console.log('Generated slugs:', { subjectSlug, classSlug, topicSlug, quizSlug });
-    console.log('Navigating to:', `/quiz/${subjectSlug}/${classSlug}/${topicSlug}/${quizSlug}`);
+    
+    const path = `/quiz/${subjectSlug}/${classSlug}/${topicSlug}/${quizSlug}`;
+    const url = mode ? `${path}?mode=${mode}` : path;
+    
+    console.log('Navigating to:', url);
 
-    navigate(`/quiz/${subjectSlug}/${classSlug}/${topicSlug}/${quizSlug}`);
+    navigate(url);
   };
 
   const navigateToHome = () => {
