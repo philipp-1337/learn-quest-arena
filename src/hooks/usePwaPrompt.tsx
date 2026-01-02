@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { DownloadIcon, ShareIcon, SquarePlusIcon, MoreHorizontal } from 'lucide-react';
+import { DownloadIcon, ShareIcon, SquarePlusIcon, MoreHorizontal, XIcon } from 'lucide-react';
 import { CustomToast } from '../components/misc/CustomToast';
 
 // Hilfsfunktion zur Erkennung der iOS-Version
@@ -57,7 +57,19 @@ export const usePwaPrompt = () => {
               isIos ? (
                 iosVersion && iosVersion >= 18 ? (
                   // iOS 18+ (inkl. iOS 26) - neuer, komplizierter Prozess
-                  <div className="text-center leading-relaxed">
+                  <div className="relative text-center leading-relaxed">
+                    <button
+                      onClick={() => {
+                        toast.dismiss(t);
+                        installToastShown.current = false;
+                        setShowInstallPrompt(false);
+                      }}
+                      className="absolute -top-3 -left-3 p-1 rounded-full transition-colors"
+                      type="button"
+                      aria-label="Schließen"
+                    >
+                      <XIcon size={16} />
+                    </button>
                     <div className="mb-2 font-semibold">Um die App zu installieren:</div>
                     <div className="flex items-center justify-center gap-2 text-sm">
                       <span className="inline-flex items-center justify-center w-7 h-7 bg-gray-200 dark:bg-gray-600 rounded-full">
@@ -81,7 +93,19 @@ export const usePwaPrompt = () => {
                   </div>
                 ) : (
                   // iOS < 18 - alter, einfacherer Prozess
-                  <div className="text-center leading-relaxed">
+                  <div className="relative text-center leading-relaxed">
+                    <button
+                      onClick={() => {
+                        toast.dismiss(t);
+                        installToastShown.current = false;
+                        setShowInstallPrompt(false);
+                      }}
+                      className="absolute -top-2 -right-2 p-1 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
+                      type="button"
+                      aria-label="Schließen"
+                    >
+                      <XIcon size={16} />
+                    </button>
                     <div className="mb-2 font-semibold">Um die App zu installieren:</div>
                     <div className="flex items-center justify-center gap-2">
                       <span className="inline-flex items-center justify-center w-7 h-7 bg-blue-200 dark:bg-blue-600 rounded">
