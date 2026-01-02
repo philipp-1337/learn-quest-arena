@@ -98,7 +98,14 @@ export default function FlashcardQuizApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
-      <Toaster position="top-center" richColors closeButton />
+      <Toaster 
+        position="top-center" 
+        richColors 
+        closeButton 
+        toastOptions={{
+          style: { pointerEvents: 'auto' }
+        }}
+      />
       {/* Error Banner */}
       {error && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800 px-4 py-3">
