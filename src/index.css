@@ -1,3 +1,24 @@
 
 @config "../tailwind.config.js";
 @import "tailwindcss";
+
+/* Hintergrundfarbe für iOS Overscroll (Bounce-Effekt) */
+html, body {
+  background: linear-gradient(to bottom right, 
+    rgb(239 246 255), 
+    rgb(238 242 255), 
+    rgb(250 245 255)
+  );
+  background-attachment: fixed;
+}
+
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background: linear-gradient(to bottom right, 
+      rgb(17 24 39), 
+      rgb(17 24 39), 
+      rgb(31 41 55)
+    );
+    background-attachment: fixed;
+  }
+}
