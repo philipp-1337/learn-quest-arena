@@ -160,6 +160,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
         const searchLower = filters.search.toLowerCase();
         const matchesSearch = 
           quiz.title.toLowerCase().includes(searchLower) ||
+          quiz.shortTitle?.toLowerCase().includes(searchLower) ||
           quiz.subjectName?.toLowerCase().includes(searchLower) ||
           quiz.className?.toLowerCase().includes(searchLower) ||
           quiz.topicName?.toLowerCase().includes(searchLower);
