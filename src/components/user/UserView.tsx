@@ -86,22 +86,10 @@ const ProgressAccordionItem: React.FC<{
           dark:bg-slate-800 dark:hover:bg-slate-700
           ${
             isCompleted
-              ? `
-                ring-1 ring-green-500/30
-                dark:ring-green-400/40
-                border-l-4 border-green-400
-              `
+              ? `border-l-4 border-green-400`
               : completionPercentage > 0
-              ? `
-                ring-1 ring-amber-400/30
-                dark:ring-amber-400/40
-                border-l-4 border-amber-400
-              `
-              : `
-                ring-1 ring-slate-200
-                dark:ring-slate-700
-                border-l-4 border-transparent
-              `
+              ? `border-l-4 border-amber-400`
+              : `border-l-4 border-transparent`
           }
         `}
       >
