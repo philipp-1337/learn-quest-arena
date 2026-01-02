@@ -14,6 +14,8 @@ import ProtectedRoute from './utils/ProtectedRoute';
 import useScrollToTop from './hooks/useScrollToTop';
 import { getAuth } from 'firebase/auth';
 import { useQuizzesFromCollection } from './hooks/useQuizzesFromCollection';
+import { usePwaPrompt } from './hooks/usePwaPrompt';
+import { usePwaUpdate } from './hooks/usePwaUpdate';
 
 
 // ============================================
@@ -31,6 +33,10 @@ export default function FlashcardQuizApp() {
   
   // Scroll to top when route changes
   useScrollToTop();
+
+  // PWA Support
+  usePwaPrompt();
+  usePwaUpdate();
 
   // Update subjects when quizzes are loaded from collection
   useEffect(() => {
