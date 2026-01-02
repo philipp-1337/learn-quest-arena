@@ -15,6 +15,7 @@ interface QuizQuestionProps {
   onBack?: () => void; // For Quiz Challenge mode
   elapsedTime: number;
   showResultOverride?: boolean; // For Quiz Challenge mode
+  hasProgress?: boolean; // Whether the user has progress being saved
 }
 
 export default function QuizQuestion({
@@ -30,8 +31,13 @@ export default function QuizQuestion({
   onBack,
   elapsedTime,
   showResultOverride,
+  hasProgress = false,
 }: QuizQuestionProps) {
   const showFeedback = showResultOverride !== undefined ? showResultOverride : selectedAnswer !== null;
+  const cancelButtonText = hasProgress ? 'Pausieren' : 'Quiz abbrechen';
+  const cancelButtonTitle = hasProgress 
+    ? 'Quiz pausieren - Dein Fortschritt wird automatisch gespeichert' 
+    : 'Quiz abbrechen';
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -91,10 +97,10 @@ export default function QuizQuestion({
         <button
           onClick={onBack || onHome}
           className="w-full mt-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-          title="Quiz abbrechen"
-          aria-label="Quiz abbrechen"
+          title={cancelButtonTitle}
+          aria-label={cancelButtonTitle}
         >
-          Quiz abbrechen
+          {cancelButtonText}
         </button>
       </div>
     </div>

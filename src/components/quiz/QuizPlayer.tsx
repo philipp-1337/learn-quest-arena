@@ -142,6 +142,7 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
       onNext={handleNext}
       onHome={onHome}
       elapsedTime={elapsedTime}
+      hasProgress={!!username && username !== 'Gast'}
     />
   );
 }
