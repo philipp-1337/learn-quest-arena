@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><style>
+    #light-icon {
+      display: inline;
+    }
+    #dark-icon {
+      display: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #light-icon {
+        display: none;
+      }
+      #dark-icon {
+        display: inline;
+      }
+    }
+  </style><g id="light-icon"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><g clip-path="url(#SvgjsClipPath1225)"><rect width="1000" height="1000" fill="#faf5ff"></rect><g transform="matrix(33.333333333333336,0,0,33.333333333333336,100,100)"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#swordGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sword" aria-hidden="true">
+  <defs>
+    <linearGradient id="swordGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0" stop-color="hsl(221 83% 53%)"></stop>
+      <stop offset="1" stop-color="hsl(264 79% 61%)"></stop>
+    </linearGradient>
+  <clipPath id="SvgjsClipPath1225"><rect width="1000" height="1000" x="0" y="0" rx="350" ry="350"></rect></clipPath></defs>
+  <path d="m11 19-6-6" style="stroke: rgb(36, 99, 235);"></path>
+  <path d="m5 21-2-2" style="stroke: rgb(36, 99, 235);"></path>
+  <path d="m8 16-4 4" style="stroke: rgb(36, 99, 235);"></path>
+  <path d="M9.5 17.5 21 6V3h-3L6.5 14.5" style=""></path>
+</svg></svg></g></g></svg></g><g id="dark-icon"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><g clip-path="url(#SvgjsClipPath1226)"><rect width="1000" height="1000" fill="#101828"></rect><g transform="matrix(33.333333333333336,0,0,33.333333333333336,100,100)"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#swordGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sword" aria-hidden="true">
+  <defs>
+    <linearGradient id="swordGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0" stop-color="hsl(221 83% 53%)"></stop>
+      <stop offset="1" stop-color="hsl(264 79% 61%)"></stop>
+    </linearGradient>
+  <clipPath id="SvgjsClipPath1226"><rect width="1000" height="1000" x="0" y="0" rx="350" ry="350"></rect></clipPath></defs>
+  <path d="m11 19-6-6" style="stroke: rgb(36, 99, 235);"></path>
+  <path d="m5 21-2-2" style="stroke: rgb(36, 99, 235);"></path>
+  <path d="m8 16-4 4" style="stroke: rgb(36, 99, 235);"></path>
+  <path d="M9.5 17.5 21 6V3h-3L6.5 14.5" style=""></path>
+</svg></svg></g></g></svg></g></svg>
