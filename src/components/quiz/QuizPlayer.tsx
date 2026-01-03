@@ -77,7 +77,7 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
     let newXP = 0;
     let xpDelta = 0;
     
-    if (username && username !== 'Gast' && statistics.totalAnswered > 0) {
+    if (username !== 'Gast' && statistics.totalAnswered > 0) {
       const xpCalculation = calculateXP(
         statistics.percentage,
         elapsedTime,
@@ -103,7 +103,7 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
       totalElapsedTime: elapsedTime,
       ...(completed && { completedTime: quizPlayer.completedTime || elapsedTime }),
       // lastXP speichert den vorherigen XP-Wert für zukünftige Delta-Berechnungen
-      ...(username && username !== 'Gast' && newXP > 0 && { xp: newXP, lastXP: initialState?.xp || 0 }),
+      ...(username !== 'Gast' && newXP > 0 && { xp: newXP, lastXP: initialState?.xp || 0 }),
     };
     saveUserQuizProgress(progress);
     // eslint-disable-next-line react-hooks/exhaustive-deps

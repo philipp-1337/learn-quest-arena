@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Zap,
   TrendingUp,
+  TrendingDown,
 } from 'lucide-react';
 import type { Question } from '../../types/quizTypes';
 import { showCompletedQuizWarning } from '../../utils/showCompletedQuizWarning';
@@ -136,7 +137,7 @@ export default function QuizResults({
                     ? 'bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-300' 
                     : 'bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300'
                 }`}>
-                  <TrendingUp className="w-3 h-3" />
+                  {xpDelta > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                   {xpDelta > 0 ? '+' : ''}{xpDelta} XP
                 </div>
               )}

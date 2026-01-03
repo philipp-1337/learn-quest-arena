@@ -6,16 +6,24 @@ import { CustomToast } from '../components/misc/CustomToast';
 
 export const usePwaUpdate = () => {
   const updateToastShown = useRef(false);
+  const updateIntervalId = useRef<number | undefined>(undefined);
   
   const {
     needRefresh: [needRefresh],
     updateServiceWorker,
   } = useRegisterSW({
     onRegistered(r: ServiceWorkerRegistration | undefined) {
+      // Clear any existing interval before creating a new one
+      if (updateIntervalId.current !== undefined) {
+        clearInterval(updateIntervalId.current);
+      }
+      
       // Prüfe alle 60 Sekunden auf Updates
-      r && setInterval(() => {
-        r.update();
-      }, 60000);
+      if (r) {
+        updateIntervalId.current = window.setInterval(() => {
+          r.update();
+        }, 60000);
+      }
     },
     onRegisterError(error: Error) {
       console.log('SW registration error', error);
@@ -74,4 +82,13 @@ export const usePwaUpdate = () => {
       toast.dismiss('update-toast');
     }
   }, [needRefresh, updateServiceWorker]);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (updateIntervalId.current !== undefined) {
+        clearInterval(updateIntervalId.current);
+      }
+    };
+  }, []);
 };

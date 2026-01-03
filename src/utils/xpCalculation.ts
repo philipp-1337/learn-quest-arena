@@ -66,7 +66,7 @@ export function calculateXP(
   // Speed bonus based on average time per question
   // Target: ~30 seconds per question (ideal), up to 60s (acceptable), >60s (slow)
   const avgTimePerQuestionSec = elapsedTimeMs / 1000 / totalQuestions;
-  let speedMultiplier = SPEED_ACCEPTABLE_MULTIPLIER;
+  let speedMultiplier: number;
   
   if (avgTimePerQuestionSec <= SPEED_VERY_FAST_THRESHOLD) {
     speedMultiplier = SPEED_VERY_FAST_MULTIPLIER; // Very fast
