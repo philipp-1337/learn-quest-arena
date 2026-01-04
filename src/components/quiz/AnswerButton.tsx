@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Check, X } from 'lucide-react';
 import type { Answer } from '../../types/quizTypes';
 
@@ -11,7 +11,7 @@ interface AnswerButtonProps {
   disabled: boolean;
 }
 
-export default function AnswerButton({
+const AnswerButton = memo(function AnswerButton({
   answer,
   isSelected,
   isCorrect,
@@ -75,4 +75,6 @@ export default function AnswerButton({
       )}
     </button>
   );
-}
+});
+
+export default AnswerButton;
