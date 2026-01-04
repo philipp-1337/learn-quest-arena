@@ -7,19 +7,18 @@ import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
  * Bypass für localhost - Wartungsmodus wird lokal ignoriert
  */
 export default function useMaintenanceMode() {
+  // Check if running on localhost
+  const isLocalhost = window.location.hostname === 'localhost' || 
+                      window.location.hostname === '127.0.0.1' ||
+                      window.location.hostname.startsWith('192.168.');
+
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!isLocalhost);
 
   useEffect(() => {
     // Bypass für lokale Entwicklung
-    const isLocalhost = window.location.hostname === 'localhost' || 
-                        window.location.hostname === '127.0.0.1' ||
-                        window.location.hostname.startsWith('192.168.');
-    
     if (isLocalhost) {
       console.log('🔧 Development Mode: Wartungsmodus-Check wird übersprungen');
-      setIsMaintenanceMode(false);
-      setIsLoading(false);
       return;
     }
     
@@ -50,7 +49,7 @@ export default function useMaintenanceMode() {
 
     // Cleanup
     return () => unsubscribe();
-  }, []);
+  }, [isLocalhost]);
 
   return { isMaintenanceMode, isLoading };
 }

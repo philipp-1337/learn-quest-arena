@@ -3,6 +3,12 @@ import { toast } from 'sonner';
 import { DownloadIcon, ShareIcon, SquarePlusIcon, MoreHorizontal, XIcon } from 'lucide-react';
 import { CustomToast } from '../components/misc/CustomToast';
 
+// Type definition for beforeinstallprompt event
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 // Hilfsfunktion zur Erkennung der iOS-Version
 const getIosVersion = (): number | null => {
   const userAgent = window.navigator.userAgent;
@@ -14,28 +20,25 @@ const getIosVersion = (): number | null => {
 };
 
 export const usePwaPrompt = () => {
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-  const [isIos, setIsIos] = useState(false);
-  const [iosVersion, setIosVersion] = useState<number | null>(null);
   const installToastShown = useRef(false);
+
+  // Detect iOS and version once
+  const isIosDevice = /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+  const isStandalone = 'standalone' in window.navigator && (window.navigator as Record<string, boolean>).standalone;
+  const iosVersion = getIosVersion();
+  const isIos = isIosDevice && !isStandalone;
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
-      setInstallPrompt(event);
+      setInstallPrompt(event as BeforeInstallPromptEvent);
       // Zeige Install-Prompt nach 5 Sekunden
       setTimeout(() => setShowInstallPrompt(true), 5000);
     };
 
-    const userAgent = window.navigator.userAgent;
-    const isIosDevice = /iPad|iPhone|iPod/.test(userAgent);
-    const isStandalone = 'standalone' in window.navigator && (window.navigator as any).standalone;
-    const version = getIosVersion();
-
-    if (isIosDevice && !isStandalone) {
-      setIsIos(true);
-      setIosVersion(version);
+    if (isIos) {
       // Zeige Install-Prompt nach 5 Sekunden auch auf iOS
       setTimeout(() => setShowInstallPrompt(true), 5000);
     }
@@ -45,7 +48,7 @@ export const usePwaPrompt = () => {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
-  }, []);
+  }, [isIos]);
 
   useEffect(() => {
     if (showInstallPrompt && !installToastShown.current) {

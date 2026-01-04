@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import type { Quiz, Question, Answer } from '../types/quizTypes';
 import type { QuestionSRSData } from '../types/userProgress';
 import { getQuestionId } from '../utils/questionIdHelper';
@@ -104,7 +104,6 @@ export function useQuizPlayer(
   const [currentQuestion, setCurrentQuestion] = useState<number>(getFirstUnsolvedIndex());
   const [selectedAnswer, setSelectedAnswer] = useState<(Answer & { originalIndex: number }) | null>(null);
   const [answers, setAnswers] = useState<boolean[]>(initialState?.answers || []);
-  const [shuffledAnswers, setShuffledAnswers] = useState<Array<Answer & { originalIndex: number }>>([]);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [repeatQuestions, setRepeatQuestions] = useState<Question[] | null>(null);
   const [totalTries, setTotalTries] = useState<number>(initialState?.totalTries || 1);
@@ -112,19 +111,12 @@ export function useQuizPlayer(
     initialState?.solvedQuestions ? new Set(initialState.solvedQuestions) : new Set()
   );
 
-  // Zeit-Tracking
-  const [startTime, setStartTime] = useState<number | null>(null);
+  // Zeit-Tracking - use ref for startTime to avoid re-renders
+  const startTimeRef = useRef<number>(Date.now());
   const [previousElapsedTime] = useState<number>(initialState?.totalElapsedTime || 0);
   const [elapsedTime, setElapsedTime] = useState<number>(previousElapsedTime);
   const [completedTime, setCompletedTime] = useState<number | null>(null);
   const [isPageVisible, setIsPageVisible] = useState<boolean>(true);
-
-  // Starte Timer beim ersten Laden des Hooks
-  useEffect(() => {
-    if (startTime === null) {
-      setStartTime(Date.now());
-    }
-  }, []);
 
   // Page Visibility API - pausiere Timer wenn Tab nicht sichtbar
   useEffect(() => {
@@ -138,28 +130,27 @@ export function useQuizPlayer(
     };
   }, []);
 
-  // Update elapsed time - stoppt wenn showResults true, completedTime gesetzt oder Seite nicht sichtbar
+  // Update elapsed time - stoppt wenn completedTime gesetzt oder Seite nicht sichtbar
   // Addiert die aktuelle Session-Zeit zur bisherigen Gesamtzeit
   useEffect(() => {
-    if (startTime === null || completedTime !== null || showResults || !isPageVisible) return;
+    if (completedTime !== null || showResults || !isPageVisible) return;
     const interval = setInterval(() => {
-      setElapsedTime(previousElapsedTime + (Date.now() - startTime));
+      setElapsedTime(previousElapsedTime + (Date.now() - startTimeRef.current));
     }, 100);
     return () => clearInterval(interval);
-  }, [startTime, completedTime, showResults, previousElapsedTime, isPageVisible]);
+  }, [completedTime, showResults, previousElapsedTime, isPageVisible]);
 
-  // Shuffle answers when question changes
-  useEffect(() => {
+  // Shuffle answers when question changes - use useMemo to avoid setState in useEffect
+  const shuffledAnswers = useMemo(() => {
     const questions = repeatQuestions || shuffledQuestions;
     const question = questions[currentQuestion];
     const answerIndices = question.answers.map((_, idx) => idx);
-    const shuffled: Array<Answer & { originalIndex: number }> = answerIndices
+    return answerIndices
       .sort(() => Math.random() - 0.5)
       .map(idx => ({
         ...question.answers[idx],
         originalIndex: idx
       }));
-    setShuffledAnswers(shuffled);
   }, [currentQuestion, shuffledQuestions, repeatQuestions]);
 
   const handleAnswerSelect = (answer: Answer & { originalIndex: number }) => {
@@ -239,7 +230,7 @@ export function useQuizPlayer(
     setRepeatQuestions(null);
     setTotalTries(1);
     setSolvedQuestions(new Set());
-    setStartTime(Date.now());
+    startTimeRef.current = Date.now();
     setElapsedTime(0);
     setCompletedTime(null);
   };

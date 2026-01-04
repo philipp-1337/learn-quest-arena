@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { slugify } from '../utils/slugify';
 import type { Subject, Class, Topic, Quiz } from '../types/quizTypes';
@@ -15,38 +15,41 @@ export function useQuizState({ subjects, loading }: UseQuizStateProps) {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
 
-  // Handle URL-based selection
-  useEffect(() => {
-    if (loading) return;
+  // Compute selections from URL slugs - this is derived state from URL params
+  const urlBasedSelections = useMemo(() => {
+    if (loading || !subjectSlug) {
+      return { subject: null, classItem: null, topic: null, quiz: null };
+    }
 
-    if (subjectSlug) {
-      const subject = subjects.find((s) => slugify(s.name) === subjectSlug);
-      if (subject) {
-        setSelectedSubject(subject);
+    const subject = subjects.find((s) => slugify(s.name) === subjectSlug);
+    if (!subject) {
+      return { subject: null, classItem: null, topic: null, quiz: null };
+    }
 
-        if (classSlug) {
-          const classItem = subject.classes.find((c) => slugify(c.name) === classSlug);
-          if (classItem) {
-            setSelectedClass(classItem);
+    let classItem = null;
+    let topic = null;
+    let quiz = null;
 
-            if (topicSlug) {
-              const topic = classItem.topics.find((t) => slugify(t.name) === topicSlug);
-              if (topic) {
-                setSelectedTopic(topic);
-
-                if (quizSlug) {
-                  const quiz = topic.quizzes.find((q) => slugify(q.title) === quizSlug);
-                  if (quiz) {
-                    setSelectedQuiz(quiz);
-                  }
-                }
-              }
-            }
-          }
+    if (classSlug) {
+      classItem = subject.classes.find((c) => slugify(c.name) === classSlug) || null;
+      if (classItem && topicSlug) {
+        topic = classItem.topics.find((t) => slugify(t.name) === topicSlug) || null;
+        if (topic && quizSlug) {
+          quiz = topic.quizzes.find((q) => slugify(q.title) === quizSlug) || null;
         }
       }
     }
+
+    return { subject, classItem, topic, quiz };
   }, [subjectSlug, classSlug, topicSlug, quizSlug, subjects, loading]);
+
+  // Sync state with URL-based selections
+  useEffect(() => {
+    setSelectedSubject(urlBasedSelections.subject);
+    setSelectedClass(urlBasedSelections.classItem);
+    setSelectedTopic(urlBasedSelections.topic);
+    setSelectedQuiz(urlBasedSelections.quiz);
+  }, [urlBasedSelections]);
 
   const resetSelection = () => {
     setSelectedSubject(null);
