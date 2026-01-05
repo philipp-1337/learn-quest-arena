@@ -117,8 +117,8 @@ export default function QuizResults({
           </div>
         </div>
 
-        {/* Three-Box Duolingo-Style Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {/* Two/Three-Box Layout */}
+        <div className={`grid grid-cols-1 ${xpEarned > 0 ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4 mb-6`}>
           {/* Box 1: Score & Grade */}
           <div
             className={`rounded-xl p-5 border ${gradeInfo.bgColor} ${
@@ -171,43 +171,45 @@ export default function QuizResults({
             </div>
           </div>
 
-          {/* Box 3: XP */}
-          <div
-            className={`bg-purple-50 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 rounded-xl p-5 transition-all duration-700 ${
-              card3Visible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-4"
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              <p className="text-xs text-purple-700 dark:text-purple-300 uppercase tracking-wide font-semibold">
-                Erfahrung
-              </p>
+          {/* Box 3: XP (nur für registrierte User) */}
+          {xpEarned > 0 && (
+            <div
+              className={`bg-purple-50 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 rounded-xl p-5 transition-all duration-700 ${
+                card3Visible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <p className="text-xs text-purple-700 dark:text-purple-300 uppercase tracking-wide font-semibold">
+                  Erfahrung
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-4xl font-bold text-purple-900 dark:text-purple-200">
+                  {animatedXP} XP
+                </p>
+                {xpDelta !== 0 && (
+                  <div
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold mt-2 ${
+                      xpDelta > 0
+                        ? "bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-300"
+                        : "bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300"
+                    }`}
+                  >
+                    {xpDelta > 0 ? (
+                      <TrendingUp className="w-3 h-3" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" />
+                    )}
+                    {xpDelta > 0 ? "+" : ""}
+                    {xpDelta} XP
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="text-center">
-              <p className="text-4xl font-bold text-purple-900 dark:text-purple-200">
-                {animatedXP} XP
-              </p>
-              {xpDelta !== 0 && (
-                <div
-                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold mt-2 ${
-                    xpDelta > 0
-                      ? "bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-300"
-                      : "bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300"
-                  }`}
-                >
-                  {xpDelta > 0 ? (
-                    <TrendingUp className="w-3 h-3" />
-                  ) : (
-                    <TrendingDown className="w-3 h-3" />
-                  )}
-                  {xpDelta > 0 ? "+" : ""}
-                  {xpDelta} XP
-                </div>
-              )}
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Progress Bar */}
