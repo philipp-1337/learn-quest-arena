@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import type { Quiz, Question, Answer } from '@types/quizTypes';
-import type { QuestionSRSData } from '@types/userProgress';
-import { getQuestionId } from '.@utils/questionIdHelper';
-import { calculateNextReviewDate, calculateDifficultyLevel } from '.@utils/srsHelpers';
+import type { Quiz, Question, Answer } from '../types/quizTypes';
+import type { QuestionSRSData } from '../types/userProgress';
+import { getQuestionId } from '../utils/questionIdHelper';
+import { calculateNextReviewDate, calculateDifficultyLevel } from '../utils/srsHelpers';
 
 // Quiz start mode - determines how to start the quiz
 export type QuizStartMode = 'fresh' | 'continue' | 'review';

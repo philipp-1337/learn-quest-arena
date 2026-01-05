@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Trophy, Home, ArrowLeft, Shield } from 'lucide-react';
-import type { QuizChallenge, Question, Answer } from '@types/quizTypes';
-import type { UserQuizChallengeProgress } from '@types/userProgress';
+import type { QuizChallenge, Question, Answer } from '../../types/quizTypes';
+import type { UserQuizChallengeProgress } from '../../types/userProgress';
 import QuizQuestion from './QuizQuestion';
-import { PRIZE_LEVELS, formatPrize } from '@utils/quizChallengeConstants';
-import { getQuestionId } from '@utils/questionIdHelper';
-import { loadAllQuizDocuments } from '@utils/quizzesCollection';
+import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
+import { getQuestionId } from '../../utils/questionIdHelper';
+import { loadAllQuizDocuments } from '../../utils/quizzesCollection';
 
 interface QuizChallengePlayerProps {
   challenge: QuizChallenge;

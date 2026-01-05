@@ -1,4 +1,4 @@
-import type { QuestionSRSData } from '@types/userProgress';
+import type { QuestionSRSData } from '../types/userProgress';
 
 /**
  * Berechnet das nächste Review-Datum basierend auf dem aktuellen Streak.

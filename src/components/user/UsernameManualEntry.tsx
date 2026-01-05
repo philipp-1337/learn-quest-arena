@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   isValidGeneratedUsername,
   usernameExists,
-} from "@utils/usernameValidation";
+} from "../../utils/usernameValidation";
 
 interface UsernamePickerProps {
   onUsernameSelected: (username: string) => void;
