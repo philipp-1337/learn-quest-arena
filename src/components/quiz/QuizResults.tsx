@@ -76,7 +76,8 @@ export default function QuizResults({
   const card2Visible = useStaggeredAnimation(2, 150);
   const card3Visible = useStaggeredAnimation(3, 150);
   const progressVisible = useStaggeredAnimation(4, 150);
-  const buttonsVisible = useStaggeredAnimation(5, 150);
+  const wrongQuestionsVisible = useStaggeredAnimation(33, 150); // ~5s delay
+  const buttonsVisible = useStaggeredAnimation(34, 150);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -244,7 +245,13 @@ export default function QuizResults({
 
         {/* Wrong Questions Accordion */}
         {wrongQuestions.length > 0 && (
-          <div className="mb-3">
+          <div
+            className={`mb-3 transition-all duration-700 ${
+              wrongQuestionsVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-4"
+            }`}
+          >
             <button
               onClick={() => setWrongQuestionsExpanded(!wrongQuestionsExpanded)}
               className="w-full flex items-center justify-center p-4 bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors"
