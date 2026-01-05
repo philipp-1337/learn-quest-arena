@@ -76,8 +76,8 @@ export default function QuizResults({
   const card2Visible = useStaggeredAnimation(2, 150);
   const card3Visible = useStaggeredAnimation(3, 150);
   const progressVisible = useStaggeredAnimation(4, 150);
-  const wrongQuestionsVisible = useStaggeredAnimation(33, 50); // ~5s delay
-  const buttonsVisible = useStaggeredAnimation(34, 100);
+  const wrongQuestionsVisible = useStaggeredAnimation(33, 50);
+  const buttonsVisible = useStaggeredAnimation(34, 50);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
