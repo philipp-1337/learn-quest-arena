@@ -72,6 +72,7 @@ export const usePwaUpdate = () => {
         {
           duration: Infinity,
           id: 'update-toast',
+          dismissible: false,
         }
       );
     } else if (!needRefresh && updateToastShown.current) {
