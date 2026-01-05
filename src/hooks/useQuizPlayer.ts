@@ -233,6 +233,8 @@ export function useQuizPlayer(
     startTimeRef.current = Date.now();
     setElapsedTime(0);
     setCompletedTime(null);
+    // Reset question progress for fresh start
+    setQuestionProgress({});
   };
 
   const handleRepeatWrong = () => {
