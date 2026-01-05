@@ -46,20 +46,13 @@ export const usePwaUpdate = () => {
             message={
               <>
                 <div className="mb-3">Eine neue Version der App ist verfügbar!</div>
-                <div className="flex gap-2 justify-end">
+                <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={handleUpdate}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition active:bg-green-800"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition active:bg-green-800 cursor-pointer touch-manipulation min-h-[44px] min-w-[44px] pointer-events-auto z-[9999] relative"
                     style={{ 
                       WebkitTapHighlightColor: 'transparent',
-                      cursor: 'pointer',
-                      touchAction: 'manipulation',
-                      minHeight: '44px',
-                      minWidth: '44px',
-                      pointerEvents: 'auto',
-                      zIndex: 9999,
-                      position: 'relative'
                     }}
                   >
                     <RefreshCwIcon size={16} /> Aktualisieren
