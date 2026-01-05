@@ -104,7 +104,24 @@ export function useQuizPlayer(
   const [currentQuestion, setCurrentQuestion] = useState<number>(getFirstUnsolvedIndex());
   const [selectedAnswer, setSelectedAnswer] = useState<(Answer & { originalIndex: number }) | null>(null);
   const [answers, setAnswers] = useState<boolean[]>(initialState?.answers || []);
-  const [showResults, setShowResults] = useState<boolean>(false);
+  
+  // Prüfe beim Initialisieren, ob das Quiz bereits abgeschlossen ist
+  const [showResults, setShowResults] = useState<boolean>(() => {
+    // Wenn alle Fragen im questionProgress als beantwortet markiert sind
+    if (initialState?.questions && Object.keys(initialState.questions).length > 0) {
+      const allAnswered = shuffledQuestions.every((q) => {
+        const originalIdx = findOriginalQuestionIndex(q, quiz);
+        const qId = getQuestionId(q, quiz.id, originalIdx >= 0 ? originalIdx : 0);
+        return initialState.questions?.[qId]?.answered;
+      });
+      return allAnswered;
+    }
+    // Altes Modell: Prüfe ob alle answers gesetzt sind
+    if (initialState?.answers && initialState.answers.length === shuffledQuestions.length) {
+      return true;
+    }
+    return false;
+  });
   const [repeatQuestions, setRepeatQuestions] = useState<Question[] | null>(null);
   const [totalTries, setTotalTries] = useState<number>(initialState?.totalTries || 1);
   const [solvedQuestions, setSolvedQuestions] = useState<Set<string>>(
