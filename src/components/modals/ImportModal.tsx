@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Upload, AlertCircle, CheckCircle, X, Download, ClipboardList } from "lucide-react";
 import { getAuth } from "firebase/auth";
-import type { QuizDocument } from "../../types/quizTypes";
-import { saveQuizDocument, loadAllQuizDocuments } from "../../utils/quizzesCollection";
+import type { QuizDocument } from "@types/quizTypes";
+import { saveQuizDocument, loadAllQuizDocuments } from "@utils/quizzesCollection";
 
 // ============================================
 // IMPORT MODAL COMPONENT

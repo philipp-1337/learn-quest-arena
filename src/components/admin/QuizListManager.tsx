@@ -2,14 +2,14 @@ import { useState, useEffect, useMemo } from "react";
 import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, QrCode, ChevronDown, Edit3, MoreVertical, ArrowLeftRight } from "lucide-react";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
-import type { QuizDocument } from "../../types/quizTypes";
-import { loadAllQuizDocuments, deleteQuizDocument, updateQuizDocument } from "../../utils/quizzesCollection";
+import type { QuizDocument } from "@types/quizTypes";
+import { loadAllQuizDocuments, deleteQuizDocument, updateQuizDocument } from "@utils/quizzesCollection";
 import QuizEditorModal from "../modals/QuizEditorModal";
 import DeleteConfirmModal from "../modals/DeleteConfirmModal";
 import CreateQuizWizard from "../modals/CreateQuizWizard";
 import RenameCategoryModal from "../modals/RenameCategoryModal";
 import ReassignQuizModal from "../modals/ReassignQuizModal";
-import { slugify } from "../../utils/slugify";
+import { slugify } from "@utils/slugify";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 interface QuizListManagerProps {

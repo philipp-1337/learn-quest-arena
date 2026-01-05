@@ -1,6 +1,6 @@
 import { useState,type FormEvent, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useFirebaseAuth from '../../hooks/useFirebaseAuth';
+import useFirebaseAuth from '@hooks/useFirebaseAuth';
 import { ArrowLeft, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 // ============================================

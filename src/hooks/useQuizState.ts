@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { slugify } from '../utils/slugify';
-import type { Subject, Class, Topic, Quiz } from '../types/quizTypes';
+import { slugify } from '.@utils/slugify';
+import type { Subject, Class, Topic, Quiz } from '@types/quizTypes';
 
 interface UseQuizStateProps {
   subjects: Subject[];

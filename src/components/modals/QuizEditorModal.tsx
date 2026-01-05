@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Edit2, Trash2, Check, X, Lightbulb, MessageCircleWarning } from 'lucide-react';
-import type { Quiz, Question, Answer } from '../../types/quizTypes';
+import type { Quiz, Question, Answer } from '@types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
 
