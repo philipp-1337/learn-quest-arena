@@ -1,5 +1,5 @@
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import type { UserProgress, UserQuizProgress } from "@types/userProgress";
+import type { UserProgress, UserQuizProgress } from "../types/userProgress";
 import { ensureSRSFields } from "./srsHelpers";
 
 // Helper function to remove undefined values from an object (recursively)

@@ -1,6 +1,6 @@
 import AnswerButton from './AnswerButton';
-import type { Question, Answer } from '@types/quizTypes';
-import { formatTime } from '@utils/formatTime';
+import type { Question, Answer } from '../../types/quizTypes';
+import { formatTime } from '../../utils/formatTime';
 
 interface QuizQuestionProps {
   question: Question;

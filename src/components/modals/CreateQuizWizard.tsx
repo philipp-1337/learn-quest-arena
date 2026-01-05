@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { X, ChevronRight, ChevronLeft, Plus, Check } from "lucide-react";
 import { getAuth } from "firebase/auth";
-import { saveQuizDocument } from "@utils/quizzesCollection";
-import type { QuizDocument } from "@types/quizTypes";
+import { saveQuizDocument } from "../../utils/quizzesCollection";
+import type { QuizDocument } from "../../types/quizTypes";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
 

@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
-import LoadingScreen from '@components/misc/LoadingScreen';
-import MaintenanceView from '@components/misc/MaintenanceView';
-import Toaster from '@utils/ToasterProvider';
+import LoadingScreen from './components/misc/LoadingScreen';
+import MaintenanceView from './components/misc/MaintenanceView';
+import Toaster from './utils/ToasterProvider';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
-import LoginView from '@components/login/LoginView';
-import QuizView from '@components/quiz/QuizView';
-import AdminView from '@components/admin/AdminView';
-import Dataprotection from '@components/footer/Dataprotection';
-import Imprint from '@components/footer/Imprint';
-import type { Subject } from '@types/quizTypes';
-import useMaintenanceMode from '@hooks/useMaintenanceMode';
-import ProtectedRoute from '@utils/ProtectedRoute';
-import useScrollToTop from '@hooks/useScrollToTop';
+import LoginView from './components/login/LoginView';
+import QuizView from './components/quiz/QuizView';
+import AdminView from './components/admin/AdminView';
+import Dataprotection from './components/footer/Dataprotection';
+import Imprint from './components/footer/Imprint';
+import type { Subject } from './types/quizTypes';
+import useMaintenanceMode from './hooks/useMaintenanceMode';
+import ProtectedRoute from './utils/ProtectedRoute';
+import useScrollToTop from './hooks/useScrollToTop';
 import { getAuth } from 'firebase/auth';
-import { useQuizzesFromCollection } from '@hooks/useQuizzesFromCollection';
-import { usePwaPrompt } from '@hooks/usePwaPrompt';
-import { usePwaUpdate } from '@hooks/usePwaUpdate';
+import { useQuizzesFromCollection } from './hooks/useQuizzesFromCollection';
+import { usePwaPrompt } from './hooks/usePwaPrompt';
+import { usePwaUpdate } from './hooks/usePwaUpdate';
 
 
 // ============================================

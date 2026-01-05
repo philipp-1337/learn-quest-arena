@@ -1,5 +1,5 @@
 import { FolderOpen } from 'lucide-react';
-import type { Topic } from '@types/quizTypes';
+import type { Topic } from '../../types/quizTypes';
 
 interface TopicSelectorProps {
   topics: Topic[];

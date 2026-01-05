@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Subject, Class, Topic } from '@types/quizTypes';
+import type { Subject, Class, Topic } from '../types/quizTypes';
 
 /**
  * Hook zur Berechnung von Statistiken über Subjects, Klassen, Topics und Quizze
