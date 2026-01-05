@@ -33,6 +33,12 @@ export const usePwaUpdate = () => {
   useEffect(() => {
     if (needRefresh && !updateToastShown.current) {
       updateToastShown.current = true;
+      
+      const handleUpdate = () => {
+        toast.dismiss('update-toast');
+        updateServiceWorker(true);
+      };
+      
       toast.custom(
         (_) => (
           <CustomToast
@@ -43,16 +49,7 @@ export const usePwaUpdate = () => {
                 <div className="flex gap-2 justify-end">
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      updateServiceWorker(true);
-                    }}
-                    onTouchEnd={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      updateServiceWorker(true);
-                    }}
+                    onClick={handleUpdate}
                     className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition active:bg-green-800"
                     style={{ 
                       WebkitTapHighlightColor: 'transparent',
