@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Check, X } from 'lucide-react';
-import type { Answer } from '../../types/quizTypes';
+import type { Answer } from '@types/quizTypes';
 
 interface AnswerButtonProps {
   answer: Answer & { originalIndex: number };

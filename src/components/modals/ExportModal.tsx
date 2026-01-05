@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Download, X, FileJson, FileSpreadsheet, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { exportQuizzesToJSON, exportQuizzesToCSV } from "../../utils/quizExport";
+import { exportQuizzesToJSON, exportQuizzesToCSV } from "@utils/quizExport";
 
 interface ExportModalProps {
   onClose: () => void;

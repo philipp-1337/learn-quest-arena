@@ -1,11 +1,11 @@
 import { Play, RotateCcw, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import type { Quiz } from '../../types/quizTypes';
-import type { UserQuizProgress } from '../../types/userProgress';
-import { loadAllUserProgress } from '../../utils/loadAllUserProgress';
-import { showCompletedQuizWarning } from '../../utils/showCompletedQuizWarning';
-import { filterVisibleQuizzes } from '../../utils/quizVisibilityHelpers';
-import type { QuizStartMode } from '../../hooks/useQuizPlayer';
+import type { Quiz } from '@types/quizTypes';
+import type { UserQuizProgress } from '@types/userProgress';
+import { loadAllUserProgress } from '@utils/loadAllUserProgress';
+import { showCompletedQuizWarning } from '@utils/showCompletedQuizWarning';
+import { filterVisibleQuizzes } from '@utils/quizVisibilityHelpers';
+import type { QuizStartMode } from '@hooks/useQuizPlayer';
 
 // Re-export the type for convenience
 export type { QuizStartMode };

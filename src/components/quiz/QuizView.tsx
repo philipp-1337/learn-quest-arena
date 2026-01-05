@@ -4,9 +4,9 @@ import UsernamePicker from "../user/UsernamePicker";
 import UsernameManualEntry from "../user/UsernameManualEntry";
 import { Cog, Sword, UserCircle, Trophy, Sparkles, BadgeInfoIcon } from "lucide-react";
 import AppHeader, { type MenuItem } from "../shared/AppHeader";
-import { useQuizState } from "../../hooks/useQuizState";
+import { useQuizState } from "@hooks/useQuizState";
 import { getAuth } from "firebase/auth";
-import { useQuizNavigation } from "../../hooks/useQuizNavigation";
+import { useQuizNavigation } from "@hooks/useQuizNavigation";
 import { useLocation } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import SubjectSelector from "./SubjectSelector";
@@ -16,15 +16,15 @@ import { QuizSelector, type QuizStartMode } from "./QuizSelector";
 import QuizPlayer from "./QuizPlayer";
 import QuizChallengePlayer from "./QuizChallengePlayer";
 import Footer from "../footer/Footer";
-import type { Subject, Class, Topic, Quiz, QuizChallenge, QuizChallengeLevel } from "../../types/quizTypes";
-import type { UserQuizChallengeProgress } from "../../types/userProgress";
-import useFirestore from "../../hooks/useFirestore";
+import type { Subject, Class, Topic, Quiz, QuizChallenge, QuizChallengeLevel } from "@types/quizTypes";
+import type { UserQuizChallengeProgress } from "@types/userProgress";
+import useFirestore from "@hooks/useFirestore";
 import { 
   filterVisibleSubjects, 
   filterVisibleClasses, 
   filterVisibleTopics, 
   filterVisibleQuizzes 
-} from "../../utils/quizVisibilityHelpers";
+} from "@utils/quizVisibilityHelpers";
 
 interface QuizViewProps {
   subjects: Subject[];

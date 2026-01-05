@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { getAuth, signOut } from "firebase/auth";
 import { Upload, Download, Sparkles, BadgeInfoIcon } from "lucide-react";
-import type { Subject, QuizChallenge } from "../../types/quizTypes";
-import useFirestore from "../../hooks/useFirestore";
-import { useStatsCalculation } from "../../hooks/useStatsCalculation";
+import type { Subject, QuizChallenge } from "@types/quizTypes";
+import useFirestore from "@hooks/useFirestore";
+import { useStatsCalculation } from "@hooks/useStatsCalculation";
 import AdminHeader from "./AdminHeader";
 import AdminStats from "./AdminStats";
 import QRCodeInfo from "./QRCodeInfo";

@@ -4,7 +4,7 @@
  */
 
 import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, where, orderBy } from "firebase/firestore";
-import type { QuizDocument, Quiz } from "../types/quizTypes";
+import type { QuizDocument, Quiz } from "@types/quizTypes";
 import { createDeterministicId } from "./slugify";
 
 const QUIZZES_COLLECTION = "quizzes";

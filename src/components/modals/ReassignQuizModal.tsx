@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { MoveHorizontal, X, Loader2, CheckCircle } from "lucide-react";
-import { reassignQuiz, loadAllQuizDocuments } from "../../utils/quizzesCollection";
-import type { QuizDocument } from "../../types/quizTypes";
+import { reassignQuiz, loadAllQuizDocuments } from "@utils/quizzesCollection";
+import type { QuizDocument } from "@types/quizTypes";
 
 interface ReassignQuizModalProps {
   quiz: QuizDocument;

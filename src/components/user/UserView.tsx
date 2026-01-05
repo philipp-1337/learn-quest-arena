@@ -9,13 +9,13 @@ import {
   Play,
   // Timer
 } from "lucide-react";
-import { loadAllUserProgress } from "../../utils/loadAllUserProgress";
-import type { UserQuizProgress } from "../../types/userProgress";
-import type { Subject, Quiz } from "../../types/quizTypes";
-import { showConfirmationToast } from "../../utils/confirmationToast";
-import { formatTime } from "../../utils/formatTime";
-import { findQuizOnly, findQuizById } from "../../utils/quizHierarchySearch";
-import { useQuizNavigation } from "../../hooks/useQuizNavigation";
+import { loadAllUserProgress } from "@utils/loadAllUserProgress";
+import type { UserQuizProgress } from "@types/userProgress";
+import type { Subject, Quiz } from "@types/quizTypes";
+import { showConfirmationToast } from "@utils/confirmationToast";
+import { formatTime } from "@utils/formatTime";
+import { findQuizOnly, findQuizById } from "@utils/quizHierarchySearch";
+import { useQuizNavigation } from "@hooks/useQuizNavigation";
 
 interface UserViewProps {
   username: string;

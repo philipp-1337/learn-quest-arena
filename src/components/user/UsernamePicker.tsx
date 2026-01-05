@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
-import { showConfirmationToast } from "../../utils/confirmationToast";
+import { showConfirmationToast } from "@utils/confirmationToast";
 import { UserPlus, Briefcase } from "lucide-react";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
-import { generateUniqueUsernames } from "../../utils/usernameGenerator";
+import { generateUniqueUsernames } from "@utils/usernameGenerator";
 
 interface UsernamePickerProps {
   onUsernameSelected: (username: string) => void;
