@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Loader2, Lock, Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
-import usePasswordChange from "../../hooks/usePasswordChange";
+import usePasswordChange, { MIN_PASSWORD_LENGTH } from "../../hooks/usePasswordChange";
 
 export default function PasswordChangeForm() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -23,8 +23,8 @@ export default function PasswordChangeForm() {
       return "Bitte gib ein neues Passwort ein";
     }
 
-    if (newPassword.length < 6) {
-      return "Das neue Passwort muss mindestens 6 Zeichen lang sein";
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      return `Das neue Passwort muss mindestens ${MIN_PASSWORD_LENGTH} Zeichen lang sein`;
     }
 
     if (!confirmPassword) {
@@ -74,7 +74,7 @@ export default function PasswordChangeForm() {
   };
 
   const passwordsMatch = newPassword && confirmPassword && newPassword === confirmPassword;
-  const passwordStrengthOk = newPassword.length >= 6;
+  const passwordStrengthOk = newPassword.length >= MIN_PASSWORD_LENGTH;
 
   return (
     <div className="space-y-4">
@@ -142,7 +142,7 @@ export default function PasswordChangeForm() {
           </div>
           {newPassword && (
             <p className={`text-xs mt-1 ${passwordStrengthOk ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-              {passwordStrengthOk ? "✓ Passwortstärke ausreichend" : "✗ Mindestens 6 Zeichen erforderlich"}
+              {passwordStrengthOk ? "✓ Passwortstärke ausreichend" : `✗ Mindestens ${MIN_PASSWORD_LENGTH} Zeichen erforderlich`}
             </p>
           )}
         </div>
