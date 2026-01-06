@@ -60,6 +60,31 @@ export default function Imprint() {
             Art der Verwertung außerhalb der Grenzen des Urheberrechts bedarf
             der Zustimmung des Betreibers.
           </p>
+
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 my-3">
+            Open-Source-Lizenzen
+          </h2>
+          <p className="text-gray-700 dark:text-gray-300">
+            Diese Anwendung verwendet Icons von{" "}
+            <a
+              href="https://lucide.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Lucide
+            </a>
+            , die unter der ISC-Lizenz veröffentlicht sind.
+            <br />
+            <br />
+            Copyright © 2026 Lucide Contributors
+            <br />
+            <br />
+            Permission to use, copy, modify, and/or distribute this software for
+            any purpose with or without fee is hereby granted, provided that the
+            above copyright notice and this permission notice appear in all
+            copies.
+          </p>
         </div>
       </div>
     </div>
