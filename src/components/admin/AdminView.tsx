@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAuth, signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import { Upload, Download, Sparkles, BadgeInfoIcon } from "lucide-react";
 import type { Subject, QuizChallenge } from "../../types/quizTypes";
 import useFirestore from "../../hooks/useFirestore";
@@ -9,7 +9,6 @@ import AdminStats from "./AdminStats";
 import QRCodeInfo from "./QRCodeInfo";
 import ImportModal from "../modals/ImportModal";
 import ExportModal from "../modals/ExportModal";
-import AdminProfileView from "./AdminProfileView";
 import QuizListManager from "./QuizListManager";
 import QuizChallengeManager from "./QuizChallengeManager";
 
@@ -20,25 +19,21 @@ import QuizChallengeManager from "./QuizChallengeManager";
 interface AdminViewProps {
   subjects: Subject[];
   onSubjectsChange: (subjects: Subject[]) => void;
-  onLogout: () => void;
   onRefetch?: () => Promise<void>;
 }
 
 export default function AdminView({
   subjects: initialSubjects,
   onSubjectsChange,
-  onLogout,
   onRefetch,
 }: AdminViewProps) {
   const { fetchCollection } = useFirestore();
+  const navigate = useNavigate();
   const [subjects] = useState<Subject[]>(initialSubjects);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
   const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
   const [activeTab, setActiveTab] = useState<'quiz' | 'challenge'>('quiz');
-  const [quizListKey, setQuizListKey] = useState(0);
-  const auth = getAuth();
 
   // Custom Hooks
   const stats = useStatsCalculation(subjects);
@@ -74,38 +69,12 @@ export default function AdminView({
     setChallenges(formattedChallenges);
   };
 
-  const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        onLogout();
-      })
-      .catch((error) => {
-        console.error("Logout Fehler:", error);
-      });
-  };
-
-  const handleAbbreviationUpdated = () => {
-    // Force QuizListManager to re-render and reload data
-    setQuizListKey(prev => prev + 1);
-  };
-
-  // Show Profile Modal as full-screen view
-  if (showProfileModal) {
-    return (
-      <AdminProfileView
-        onClose={() => setShowProfileModal(false)}
-        onAbbreviationUpdated={handleAbbreviationUpdated}
-        onLogout={handleLogout}
-      />
-    );
-  }
-
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <AdminHeader 
-          onProfileClick={() => setShowProfileModal(true)}
+          onProfileClick={() => navigate('/admin/profile')}
         />
 
         <div className="max-w-7xl mx-auto">
@@ -174,7 +143,7 @@ export default function AdminView({
                   </div>
                 </div>
 
-                <QuizListManager key={quizListKey} onRefetch={onRefetch} />
+                <QuizListManager onRefetch={onRefetch} />
               </>
             )}
 

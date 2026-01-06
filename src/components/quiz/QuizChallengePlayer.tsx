@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Trophy, Home, ArrowLeft, Shield } from 'lucide-react';
 import type { QuizChallenge, Question, Answer } from '../../types/quizTypes';
 import type { UserQuizChallengeProgress } from '../../types/userProgress';
@@ -6,25 +7,20 @@ import QuizQuestion from './QuizQuestion';
 import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
 import { getQuestionId } from '../../utils/questionIdHelper';
 import { loadAllQuizDocuments } from '../../utils/quizzesCollection';
+import useFirestore from '../../hooks/useFirestore';
 
-interface QuizChallengePlayerProps {
-  challenge: QuizChallenge;
-  onBack: () => void;
-  onHome: () => void;
-  username?: string;
-  initialProgress?: UserQuizChallengeProgress;
-  onProgressUpdate?: (progress: UserQuizChallengeProgress) => void;
-}
-
-export default function QuizChallengePlayer({
-  challenge,
-  onBack,
-  onHome,
-  username,
-  initialProgress,
-  onProgressUpdate,
-}: QuizChallengePlayerProps) {
-  const [currentLevel, setCurrentLevel] = useState(initialProgress?.currentLevel || 1);
+export default function QuizChallengePlayer() {
+  const { challengeId } = useParams<{ challengeId: string }>();
+  const navigate = useNavigate();
+  const { saveDocument, fetchCollection } = useFirestore();
+  const [username] = useState<string>(() => {
+    const stored = localStorage.getItem("lqa_username");
+    return stored && stored !== "" ? stored : "Gast";
+  });
+  const [challenge, setChallenge] = useState<QuizChallenge | null>(null);
+  const [initialProgress, setInitialProgress] = useState<UserQuizChallengeProgress | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [currentLevel, setCurrentLevel] = useState(1);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [shuffledAnswers, setShuffledAnswers] = useState<Array<Answer & { originalIndex: number }>>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<(Answer & { originalIndex: number }) | null>(null);
@@ -36,6 +32,71 @@ export default function QuizChallengePlayer({
   const [startTime] = useState(() => Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
   const [questionMap, setQuestionMap] = useState<Map<string, Question>>(new Map());
+
+  // Load challenge and progress from Firestore
+  useEffect(() => {
+    const loadChallengeAndProgress = async () => {
+      if (!challengeId) {
+        navigate('/');
+        return;
+      }
+
+      try {
+        const challenges = await fetchCollection('quizChallenges');
+        const challengeData = challenges.find((c: any) => c.id === challengeId) as any;
+        if (!challengeData) {
+          console.error('Challenge not found');
+          navigate('/');
+          return;
+        }
+
+        const loadedChallenge: QuizChallenge = {
+          id: challengeData.id,
+          title: challengeData.title || '',
+          levels: challengeData.levels || [],
+          hidden: challengeData.hidden || false,
+        };
+        setChallenge(loadedChallenge);
+
+        // Load progress if user is logged in
+        if (username && username !== 'Gast') {
+          try {
+            const progress = await fetchCollection('quizChallengeProgress');
+            const userProgress = progress.find(
+              (p: any) => p.username === username && p.challengeId === challengeId
+            ) as any;
+            if (userProgress) {
+              setInitialProgress(userProgress as any);
+              setCurrentLevel(userProgress.currentLevel || 1);
+            }
+          } catch (error) {
+            console.error('Error loading progress:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading challenge:', error);
+        navigate('/');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadChallengeAndProgress();
+  }, [challengeId, username, navigate, fetchCollection]);
+
+  const handleBack = () => {
+    navigate('/');
+  };
+
+  const handleHome = () => {
+    navigate('/');
+  };
+
+  const handleProgressUpdate = async (progress: UserQuizChallengeProgress) => {
+    if (username && username !== 'Gast') {
+      await saveDocument(`quizChallengeProgress/${username}_${progress.challengeId}`, progress);
+    }
+  };
 
   // Load all questions from quizzes and create a map
   useEffect(() => {
@@ -86,7 +147,7 @@ export default function QuizChallengePlayer({
 
   // Load a random question for the current level
   useEffect(() => {
-    if (gameOver || questionMap.size === 0) return;
+    if (gameOver || questionMap.size === 0 || !challenge) return;
     
     const levelData = challenge.levels.find(l => l.level === currentLevel);
     if (!levelData || !levelData.questionIds || levelData.questionIds.length === 0) {
@@ -130,11 +191,11 @@ export default function QuizChallengePlayer({
     if (isCorrect) {
       setShowResult(true);
       // Update progress
-      if (username && onProgressUpdate) {
+      if (username && username !== 'Gast') {
         const currentPrize = PRIZE_LEVELS.find(p => p.level === currentLevel)?.prize || 0;
         const progress: UserQuizChallengeProgress = {
           username,
-          challengeId: challenge.id,
+          challengeId: challenge!.id,
           currentLevel: currentLevel + 1,
           highestLevel: Math.max(currentLevel, initialProgress?.highestLevel || 0),
           highestPrize: Math.max(currentPrize, initialProgress?.highestPrize || 0),
@@ -142,7 +203,7 @@ export default function QuizChallengePlayer({
           completed: currentLevel === 15,
           lastUpdated: Date.now(),
         };
-        onProgressUpdate(progress);
+        handleProgressUpdate(progress);
       }
     } else {
       // Wrong answer - game over
@@ -179,6 +240,16 @@ export default function QuizChallengePlayer({
     setSelectedAnswer(null);
     setShowResult(false);
   };
+
+  if (loading || !challenge) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl text-gray-700">Lade Challenge...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (gameOver) {
     return (
@@ -228,14 +299,14 @@ export default function QuizChallengePlayer({
                   Nochmal spielen
                 </button>
                 <button
-                  onClick={onBack}
+                  onClick={handleBack}
                   className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium flex items-center gap-2"
                 >
                   <ArrowLeft className="w-5 h-5" />
                   Zurück
                 </button>
                 <button
-                  onClick={onHome}
+                  onClick={handleHome}
                   className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium flex items-center gap-2"
                 >
                   <Home className="w-5 h-5" />
@@ -314,8 +385,8 @@ export default function QuizChallengePlayer({
           totalQuestions={15}
           onAnswerSelect={handleAnswerSelect}
           onNext={handleNext}
-          onHome={onHome}
-          onBack={onBack}
+          onHome={handleHome}
+          onBack={handleBack}
           elapsedTime={elapsedTime}
           showResultOverride={showResult}
         />

@@ -45,8 +45,8 @@ export default function AbbreviationForm({
         }
       } catch (error) {
         console.error("Error loading abbreviation:", error);
-        toast.custom(() => (
-          <CustomToast message="Fehler beim Laden der Abkürzung" type="error" />
+        toast.custom((t) => (
+          <CustomToast message="Fehler beim Laden der Abkürzung" type="error" toastId={t} />
         ));
       } finally {
         setLoading(false);
@@ -62,17 +62,18 @@ export default function AbbreviationForm({
     // Validate abbreviation
     const trimmed = abbreviation.trim();
     if (!trimmed) {
-      toast.custom(() => (
-        <CustomToast message="Bitte gib eine Abkürzung ein" type="error" />
+      toast.custom((t) => (
+        <CustomToast message="Bitte gib eine Abkürzung ein" type="error" toastId={t} />
       ));
       return;
     }
 
     if (trimmed.length > 10) {
-      toast.custom(() => (
+      toast.custom((t) => (
         <CustomToast
           message="Abkürzung darf max. 10 Zeichen lang sein"
           type="error"
+          toastId={t}
         />
       ));
       return;
@@ -92,10 +93,11 @@ export default function AbbreviationForm({
           (doc) => doc.id !== userId
         );
         if (existingUser) {
-          toast.custom(() => (
+          toast.custom((t) => (
             <CustomToast
               message={`Die Abkürzung "${trimmed}" wird bereits verwendet`}
               type="error"
+              toastId={t}
             />
           ));
           setSaving(false);
@@ -103,10 +105,11 @@ export default function AbbreviationForm({
         }
       } catch (error) {
         console.error("Error checking abbreviation:", error);
-        toast.custom(() => (
+        toast.custom((t) => (
           <CustomToast
             message="Fehler beim Prüfen der Abkürzung"
             type="error"
+            toastId={t}
           />
         ));
         setSaving(false);
@@ -127,8 +130,8 @@ export default function AbbreviationForm({
       );
 
       setOriginalAbbreviation(trimmed);
-      toast.custom(() => (
-        <CustomToast message="Abkürzung gespeichert" type="success" />
+      toast.custom((t) => (
+        <CustomToast message="Abkürzung gespeichert" type="success" toastId={t} dismissible={true}/>
       ));
 
       // Trigger refresh callback
@@ -137,8 +140,8 @@ export default function AbbreviationForm({
       }
     } catch (error) {
       console.error("Error saving abbreviation:", error);
-      toast.custom(() => (
-        <CustomToast message="Fehler beim Speichern" type="error" />
+      toast.custom((t) => (
+        <CustomToast message="Fehler beim Speichern" type="error" toastId={t} />
       ));
     } finally {
       setSaving(false);

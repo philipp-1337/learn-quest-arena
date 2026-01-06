@@ -6,6 +6,9 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import LoginView from './components/login/LoginView';
 import QuizView from './components/quiz/QuizView';
 import AdminView from './components/admin/AdminView';
+import AdminProfileView from './components/admin/AdminProfileView';
+import UserView from './components/user/UserView';
+import QuizChallengePlayer from './components/quiz/QuizChallengePlayer';
 import Dataprotection from './components/footer/Dataprotection';
 import Imprint from './components/footer/Imprint';
 import type { Subject } from './types/quizTypes';
@@ -133,7 +136,6 @@ export default function FlashcardQuizApp() {
               <AdminView
                 subjects={subjects}
                 onSubjectsChange={handleSubjectsChange}
-                onLogout={handleLogout}
                 onRefetch={handleRefetchQuizzes}
               />
             </ProtectedRoute>
@@ -142,6 +144,22 @@ export default function FlashcardQuizApp() {
         <Route
           path="/login"
           element={<LoginView onLogin={handleLogin} onBack={() => navigate('/')} />}
+        />
+        <Route
+          path="/user"
+          element={<UserView subjects={subjects} />}
+        />
+        <Route
+          path="/challenge/:challengeId"
+          element={<QuizChallengePlayer />}
+        />
+        <Route
+          path="/admin/profile"
+          element={
+            <ProtectedRoute>
+              <AdminProfileView onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
         />
         <Route
           path="/quiz"

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Pencil,
   ArrowLeft,
@@ -18,9 +19,6 @@ import { findQuizOnly, findQuizById } from "../../utils/quizHierarchySearch";
 import { useQuizNavigation } from "../../hooks/useQuizNavigation";
 
 interface UserViewProps {
-  username: string;
-  onClose: () => void;
-  onChooseName: () => void;
   subjects: Subject[];
 }
 
@@ -441,12 +439,22 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
 };
 
 const UserView: React.FC<UserViewProps> = ({
-  username,
-  onClose,
-  onChooseName,
   subjects,
 }) => {
+  const navigate = useNavigate();
   const { navigateToQuiz } = useQuizNavigation();
+  const [username] = useState<string>(() => {
+    const stored = localStorage.getItem("lqa_username");
+    return stored && stored !== "" ? stored : "Gast";
+  });
+
+  const handleClose = () => {
+    navigate('/');
+  };
+
+  const handleChooseName = () => {
+    navigate('/?chooseName=true');
+  };
 
   const handleNavigateToQuiz = (
     quizId: string,
@@ -456,7 +464,7 @@ const UserView: React.FC<UserViewProps> = ({
     if (result) {
       const { quiz, subject, classItem, topic } = result;
       navigateToQuiz(subject, classItem, topic, quiz, mode);
-      onClose(); // Schließe die UserView nach der Navigation
+      handleClose(); // Schließe die UserView nach der Navigation
     }
   };
 
@@ -466,7 +474,7 @@ const UserView: React.FC<UserViewProps> = ({
         {/* Back Button */}
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2 group"
           aria-label="Zurück zur Startseite"
           title="Zurück zur Startseite"
@@ -507,12 +515,12 @@ const UserView: React.FC<UserViewProps> = ({
                 showConfirmationToast({
                   message:
                     "Wenn du deinen Namen änderst, geht dein Fortschritt verloren. Bist du sicher?",
-                  onConfirm: onChooseName,
+                  onConfirm: handleChooseName,
                   confirmText: "Weiter",
                   cancelText: "Abbrechen",
                 });
               } else {
-                onChooseName();
+                handleChooseName();
               }
             }}
             className="ml-2 p-2 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors relative"

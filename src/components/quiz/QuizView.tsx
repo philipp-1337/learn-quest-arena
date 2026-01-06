@@ -1,4 +1,3 @@
-import UserView from "../user/UserView";
 import { useEffect, useState } from "react";
 import UsernamePicker from "../user/UsernamePicker";
 import UsernameManualEntry from "../user/UsernameManualEntry";
@@ -7,17 +6,15 @@ import AppHeader, { type MenuItem } from "../shared/AppHeader";
 import { useQuizState } from "../../hooks/useQuizState";
 import { getAuth } from "firebase/auth";
 import { useQuizNavigation } from "../../hooks/useQuizNavigation";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import SubjectSelector from "./SubjectSelector";
 import ClassSelector from "./ClassSelector";
 import TopicSelector from "./TopicSelector";
 import { QuizSelector, type QuizStartMode } from "./QuizSelector";
 import QuizPlayer from "./QuizPlayer";
-import QuizChallengePlayer from "./QuizChallengePlayer";
 import Footer from "../footer/Footer";
 import type { Subject, Class, Topic, Quiz, QuizChallenge, QuizChallengeLevel } from "../../types/quizTypes";
-import type { UserQuizChallengeProgress } from "../../types/userProgress";
 import useFirestore from "../../hooks/useFirestore";
 import { 
   filterVisibleSubjects, 
@@ -35,13 +32,12 @@ export default function QuizView({
   subjects: initialSubjects,
   onAdminClick,
 }: QuizViewProps) {
-  const { fetchCollection, saveDocument } = useFirestore();
+  const { fetchCollection } = useFirestore();
   const location = useLocation();
+  const navigate = useNavigate();
   const [subjects, setSubjects] = useState(initialSubjects);
   const [loading, setLoading] = useState(true);
   const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
-  const [selectedChallenge, setSelectedChallenge] = useState<QuizChallenge | null>(null);
-  const [challengeProgress, setChallengeProgress] = useState<UserQuizChallengeProgress | null>(null);
   // Username ist standardmäßig "Gast", außer es ist ein anderer im LocalStorage gespeichert
   const [username, setUsername] = useState<string>(() => {
     const stored = localStorage.getItem("lqa_username");
@@ -50,7 +46,6 @@ export default function QuizView({
   // Zeige Username-Auswahl nur, wenn explizit gewünscht
   const [showUsernamePicker, setShowUsernamePicker] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
-  const [showUserView, setShowUserView] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [quizStartMode, setQuizStartMode] = useState<QuizStartMode>('fresh');
 
@@ -86,7 +81,15 @@ export default function QuizView({
     if (mode === 'fresh' || mode === 'continue' || mode === 'review') {
       setQuizStartMode(mode);
     }
-  }, [location.search]);
+    
+    // Check if we should open the username picker
+    const chooseName = searchParams.get('chooseName');
+    if (chooseName === 'true') {
+      setShowUsernamePicker(true);
+      // Remove the query parameter from URL
+      navigate('/', { replace: true });
+    }
+  }, [location.search, navigate]);
 
   // Check if data is loaded
   useEffect(() => {
@@ -193,7 +196,6 @@ export default function QuizView({
 
   const handleBackFromQuiz = () => {
     selectQuiz(null as any); // Explicit cast to satisfy TypeScript
-    setSelectedChallenge(null);
     setQuizStartMode('fresh'); // Reset the mode when going back
     navigateToHome();
   };
@@ -214,29 +216,8 @@ export default function QuizView({
   };
 
   const handleChallengeSelect = async (challenge: QuizChallenge) => {
-    setSelectedChallenge(challenge);
-    // Load progress for this challenge
-    if (username && username !== "Gast") {
-      try {
-        const progress = await fetchCollection("quizChallengeProgress");
-        const userProgress = progress.find(
-          (p: { id: string; username?: string; challengeId?: string }) => 
-            p.username === username && p.challengeId === challenge.id
-        );
-        if (userProgress) {
-          setChallengeProgress(userProgress as unknown as UserQuizChallengeProgress);
-        }
-      } catch (error) {
-        console.error('Error loading challenge progress:', error);
-      }
-    }
-  };
-
-  const handleChallengeProgressUpdate = async (progress: UserQuizChallengeProgress) => {
-    setChallengeProgress(progress);
-    if (username && username !== "Gast") {
-      await saveDocument(`quizChallengeProgress/${username}_${progress.challengeId}`, progress);
-    }
+    // Navigate to the challenge route
+    navigate(`/challenge/${challenge.id}`);
   };
 
   if (loading) {
@@ -279,22 +260,6 @@ export default function QuizView({
     );
   }
 
-  // User Modal anzeigen, wenn gewünscht
-  if (showUserView) {
-    return (
-      <UserView
-        username={username}
-        onClose={() => setShowUserView(false)}
-        onChooseName={() => {
-          setShowUserView(false);
-          setShowUsernamePicker(true);
-          setShowManualEntry(false);
-        }}
-        subjects={subjects}
-      />
-    );
-  }
-
   // Show QuizPlayer if a quiz is selected
   if (selectedQuiz) {
     // Wenn kein Username gesetzt ist oder Username "Gast" ist, QuizPlayer ohne username-Prop (kein Fortschritt)
@@ -318,20 +283,6 @@ export default function QuizView({
     );
   }
 
-  // Show Quiz Challenge Player if a challenge is selected
-  if (selectedChallenge) {
-    return (
-      <QuizChallengePlayer
-        challenge={selectedChallenge}
-        onBack={handleBackFromQuiz}
-        onHome={handleReset}
-        username={username !== "Gast" ? username : undefined}
-        initialProgress={challengeProgress || undefined}
-        onProgressUpdate={handleChallengeProgressUpdate}
-      />
-    );
-  }
-
   // Gefilterte Daten
   const visibleSubjects = filterVisibleSubjects(subjects);
   const visibleClasses = selectedSubject
@@ -345,7 +296,7 @@ export default function QuizView({
     {
       icon: UserCircle,
       label: username !== "Gast" ? username : "Gast",
-      onClick: () => setShowUserView(true),
+      onClick: () => navigate('/user'),
       hasNotification: username === "Gast",
     },
     {
