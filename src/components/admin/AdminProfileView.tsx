@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
+import PasswordChangeForm from "./PasswordChangeForm";
 
 interface AdminProfileViewProps {
   onClose: () => void;
@@ -279,6 +280,11 @@ export default function AdminProfileView({
               </>
             )}
           </button>
+        </div>
+
+        {/* Password Change Section */}
+        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <PasswordChangeForm />
         </div>
 
         {/* Logout Section */}
