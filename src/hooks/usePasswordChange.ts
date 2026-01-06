@@ -11,15 +11,15 @@ interface PasswordChangeResult {
   error?: string;
 }
 
+const MIN_PASSWORD_LENGTH = 6;
+
 const usePasswordChange = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const changePassword = async (
     currentPassword: string,
     newPassword: string
   ): Promise<PasswordChangeResult> => {
-    setError(null);
     setLoading(true);
 
     const auth = getAuth();
@@ -27,7 +27,6 @@ const usePasswordChange = () => {
 
     if (!user || !user.email) {
       setLoading(false);
-      setError("Kein Benutzer angemeldet");
       return { success: false, error: "Kein Benutzer angemeldet" };
     }
 
@@ -54,7 +53,7 @@ const usePasswordChange = () => {
           errorMessage = "Das aktuelle Passwort ist falsch";
           break;
         case "auth/weak-password":
-          errorMessage = "Das neue Passwort ist zu schwach (mind. 6 Zeichen)";
+          errorMessage = `Das neue Passwort ist zu schwach (mind. ${MIN_PASSWORD_LENGTH} Zeichen)`;
           break;
         case "auth/requires-recent-login":
           errorMessage =
@@ -67,13 +66,13 @@ const usePasswordChange = () => {
           errorMessage = err.message || "Ein Fehler ist aufgetreten";
       }
 
-      setError(errorMessage);
       setLoading(false);
       return { success: false, error: errorMessage };
     }
   };
 
-  return { changePassword, loading, error };
+  return { changePassword, loading };
 };
 
 export default usePasswordChange;
+export { MIN_PASSWORD_LENGTH };
