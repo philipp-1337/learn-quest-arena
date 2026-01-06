@@ -464,7 +464,7 @@ const UserView: React.FC<UserViewProps> = ({
     if (result) {
       const { quiz, subject, classItem, topic } = result;
       navigateToQuiz(subject, classItem, topic, quiz, mode);
-      handleClose(); // Schließe die UserView nach der Navigation
+      // Navigation zum Quiz verlässt automatisch die UserView-Route
     }
   };
 
