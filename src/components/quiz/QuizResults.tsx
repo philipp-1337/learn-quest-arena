@@ -92,9 +92,9 @@ export default function QuizResults({
         >
           <div className="mb-4 relative">
             {isPerfect ? (
-              <Trophy className="w-16 h-16 text-yellow-400 mx-auto drop-shadow-lg animate-bounce" />
+              <Trophy className="w-16 h-16 text-yellow-400 mx-auto drop-shadow-lg animate-bounce translate-y-2" />
             ) : isGood ? (
-              <PartyPopper className="w-16 h-16 text-green-500 mx-auto animate-bounce" />
+              <PartyPopper className="w-16 h-16 text-green-500 mx-auto animate-bounce translate-y-2" />
             ) : isOkay ? (
               <ThumbsUp className="w-16 h-16 text-blue-500 mx-auto" />
             ) : (
