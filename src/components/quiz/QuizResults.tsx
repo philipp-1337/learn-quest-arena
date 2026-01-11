@@ -12,8 +12,8 @@ import {
   ArrowLeft,
   ChevronDown,
   Zap,
-  TrendingUp,
-  TrendingDown,
+  // TrendingUp,
+  // TrendingDown,
 } from "lucide-react";
 import type { Question } from "../../types/quizTypes";
 import { showCompletedQuizWarning } from "../../utils/showCompletedQuizWarning";
@@ -80,8 +80,8 @@ export default function QuizResults({
   const buttonsVisible = useStaggeredAnimation(34, 50);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-3xl w-full border border-gray-100 dark:border-gray-700">
+    <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-5 sm:p-6 md:p-8 max-w-3xl w-full border border-gray-100 dark:border-gray-700">
         {/* Header mit Icon */}
         <div
           className={`text-center mb-6 transition-all duration-700 ${
@@ -113,15 +113,15 @@ export default function QuizResults({
           <div
             className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-bold ${gradeInfo.bgColor} ${gradeInfo.color} border ${gradeInfo.borderColor}`}
           >
-            {animatedPercentage}% • Note {gradeInfo.grade}
+            {animatedPercentage}% &#8226; {correctCount}/{totalAnswered}
           </div>
         </div>
 
         {/* Two/Three-Box Layout */}
-        <div className={`grid grid-cols-1 ${xpEarned > 0 ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4 mb-6`}>
+        <div className={`grid ${xpEarned > 0 ? 'grid-cols-3' : 'grid-cols-2'} gap-3 mb-6`}>
           {/* Box 1: Score & Grade */}
           <div
-            className={`rounded-xl p-5 border ${gradeInfo.bgColor} ${
+            className={`rounded-xl p-2 border ${gradeInfo.bgColor} ${
               gradeInfo.borderColor
             } transition-all duration-700 ${
               card1Visible
@@ -134,12 +134,12 @@ export default function QuizResults({
               <p
                 className={`text-xs uppercase tracking-wide font-semibold ${gradeInfo.color}`}
               >
-                Ergebnis
+                Note
               </p>
             </div>
             <div className="text-center">
-              <div className={`text-4xl font-bold mb-1 ${gradeInfo.color}`}>
-                {correctCount}/{totalAnswered}
+              <div className={`text-xl font-bold mb-1 ${gradeInfo.color}`}>
+                {gradeInfo.grade}
               </div>
               <p className={`text-xs mt-2 ${gradeInfo.color}`}>
                 {gradeInfo.label}
@@ -149,7 +149,7 @@ export default function QuizResults({
 
           {/* Box 2: Time */}
           <div
-            className={`bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-700 rounded-xl p-5 transition-all duration-700 ${
+            className={`bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-700 rounded-xl p-2 transition-all duration-700 ${
               card2Visible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-4"
@@ -158,11 +158,11 @@ export default function QuizResults({
             <div className="flex items-center gap-2 mb-3">
               <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               <p className="text-xs text-indigo-700 dark:text-indigo-300 uppercase tracking-wide font-semibold">
-                Benötigte Zeit
+                Zeit
               </p>
             </div>
             <div className="text-center">
-              <p className="text-4xl font-bold text-indigo-900 dark:text-indigo-200">
+              <p className="text-xl font-bold text-indigo-900 dark:text-indigo-200">
                 {formatTime(elapsedTime)}
               </p>
               <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-2">
@@ -174,7 +174,7 @@ export default function QuizResults({
           {/* Box 3: XP (nur für registrierte User) */}
           {xpEarned > 0 && (
             <div
-              className={`bg-purple-50 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 rounded-xl p-5 transition-all duration-700 ${
+              className={`bg-purple-50 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 rounded-xl p-2 transition-all duration-700 ${
                 card3Visible
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-4"
@@ -183,30 +183,20 @@ export default function QuizResults({
               <div className="flex items-center gap-2 mb-3">
                 <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 <p className="text-xs text-purple-700 dark:text-purple-300 uppercase tracking-wide font-semibold">
-                  Erfahrung
+                  Exp.
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-4xl font-bold text-purple-900 dark:text-purple-200">
-                  {animatedXP} XP
+                <p className="text-xl font-bold text-purple-900 dark:text-purple-200">
+                  {animatedXP}
                 </p>
-                {xpDelta !== 0 && (
-                  <div
-                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold mt-2 ${
-                      xpDelta > 0
-                        ? "bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-300"
-                        : "bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300"
-                    }`}
-                  >
-                    {xpDelta > 0 ? (
-                      <TrendingUp className="w-3 h-3" />
-                    ) : (
-                      <TrendingDown className="w-3 h-3" />
-                    )}
-                    {xpDelta > 0 ? "+" : ""}
-                    {xpDelta} XP
-                  </div>
-                )}
+                <p className="text-xs text-purple-700 dark:text-purple-300 mt-2">
+                  {totalTries === 1
+                    ? "Neue XP"
+                    : xpDelta !== 0
+                    ? `${xpDelta > 0 ? "+" : ""}${xpDelta} XP`
+                    : "Unverändert"}
+                </p>
               </div>
             </div>
           )}
