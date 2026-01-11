@@ -8,6 +8,7 @@ import {
   Zap,
   Sparkles,
   Play,
+  Clock,
   // Timer
 } from "lucide-react";
 import { loadAllUserProgress } from "../../utils/loadAllUserProgress";
@@ -96,7 +97,7 @@ const ProgressAccordionItem: React.FC<{
           {isCompleted ? (
             <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
           ) : (
-            <Zap className="w-5 h-5 text-yellow-500 flex-shrink-0" />
+            <Clock className="w-5 h-5 text-yellow-500 flex-shrink-0" />
           )}
 
           {/* Title */}
