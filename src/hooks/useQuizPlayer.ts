@@ -103,6 +103,7 @@ export function useQuizPlayer(
 
   const [currentQuestion, setCurrentQuestion] = useState<number>(getFirstUnsolvedIndex());
   const [selectedAnswer, setSelectedAnswer] = useState<(Answer & { originalIndex: number }) | null>(null);
+  const [isAnswerSubmitted, setIsAnswerSubmitted] = useState<boolean>(false);
   const [answers, setAnswers] = useState<boolean[]>(initialState?.answers || []);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [repeatQuestions, setRepeatQuestions] = useState<Question[] | null>(null);
@@ -161,11 +162,17 @@ export function useQuizPlayer(
   }, [currentQuestion, shuffledQuestions, repeatQuestions]);
 
   const handleAnswerSelect = (answer: Answer & { originalIndex: number }) => {
-    if (selectedAnswer !== null) return;
+    if (isAnswerSubmitted) return; // Kann nicht ändern nach Submit
     setSelectedAnswer(answer);
+  };
+
+  const handleSubmitAnswer = () => {
+    if (!selectedAnswer || isAnswerSubmitted) return;
+    
+    setIsAnswerSubmitted(true);
     const questions = repeatQuestions || shuffledQuestions;
     const currentQ = questions[currentQuestion];
-    const isCorrect = answer.originalIndex === currentQ.correctAnswerIndex;
+    const isCorrect = selectedAnswer.originalIndex === currentQ.correctAnswerIndex;
     
     // Question ID für das Progress-Tracking ermitteln - verwende Helper-Funktion
     const originalIndex = findOriginalQuestionIndex(currentQ, quiz);
@@ -214,6 +221,7 @@ export function useQuizPlayer(
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
+      setIsAnswerSubmitted(false);
     } else {
       // Nach Abschluss: Alle korrekt beantworteten Fragen zu solvedQuestions hinzufügen
       setShowResults(true);
@@ -232,6 +240,7 @@ export function useQuizPlayer(
   const handleRestart = () => {
     setCurrentQuestion(0);
     setSelectedAnswer(null);
+    setIsAnswerSubmitted(false);
     setAnswers([]);
     setShowResults(false);
     setRepeatQuestions(null);
@@ -263,6 +272,7 @@ export function useQuizPlayer(
       setRepeatQuestions(wrongQuestions);
       setCurrentQuestion(0);
       setSelectedAnswer(null);
+      setIsAnswerSubmitted(false);
       setAnswers([]);
       setShowResults(false);
       setTotalTries(t => t + 1);
@@ -312,6 +322,7 @@ export function useQuizPlayer(
   return {
     currentQuestion,
     selectedAnswer,
+    isAnswerSubmitted,
     answers,
     shuffledAnswers,
     showResults,
@@ -324,6 +335,7 @@ export function useQuizPlayer(
     completedTime,
     setCompletedTime,
     handleAnswerSelect,
+    handleSubmitAnswer,
     handleNext,
     handleRestart,
     handleRepeatWrong,

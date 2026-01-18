@@ -23,7 +23,12 @@ const AnswerButton = memo(function AnswerButton({
   let buttonClass = "w-full p-6 rounded-xl transition-all ";
   
   if (!showFeedback) {
-    buttonClass += "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white";
+    // Zeige Auswahl mit blauem Border, bevor Antwort geprüft wird
+    if (isSelected) {
+      buttonClass += "bg-blue-50 dark:bg-blue-900 border-2 border-blue-500 text-gray-900 dark:text-white";
+    } else {
+      buttonClass += "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white";
+    }
   } else if (isCorrect) {
     buttonClass += "bg-green-100 dark:bg-green-700 text-green-900 dark:text-green-200 border-2 border-green-500";
   } else if (isSelected && !isCorrect) {

@@ -7,10 +7,12 @@ interface QuizQuestionProps {
   question: Question;
   shuffledAnswers: Array<Answer & { originalIndex: number }>;
   selectedAnswer: (Answer & { originalIndex: number }) | null;
+  isAnswerSubmitted: boolean;
   correctAnswer: (Answer & { originalIndex: number }) | undefined;
   currentQuestion: number;
   totalQuestions: number;
   onAnswerSelect: (answer: Answer & { originalIndex: number }) => void;
+  onSubmitAnswer: () => void;
   onNext: () => void;
   onHome: () => void;
   onBack?: () => void; // For Quiz Challenge mode
@@ -23,10 +25,12 @@ export default function QuizQuestion({
   question,
   shuffledAnswers,
   selectedAnswer,
+  isAnswerSubmitted,
   correctAnswer,
   currentQuestion,
   totalQuestions,
   onAnswerSelect,
+  onSubmitAnswer,
   onNext,
   onHome,
   onBack,
@@ -34,7 +38,7 @@ export default function QuizQuestion({
   showResultOverride,
   hasProgress = false,
 }: QuizQuestionProps) {
-  const showFeedback = showResultOverride !== undefined ? showResultOverride : selectedAnswer !== null;
+  const showFeedback = showResultOverride !== undefined ? showResultOverride : isAnswerSubmitted;
   const cancelButtonText = hasProgress ? 'Pausieren' : 'Quiz abbrechen';
   const cancelButtonTitle = hasProgress 
     ? 'Quiz pausieren - Dein Fortschritt wird automatisch gespeichert' 
@@ -108,14 +112,26 @@ export default function QuizQuestion({
                 isCorrect={isCorrect}
                 showFeedback={showFeedback}
                 onSelect={onAnswerSelect}
-                disabled={selectedAnswer !== null}
+                disabled={isAnswerSubmitted}
               />
             );
           })}
         </div>
 
-        {/* Next Button */}
-        {selectedAnswer && (
+        {/* Submit Answer Button - erscheint wenn Antwort gewählt aber noch nicht geprüft */}
+        {selectedAnswer && !isAnswerSubmitted && (
+          <button
+            onClick={onSubmitAnswer}
+            className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors mb-4"
+            title="Antwort prüfen"
+            aria-label="Antwort prüfen"
+          >
+            Antwort prüfen
+          </button>
+        )}
+
+        {/* Next Button - erscheint nach Prüfung */}
+        {isAnswerSubmitted && (
           <button
             onClick={onNext}
             className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors"

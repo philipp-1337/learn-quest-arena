@@ -26,10 +26,12 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
   const {
     currentQuestion,
     selectedAnswer,
+    isAnswerSubmitted,
     answers,
     shuffledAnswers,
     showResults,
     handleAnswerSelect,
+    handleSubmitAnswer,
     handleNext,
     handleRestart,
     handleRepeatWrong,
@@ -139,10 +141,12 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
       question={question}
       shuffledAnswers={shuffledAnswers}
       selectedAnswer={selectedAnswer}
+      isAnswerSubmitted={isAnswerSubmitted}
       correctAnswer={correctAnswer}
       currentQuestion={currentQuestion}
       totalQuestions={quizPlayer.totalQuestions}
       onAnswerSelect={handleAnswerSelect}
+      onSubmitAnswer={handleSubmitAnswer}
       onNext={handleNext}
       onHome={onHome}
       elapsedTime={elapsedTime}
