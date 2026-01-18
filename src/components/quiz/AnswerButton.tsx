@@ -46,7 +46,7 @@ const AnswerButton = memo(function AnswerButton({
           {showFeedback && isCorrect && <Check className="w-6 h-6 flex-shrink-0" />}
           {showFeedback && isSelected && !isCorrect && <X className="w-6 h-6 flex-shrink-0" />}
         </div>
-      ) : (
+      ) : answer.type === 'image' ? (
         <div className="flex flex-col items-center gap-2">
           <OptimizedImage
             src={answer.content}
@@ -59,6 +59,17 @@ const AnswerButton = memo(function AnswerButton({
           {answer.alt && (
             <span className="font-medium text-sm">{answer.alt}</span>
           )}
+          <div className="mt-2">
+            {showFeedback && isCorrect && <Check className="w-6 h-6 mx-auto" />}
+            {showFeedback && isSelected && !isCorrect && <X className="w-6 h-6 mx-auto" />}
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-2">
+          <audio controls className="w-full" onClick={(e) => e.stopPropagation()}>
+            <source src={answer.content} />
+            Dein Browser unterstützt das Audio-Element nicht.
+          </audio>
           <div className="mt-2">
             {showFeedback && isCorrect && <Check className="w-6 h-6 mx-auto" />}
             {showFeedback && isSelected && !isCorrect && <X className="w-6 h-6 mx-auto" />}

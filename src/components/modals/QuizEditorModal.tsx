@@ -1,3 +1,5 @@
+// IMOPORTANT: THIS FILE IS DEPRECATED AND NOT USED ANYMORE.
+
 import { useState } from 'react';
 import { Plus, Edit2, Trash2, Check, X, Lightbulb, MessageCircleWarning } from 'lucide-react';
 import type { Quiz, Question, Answer } from '../../types/quizTypes';

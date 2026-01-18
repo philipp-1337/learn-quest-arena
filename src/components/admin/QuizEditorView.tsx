@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Check, X, ArrowLeft, Save, Image as ImageIcon, Lock } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, X, ArrowLeft, Save, Image as ImageIcon, Lock, Volume2 } from 'lucide-react';
 import type { Quiz, Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
@@ -392,11 +392,18 @@ export default function QuizEditorView() {
                               height={72}
                             />
                           )}
+                          {(q.questionType || 'text') === 'audio' && q.questionAudio && (
+                            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                              <Volume2 className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                            </div>
+                          )}
                           <div className="flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-semibold text-gray-900 dark:text-white">
                                 {index + 1}. {(q.questionType || 'text') === 'image' 
                                   ? (q.question || '[Bild-Frage]') 
+                                  : (q.questionType || 'text') === 'audio'
+                                  ? (q.question || '[Audio-Frage]')
                                   : q.question
                                 }
                               </span>
@@ -406,8 +413,14 @@ export default function QuizEditorView() {
                                   Bild-Frage
                                 </span>
                               )}
+                              {(q.questionType || 'text') === 'audio' && (
+                                <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-1 rounded flex items-center gap-1">
+                                  <Volume2 className="w-3 h-3" />
+                                  Audio-Frage
+                                </span>
+                              )}
                               <span className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded">
-                                {q.answerType === 'text' ? 'Text' : 'Bilder'}
+                                {q.answerType === 'text' ? 'Text' : q.answerType === 'image' ? 'Bilder' : 'Audio'}
                               </span>
                             </div>
                           </div>
@@ -430,7 +443,7 @@ export default function QuizEditorView() {
                                 >
                                   {answer.content}
                                 </span>
-                              ) : (
+                              ) : answer.type === 'image' ? (
                                 <div className="flex items-center gap-2">
                                   <img
                                     src={getThumbnailUrl(answer.content, 64)}
@@ -446,6 +459,21 @@ export default function QuizEditorView() {
                                     }
                                   >
                                     {answer.alt || 'Bild'}
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded flex items-center justify-center">
+                                    <Volume2 className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                                  </div>
+                                  <span
+                                    className={
+                                      i === q.correctAnswerIndex
+                                        ? 'text-green-700 dark:text-green-400 font-medium'
+                                        : 'text-gray-600 dark:text-gray-400'
+                                    }
+                                  >
+                                    Audio
                                   </span>
                                 </div>
                               )}

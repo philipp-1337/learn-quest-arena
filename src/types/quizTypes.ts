@@ -75,9 +75,10 @@ export interface QuizDocument extends Omit<Quiz, 'id'> {
 export interface Question {
   id?: string;  // Unique identifier for the question
   question: string;
-  questionType?: 'text' | 'image'; // Type of question (text or image)
+  questionType?: 'text' | 'image' | 'audio'; // Type of question (text, image, or audio)
   questionImage?: string; // URL of question image if questionType is 'image'
   questionImageAlt?: string; // Alt text for question image
+  questionAudio?: string; // URL of question audio if questionType is 'audio'
   answerType: string;
   answers: Answer[];
   correctAnswerIndex: number;

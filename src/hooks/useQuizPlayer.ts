@@ -144,6 +144,13 @@ export function useQuizPlayer(
   const shuffledAnswers = useMemo(() => {
     const questions = repeatQuestions || shuffledQuestions;
     const question = questions[currentQuestion];
+    
+    // Safety check: ensure answers exist
+    if (!question || !question.answers || !Array.isArray(question.answers)) {
+      console.error('Question has no valid answers array:', question);
+      return [];
+    }
+    
     const answerIndices = question.answers.map((_, idx) => idx);
     return answerIndices
       .sort(() => Math.random() - 0.5)

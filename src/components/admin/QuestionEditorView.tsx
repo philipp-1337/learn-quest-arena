@@ -104,6 +104,13 @@ export default function QuestionEditorView() {
       return;
     }
 
+    if (question.questionType === 'audio' && !question.questionAudio) {
+      toast.custom(() => (
+        <CustomToast message="Bitte lade eine Fragen-Audio-Datei hoch" type="error" />
+      ));
+      return;
+    }
+
     if (question.answers.length < 2) {
       toast.custom(() => (
         <CustomToast message="Mindestens 2 Antworten erforderlich" type="error" />
@@ -125,10 +132,17 @@ export default function QuestionEditorView() {
         ));
         return;
       }
-    } else {
+    } else if (question.answerType === 'image') {
       if (question.answers.some((a) => !a.content)) {
         toast.custom(() => (
           <CustomToast message="Bitte lade alle Bilder hoch" type="error" />
+        ));
+        return;
+      }
+    } else if (question.answerType === 'audio') {
+      if (question.answers.some((a) => !a.content)) {
+        toast.custom(() => (
+          <CustomToast message="Bitte lade alle Audio-Dateien hoch" type="error" />
         ));
         return;
       }
@@ -138,9 +152,32 @@ export default function QuestionEditorView() {
 
     setSaving(true);
     try {
+      // Bereinige die Frage von undefined-Werten für Firestore
+      const cleanQuestion: Question = {
+        question: question.question,
+        questionType: question.questionType,
+        answerType: question.answerType,
+        answers: question.answers,
+        correctAnswerIndex: question.correctAnswerIndex,
+      };
+
+      // Füge nur die relevanten optionalen Felder hinzu
+      if (question.id) {
+        cleanQuestion.id = question.id;
+      }
+      if (question.questionType === 'image' && question.questionImage) {
+        cleanQuestion.questionImage = question.questionImage;
+        if (question.questionImageAlt) {
+          cleanQuestion.questionImageAlt = question.questionImageAlt;
+        }
+      }
+      if (question.questionType === 'audio' && question.questionAudio) {
+        cleanQuestion.questionAudio = question.questionAudio;
+      }
+
       const updatedQuestions = isEditing
-        ? quizDocument.questions.map((q, i) => i === questionIndex ? question : q)
-        : [...quizDocument.questions, question];
+        ? quizDocument.questions.map((q, i) => i === questionIndex ? cleanQuestion : q)
+        : [...quizDocument.questions, cleanQuestion];
 
       await updateQuizDocument(quizDocument.id, {
         questions: updatedQuestions,
@@ -207,18 +244,19 @@ export default function QuestionEditorView() {
     });
   };
 
-  const handleQuestionTypeChange = (type: 'text' | 'image') => {
+  const handleQuestionTypeChange = (type: 'text' | 'image' | 'audio') => {
     setQuestion({
       ...question,
       questionType: type,
       question: type === 'text' ? question.question : '',
       questionImage: type === 'image' ? question.questionImage : undefined,
       questionImageAlt: type === 'image' ? question.questionImageAlt : undefined,
+      questionAudio: type === 'audio' ? question.questionAudio : undefined,
     });
   };
 
   // Helper: Get question type with default
-  const getQuestionType = (q: Question): 'text' | 'image' => q.questionType || 'text';
+  const getQuestionType = (q: Question): 'text' | 'image' | 'audio' => q.questionType || 'text';
 
   const handleQuestionImageUpload = async (file: File) => {
     try {
@@ -240,6 +278,31 @@ export default function QuestionEditorView() {
       toast.custom(() => (
         <CustomToast 
           message="Fehler beim Verarbeiten des Bildes. Versuche es erneut." 
+          type="error" 
+        />
+      ));
+    }
+  };
+
+  const handleQuestionAudioUpload = async (file: File) => {
+    try {
+      const result = await uploadWithToast(file, {
+        resourceType: 'auto',
+        folder: 'quiz-audio',
+        tags: ['quiz', 'question-audio'],
+      });
+
+      if (!result) return;
+
+      setQuestion({
+        ...question,
+        questionAudio: result.url,
+      });
+    } catch (error) {
+      console.error('Fehler beim Hochladen der Audio-Datei:', error);
+      toast.custom(() => (
+        <CustomToast 
+          message="Fehler beim Verarbeiten der Audio-Datei. Versuche es erneut." 
           type="error" 
         />
       ));
@@ -272,6 +335,37 @@ export default function QuestionEditorView() {
       toast.custom(() => (
         <CustomToast 
           message="Fehler beim Verarbeiten des Bildes. Versuche es erneut." 
+          type="error" 
+        />
+      ));
+    }
+  };
+
+  const handleAudioUpload = async (index: number, file: File) => {
+    try {
+      const result = await uploadWithToast(file, {
+        resourceType: 'auto',
+        folder: 'quiz-audio',
+        tags: ['quiz', 'answer-audio'],
+      });
+
+      if (!result) return;
+
+      const newAnswers = [...question.answers];
+      newAnswers[index] = {
+        type: 'audio',
+        content: result.url,
+      };
+
+      setQuestion({
+        ...question,
+        answers: newAnswers,
+      });
+    } catch (error) {
+      console.error('Fehler beim Hochladen der Audio-Datei:', error);
+      toast.custom(() => (
+        <CustomToast 
+          message="Fehler beim Verarbeiten der Audio-Datei. Versuche es erneut." 
           type="error" 
         />
       ));
@@ -370,6 +464,16 @@ export default function QuestionEditorView() {
                 >
                   Bild
                 </button>
+                <button
+                  onClick={() => handleQuestionTypeChange('audio')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
+                    getQuestionType(question) === 'audio'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  Audio
+                </button>
               </div>
             </div>
 
@@ -387,7 +491,7 @@ export default function QuestionEditorView() {
                   placeholder="Was ist 2 + 2?"
                 />
               </div>
-            ) : (
+            ) : getQuestionType(question) === 'image' ? (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Fragen-Bild
@@ -443,6 +547,46 @@ export default function QuestionEditorView() {
                   />
                 </div>
               </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Fragen-Audio
+                </label>
+                <div className="space-y-4">
+                  {question.questionAudio && (
+                    <audio controls className="w-full max-w-2xl">
+                      <source src={question.questionAudio} />
+                      Dein Browser unterstützt das Audio-Element nicht.
+                    </audio>
+                  )}
+                  
+                  <label
+                    htmlFor="question-audio-upload"
+                    className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    <span>{question.questionAudio ? 'Audio ändern' : 'Audio auswählen'}</span>
+                    <input
+                      id="question-audio-upload"
+                      type="file"
+                      accept="audio/*"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleQuestionAudioUpload(e.target.files[0]);
+                        }
+                      }}
+                      className="sr-only"
+                    />
+                  </label>
+
+                  <input
+                    type="text"
+                    value={question.question}
+                    onChange={(e) => setQuestion({ ...question, question: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg text-sm"
+                    placeholder="Optionaler Fragentext (z.B. 'Was hörst du hier?')"
+                  />
+                </div>
+              </div>
             )}
 
             {/* Answer Type Selection */}
@@ -470,6 +614,16 @@ export default function QuestionEditorView() {
                   }`}
                 >
                   Bilder
+                </button>
+                <button
+                  onClick={() => handleAnswerTypeChange('audio')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
+                    question.answerType === 'audio'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  Audio
                 </button>
               </div>
             </div>
@@ -531,7 +685,7 @@ export default function QuestionEditorView() {
                     </div>
                   ))}
                 </div>
-              ) : (
+              ) : question.answerType === 'image' ? (
                 <div className="space-y-4">
                   <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
                     <p className="text-sm font-medium text-blue-900 dark:text-blue-200 flex items-center gap-2">
@@ -614,6 +768,84 @@ export default function QuestionEditorView() {
                                 <Check className="w-4 h-4" />
                                 Korrekt
                               </span>
+                            ) : (
+                              'Als korrekt markieren'
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleRemoveAnswer(i)}
+                            disabled={question.answers.length <= 2}
+                            className="px-4 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Entfernen
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-200 flex items-center gap-2">
+                      <MessageCircleWarning className="w-4 h-4" />
+                      <span>Audio-Dateien werden auf Cloudinary gehostet (max. 10 MB).</span>
+                    </p>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-2 flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4" />
+                      <span>Tipp: Unterstützte Formate: MP3, WAV, OGG, WebM</span>
+                    </p>
+                  </div>
+
+                  {question.answers.map((answer: Answer, i: number) => (
+                    <div
+                      key={i}
+                      className="border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 rounded-lg p-6"
+                    >
+                      <div className="space-y-4">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Audio {i + 1}
+                        </label>
+
+                        {answer.content && (
+                          <audio controls className="w-full max-w-md">
+                            <source src={answer.content} />
+                            Dein Browser unterstützt das Audio-Element nicht.
+                          </audio>
+                        )}
+
+                        <label
+                          htmlFor={`audio-upload-${i}`}
+                          className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                        >
+                          <span>{answer.content ? 'Audio ändern' : 'Audio auswählen'}</span>
+                          <input
+                            id={`audio-upload-${i}`}
+                            type="file"
+                            accept="audio/*"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                handleAudioUpload(i, e.target.files[0]);
+                              }
+                            }}
+                            className="sr-only"
+                          />
+                        </label>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setQuestion(q => ({ ...q, correctAnswerIndex: i }))}
+                            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                              question.correctAnswerIndex === i
+                                ? 'bg-green-600 text-white'
+                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                            }`}
+                            title={question.correctAnswerIndex === i ? 'Korrekte Antwort' : 'Als korrekt markieren'}
+                          >
+                            <Check className="w-5 h-5 inline mr-2" />
+                            {question.correctAnswerIndex === i ? (
+                              'Korrekt'
                             ) : (
                               'Als korrekt markieren'
                             )}

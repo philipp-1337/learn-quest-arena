@@ -75,6 +75,18 @@ export default function QuizQuestion({
                 </h2>
               )}
             </div>
+          ) : (question.questionType || 'text') === 'audio' && question.questionAudio ? (
+            <div className="space-y-4">
+              <audio controls className="w-full">
+                <source src={question.questionAudio} />
+                Dein Browser unterstützt das Audio-Element nicht.
+              </audio>
+              {question.question && (
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white force-break" lang="de">
+                  {question.question}
+                </h2>
+              )}
+            </div>
           ) : (
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white force-break" lang="de">
               {question.question}
