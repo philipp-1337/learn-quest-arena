@@ -30,6 +30,17 @@ export interface Quiz {
 }
 
 /**
+ * Edit lock information for multi-admin concurrency control.
+ * Prevents multiple admins from editing the same quiz simultaneously.
+ */
+export interface EditLock {
+  userId: string;           // Firebase Auth UID of the user holding the lock
+  userName: string;         // Display name of the user (e.g., "Admin A" or email)
+  lockedAt: number;         // Timestamp when the lock was acquired
+  expiresAt: number;        // Timestamp when the lock expires (auto-release)
+}
+
+/**
  * New Quiz structure for the standalone quizzes collection.
  * This extends the embedded Quiz with metadata fields for better organization.
  */
@@ -40,6 +51,9 @@ export interface QuizDocument extends Omit<Quiz, 'id'> {
   updatedAt?: number;       // Timestamp of last update
   authorId: string;         // Firebase Auth UID of the creator (Admin/Teacher)
   authorEmail?: string;     // Email of the author for display purposes
+  
+  // Edit lock for concurrent editing prevention
+  editLock?: EditLock;      // Present when quiz is being edited by an admin
   
   // References to categories (can be associated with multiple)
   // These use normalized/deterministic IDs based on names

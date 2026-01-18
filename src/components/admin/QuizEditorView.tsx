@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Check, X, ArrowLeft, Save, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, X, ArrowLeft, Save, Image as ImageIcon, Lock } from 'lucide-react';
 import type { Quiz, Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
-import { loadAllQuizDocuments, updateQuizDocument } from '../../utils/quizzesCollection';
+import { loadAllQuizDocuments, updateQuizDocument, acquireEditLock, releaseEditLock, refreshEditLock, subscribeToQuiz } from '../../utils/quizzesCollection';
 import type { QuizDocument } from '../../types/quizTypes';
 import { getThumbnailUrl } from '../../utils/cloudinaryTransform';
 import { showConfirmationToast } from '../../utils/confirmationToast';
 import OptimizedImage from '../shared/OptimizedImage';
+import { getAuth } from 'firebase/auth';
 
 export default function QuizEditorView() {
   const { id } = useParams<{ id: string }>();
@@ -18,20 +19,69 @@ export default function QuizEditorView() {
   const [quizDocument, setQuizDocument] = useState<QuizDocument | null>(null);
   const [saving, setSaving] = useState(false);
   const [urlShared, setUrlShared] = useState(false);
+  const [hasLock, setHasLock] = useState(false);
+  const [lockConflict, setLockConflict] = useState<string | null>(null);
+  const lockRefreshInterval = useRef<number | null>(null);
 
-  // Load quiz data
+  // Acquire edit lock and load quiz data
   useEffect(() => {
-    const loadQuiz = async () => {
-      if (!id) {
-        navigate('/admin');
-        return;
-      }
+    if (!id) {
+      navigate('/admin');
+      return;
+    }
 
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      toast.custom(() => (
+        <CustomToast message="Nicht angemeldet" type="error" />
+      ));
+      navigate('/admin');
+      return;
+    }
+
+    const initializeEditor = async () => {
       try {
+        // Try to acquire edit lock
+        const lockResult = await acquireEditLock(
+          id,
+          currentUser.uid,
+          currentUser.email || 'Unbekannt'
+        );
+
+        if (!lockResult.success) {
+          if (lockResult.lockedBy) {
+            setLockConflict(`Dieses Quiz wird bereits von ${lockResult.lockedBy.userName} bearbeitet.`);
+            
+            // Subscribe to quiz to detect when lock is released
+            const unsubscribe = subscribeToQuiz(id, (quiz) => {
+              if (quiz && !quiz.editLock) {
+                toast.custom(() => (
+                  <CustomToast message="Quiz ist jetzt verfügbar. Seite neu laden." type="info" />
+                ));
+              }
+            });
+
+            setLoading(false);
+            return () => unsubscribe();
+          } else {
+            toast.custom(() => (
+              <CustomToast message={lockResult.error || "Lock konnte nicht erworben werden"} type="error" />
+            ));
+            navigate('/admin');
+            return;
+          }
+        }
+
+        setHasLock(true);
+
+        // Load quiz data
         const quizzes = await loadAllQuizDocuments();
         const quiz = quizzes.find(q => q.id === id);
 
         if (!quiz) {
+          await releaseEditLock(id, currentUser.uid);
           toast.custom(() => (
             <CustomToast message="Quiz nicht gefunden" type="error" />
           ));
@@ -49,22 +99,51 @@ export default function QuizEditorView() {
           hidden: quiz.hidden === undefined ? true : quiz.hidden,
         });
         setUrlShared(quiz.urlShared || false);
+
+        // Set up lock refresh interval (every 15 minutes)
+        lockRefreshInterval.current = setInterval(async () => {
+          const refreshResult = await refreshEditLock(id, currentUser.uid);
+          if (!refreshResult.success) {
+            console.warn('Failed to refresh lock:', refreshResult.error);
+            setHasLock(false);
+            toast.custom(() => (
+              <CustomToast message="Edit-Lock verloren. Bitte Änderungen speichern." type="error" />
+            ));
+          }
+        }, 15 * 60 * 1000); // 15 minutes
+
+        setLoading(false);
       } catch (error) {
-        console.error('Error loading quiz:', error);
+        console.error('Error initializing editor:', error);
         toast.custom(() => (
           <CustomToast message="Fehler beim Laden des Quiz" type="error" />
         ));
         navigate('/admin');
-      } finally {
-        setLoading(false);
       }
     };
 
-    loadQuiz();
+    initializeEditor();
+
+    // Cleanup: Release lock on unmount
+    return () => {
+      if (lockRefreshInterval.current) {
+        clearInterval(lockRefreshInterval.current);
+      }
+      if (currentUser && id) {
+        releaseEditLock(id, currentUser.uid).catch(console.error);
+      }
+    };
   }, [id, navigate]);
 
   const handleSaveQuiz = async () => {
     if (!editedQuiz || !quizDocument) return;
+
+    if (!hasLock) {
+      toast.custom(() => (
+        <CustomToast message="Kein Edit-Lock vorhanden. Speichern nicht möglich." type="error" />
+      ));
+      return;
+    }
 
     if (!editedQuiz.title.trim()) {
       toast.custom(() => (
@@ -75,6 +154,9 @@ export default function QuizEditorView() {
 
     setSaving(true);
     try {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+
       await updateQuizDocument(quizDocument.id, {
         title: editedQuiz.title,
         shortTitle: editedQuiz.shortTitle,
@@ -82,6 +164,11 @@ export default function QuizEditorView() {
         hidden: editedQuiz.hidden,
         urlShared: urlShared,
       });
+      
+      // Release lock after successful save
+      if (currentUser) {
+        await releaseEditLock(quizDocument.id, currentUser.uid);
+      }
       
       toast.custom(() => (
         <CustomToast message="Quiz erfolgreich gespeichert" type="success" />
@@ -131,6 +218,26 @@ export default function QuizEditorView() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-gray-600 dark:text-gray-400">Lade Quiz...</div>
+      </div>
+    );
+  }
+
+  if (lockConflict) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Lock className="w-8 h-8 text-red-500" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Quiz in Bearbeitung</h2>
+          </div>
+          <p className="text-gray-700 dark:text-gray-300 mb-6">{lockConflict}</p>
+          <button
+            onClick={() => navigate('/admin')}
+            className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+          >
+            Zur\u00fcck zur \u00dcbersicht
+          </button>
+        </div>
       </div>
     );
   }

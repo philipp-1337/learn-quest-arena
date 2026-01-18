@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, QrCode, ChevronDown, Edit3, MoreVertical, ArrowLeftRight } from "lucide-react";
+import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, QrCode, ChevronDown, Edit3, MoreVertical, ArrowLeftRight, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
 import type { QuizDocument } from "../../types/quizTypes";
-import { loadAllQuizDocuments, deleteQuizDocument, updateQuizDocument } from "../../utils/quizzesCollection";
+import { deleteQuizDocument, updateQuizDocument, subscribeToQuizzes } from "../../utils/quizzesCollection";
 import DeleteConfirmModal from "../modals/DeleteConfirmModal";
 import CreateQuizWizard from "../modals/CreateQuizWizard";
 import RenameCategoryModal from "../modals/RenameCategoryModal";
@@ -77,33 +77,37 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     setAuthorAbbreviations(abbrevMap);
   };
 
-  // Load quizzes from collection
-  const loadQuizzes = async () => {
-    setLoading(true);
-    try {
-      const docs = await loadAllQuizDocuments();
-      setQuizzes(docs);
-      
-      // Load author abbreviations
-      const authorIds = docs.map(q => q.authorId).filter(Boolean);
-      if (authorIds.length > 0) {
-        await loadAuthorAbbreviations(authorIds);
-      }
-    } catch (error) {
-      console.error("Error loading quizzes:", error);
-      toast.custom(() => (
-        <CustomToast 
-          message="Fehler beim Laden der Quizze" 
-          type="error" 
-        />
-      ));
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Load quizzes from collection with real-time updates
   useEffect(() => {
-    loadQuizzes();
+    setLoading(true);
+    
+    // Subscribe to real-time updates
+    const unsubscribe = subscribeToQuizzes(
+      async (docs) => {
+        setQuizzes(docs);
+        
+        // Load author abbreviations
+        const authorIds = docs.map(q => q.authorId).filter(Boolean);
+        if (authorIds.length > 0) {
+          await loadAuthorAbbreviations(authorIds);
+        }
+        
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error in quiz subscription:", error);
+        toast.custom(() => (
+          <CustomToast 
+            message="Fehler beim Laden der Quizze" 
+            type="error" 
+          />
+        ));
+        setLoading(false);
+      }
+    );
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   // Close mobile menu when clicking outside
@@ -251,7 +255,6 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
   const handleQuizCreated = async () => {
     setShowCreateWizard(false);
-    await loadQuizzes();
     if (onRefetch) await onRefetch();
   };
 
@@ -267,12 +270,6 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
   };
 
   const handleRenameSuccess = async () => {
-    // Zeige Loading-Indikator
-    setLoading(true);
-    
-    // Lade Quizze neu
-    await loadQuizzes();
-    
     // Setze alle Filter zurück
     clearFilters();
     
@@ -547,8 +544,13 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                     </button>
                     <button
                       onClick={() => navigate(`/admin/quiz/edit/${quiz.id}`)}
-                      className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
-                      title="Bearbeiten"
+                      disabled={!!quiz.editLock}
+                      className={`p-2 rounded-lg transition-colors ${
+                        quiz.editLock
+                          ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                          : 'text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
+                      }`}
+                      title={quiz.editLock ? `Wird bearbeitet von ${quiz.editLock.userName}` : "Bearbeiten"}
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -591,6 +593,12 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                   {quiz.topicName && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 truncate">
                       {quiz.topicName}
+                    </span>
+                  )}
+                  {quiz.editLock && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 truncate" title={`Wird bearbeitet von ${quiz.editLock.userName} seit ${new Date(quiz.editLock.lockedAt).toLocaleTimeString('de-DE')}`}>
+                      <Lock className="w-3 h-3" />
+                      In Bearbeitung ({quiz.editLock.userName})
                     </span>
                   )}
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 truncate">
@@ -641,11 +649,16 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                     onClick={() => {
                       navigate(`/admin/quiz/edit/${quiz.id}`);
                       setOpenMobileMenuId(null);
-                    }} 
-                    className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                    }}
+                    disabled={!!quiz.editLock}
+                    className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 ${
+                      quiz.editLock
+                        ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
                   >
-                    <Pencil className="w-4 h-4" />
-                    Bearbeiten
+                    {quiz.editLock ? <Lock className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
+                    {quiz.editLock ? 'Bearbeitung läuft' : 'Bearbeiten'}
                   </button>
                   <button 
                     onClick={() => {
@@ -698,8 +711,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
         <ReassignQuizModal
           quiz={reassignQuiz}
           onClose={() => setReassignQuiz(null)}
-          onSuccess={async () => {
-            await loadQuizzes();
+          onSuccess={() => {
             toast.custom(() => (
               <CustomToast 
                 message="Quiz neu zugeordnet" 

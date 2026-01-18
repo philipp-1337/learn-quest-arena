@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Trash2, Check, Lightbulb, MessageCircleWarning } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Check, Lightbulb, MessageCircleWarning, Lock } from 'lucide-react';
 import type { Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
 import { uploadWithToast } from '../../utils/cloudinaryUpload';
-import { loadAllQuizDocuments, updateQuizDocument } from '../../utils/quizzesCollection';
+import { loadAllQuizDocuments, updateQuizDocument, isQuizLocked } from '../../utils/quizzesCollection';
 import type { QuizDocument } from '../../types/quizTypes';
 import OptimizedImage from '../shared/OptimizedImage';
+import { getAuth } from 'firebase/auth';
 
 export default function QuestionEditorView() {
   const { id, index } = useParams<{ id: string; index?: string }>();
@@ -15,6 +16,7 @@ export default function QuestionEditorView() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [quizDocument, setQuizDocument] = useState<QuizDocument | null>(null);
+  const [lockWarning, setLockWarning] = useState<string | null>(null);
   const [question, setQuestion] = useState<Question>({
     question: '',
     questionType: 'text',
@@ -39,6 +41,17 @@ export default function QuestionEditorView() {
       }
 
       try {
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+
+        if (!currentUser) {
+          toast.custom(() => (
+            <CustomToast message="Nicht angemeldet" type="error" />
+          ));
+          navigate('/admin');
+          return;
+        }
+
         const quizzes = await loadAllQuizDocuments();
         const quiz = quizzes.find(q => q.id === id);
 
@@ -48,6 +61,12 @@ export default function QuestionEditorView() {
           ));
           navigate('/admin');
           return;
+        }
+
+        // Check if quiz is locked by someone else
+        const lock = await isQuizLocked(id, currentUser.uid);
+        if (lock) {
+          setLockWarning(`Achtung: Dieses Quiz wird gerade von ${lock.userName} bearbeitet. Änderungen sollten nur mit Vorsicht gemacht werden.`);
         }
 
         setQuizDocument(quiz);
@@ -276,6 +295,13 @@ export default function QuestionEditorView() {
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          {/* Lock Warning Banner */}
+          {lockWarning && (
+            <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg flex items-start gap-2">
+              <Lock className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">{lockWarning}</p>
+            </div>
+          )}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <button
