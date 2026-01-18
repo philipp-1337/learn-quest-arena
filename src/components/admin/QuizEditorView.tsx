@@ -7,6 +7,7 @@ import { CustomToast } from '../misc/CustomToast';
 import { loadAllQuizDocuments, updateQuizDocument } from '../../utils/quizzesCollection';
 import type { QuizDocument } from '../../types/quizTypes';
 import { getThumbnailUrl } from '../../utils/cloudinaryTransform';
+import { showConfirmationToast } from '../../utils/confirmationToast';
 
 export default function QuizEditorView() {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +16,7 @@ export default function QuizEditorView() {
   const [editedQuiz, setEditedQuiz] = useState<Quiz | null>(null);
   const [quizDocument, setQuizDocument] = useState<QuizDocument | null>(null);
   const [saving, setSaving] = useState(false);
+  const [urlShared, setUrlShared] = useState(false);
 
   // Load quiz data
   useEffect(() => {
@@ -45,6 +47,7 @@ export default function QuizEditorView() {
           questions: quiz.questions || [],
           hidden: quiz.hidden === undefined ? true : quiz.hidden,
         });
+        setUrlShared(quiz.urlShared || false);
       } catch (error) {
         console.error('Error loading quiz:', error);
         toast.custom(() => (
@@ -76,6 +79,7 @@ export default function QuizEditorView() {
         shortTitle: editedQuiz.shortTitle,
         questions: editedQuiz.questions,
         hidden: editedQuiz.hidden,
+        urlShared: urlShared,
       });
       
       toast.custom(() => (
@@ -100,6 +104,26 @@ export default function QuizEditorView() {
       ...editedQuiz,
       questions: editedQuiz.questions.filter((_, i) => i !== index),
     });
+  };
+
+  const handleUrlSharedToggle = (checked: boolean) => {
+    if (!checked) {
+      // User wants to deactivate "URL wurde geteilt" - show warning
+      showConfirmationToast({
+        message: 'Achtung: Eine Änderung am Kurztitel ändert auch die URL. Dies kann Auswirkungen auf bereits geteilte URLs haben.',
+        confirmText: 'Verstanden',
+        cancelText: 'Abbrechen',
+        onConfirm: () => {
+          setUrlShared(false);
+        },
+        onCancel: () => {
+          // Keep checkbox active, do nothing
+        },
+      });
+    } else {
+      // User wants to activate "URL wurde geteilt" - just set it
+      setUrlShared(true);
+    }
   };
 
   if (loading) {
@@ -186,22 +210,37 @@ export default function QuizEditorView() {
                   type="text"
                   value={editedQuiz.shortTitle}
                   onChange={e => setEditedQuiz(q => q ? { ...q, shortTitle: e.target.value } : null)}
-                  className="w-full px-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  disabled={urlShared}
+                  className="w-full px-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Kurztitel"
                   lang="de"
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="hidden-toggle"
-                  checked={!!editedQuiz.hidden}
-                  onChange={e => setEditedQuiz(q => q ? { ...q, hidden: e.target.checked } : null)}
-                  className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-700"
-                />
-                <label htmlFor="hidden-toggle" className="text-sm text-gray-700 dark:text-gray-300">
-                  Quiz ist <span className={editedQuiz.hidden ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400'}>{editedQuiz.hidden ? 'ausgeblendet' : 'sichtbar'}</span>
-                </label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="hidden-toggle"
+                    checked={!!editedQuiz.hidden}
+                    onChange={e => setEditedQuiz(q => q ? { ...q, hidden: e.target.checked } : null)}
+                    className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-700"
+                  />
+                  <label htmlFor="hidden-toggle" className="text-sm text-gray-700 dark:text-gray-300">
+                    Quiz ist <span className={editedQuiz.hidden ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400'}>{editedQuiz.hidden ? 'ausgeblendet' : 'sichtbar'}</span>
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="url-shared-toggle"
+                    checked={urlShared}
+                    onChange={e => handleUrlSharedToggle(e.target.checked)}
+                    className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-700"
+                  />
+                  <label htmlFor="url-shared-toggle" className="text-sm text-gray-700 dark:text-gray-300">
+                    Quiz URL wurde geteilt
+                  </label>
+                </div>
               </div>
             </div>
           </div>

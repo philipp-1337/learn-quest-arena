@@ -26,6 +26,7 @@ export interface Quiz {
   shortTitle: string;
   questions: Question[];
   hidden?: boolean; // Wenn true, ist das Quiz ausgeblendet
+  urlShared?: boolean; // Wenn true, wurde die Quiz-URL geteilt und shortTitle sollte nicht mehr geändert werden
 }
 
 /**

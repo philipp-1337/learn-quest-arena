@@ -226,13 +226,24 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     setDeletingQuiz(null);
   };
 
-  const handleCopyLink = (quiz: QuizDocument) => {
+  const handleCopyLink = async (quiz: QuizDocument) => {
     const baseUrl = window.location.origin;
     const url = `${baseUrl}/quiz/${slugify(quiz.subjectName || '')}/${slugify(quiz.className || '')}/${slugify(quiz.topicName || '')}/${slugify(quiz.title)}`;
     navigator.clipboard.writeText(url);
+    
+    // Set urlShared to true if it wasn't already
+    if (!quiz.urlShared) {
+      const result = await updateQuizDocument(quiz.id, { urlShared: true });
+      if (result.success) {
+        setQuizzes(prev => prev.map(q => 
+          q.id === quiz.id ? { ...q, urlShared: true } : q
+        ));
+      }
+    }
+    
     toast.custom(() => (
       <CustomToast 
-        message="Link kopiert!" 
+        message="Link in Zwischenablage kopiert!" 
         type="success" 
       />
     ));
