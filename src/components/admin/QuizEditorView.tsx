@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Check, X, ArrowLeft, Save } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, X, ArrowLeft, Save, Image as ImageIcon } from 'lucide-react';
 import type { Quiz, Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
@@ -8,6 +8,7 @@ import { loadAllQuizDocuments, updateQuizDocument } from '../../utils/quizzesCol
 import type { QuizDocument } from '../../types/quizTypes';
 import { getThumbnailUrl } from '../../utils/cloudinaryTransform';
 import { showConfirmationToast } from '../../utils/confirmationToast';
+import OptimizedImage from '../shared/OptimizedImage';
 
 export default function QuizEditorView() {
   const { id } = useParams<{ id: string }>();
@@ -274,13 +275,35 @@ export default function QuizEditorView() {
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-semibold text-gray-900 dark:text-white">
-                            {index + 1}. {q.question}
-                            <span className="ml-2 text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded">
-                              {q.answerType === 'text' ? 'Text' : 'Bilder'}
-                            </span>
-                          </span>
+                        <div className="flex items-start gap-3 mb-2">
+                          {(q.questionType || 'text') === 'image' && q.questionImage && (
+                            <OptimizedImage
+                              src={q.questionImage}
+                              alt={q.questionImageAlt || 'Frage'}
+                              className="w-24 h-18 object-cover rounded"
+                              width={96}
+                              height={72}
+                            />
+                          )}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-gray-900 dark:text-white">
+                                {index + 1}. {(q.questionType || 'text') === 'image' 
+                                  ? (q.question || '[Bild-Frage]') 
+                                  : q.question
+                                }
+                              </span>
+                              {(q.questionType || 'text') === 'image' && (
+                                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded flex items-center gap-1">
+                                  <ImageIcon className="w-3 h-3" />
+                                  Bild-Frage
+                                </span>
+                              )}
+                              <span className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded">
+                                {q.answerType === 'text' ? 'Text' : 'Bilder'}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                         <div className="space-y-2 text-sm">
                           {q.answers.map((answer: Answer, i: number) => (

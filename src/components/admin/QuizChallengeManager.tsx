@@ -7,6 +7,7 @@ import { CustomToast } from '../misc/CustomToast';
 import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
 import { getQuestionId } from '../../utils/questionIdHelper';
 import { loadAllQuizDocuments } from '../../utils/quizzesCollection';
+import OptimizedImage from '../shared/OptimizedImage';
 
 interface QuizChallengeManagerProps {
   challenges: QuizChallenge[];
@@ -300,8 +301,22 @@ export default function QuizChallengeManager({
                               className="mt-1"
                             />
                             <div className="flex-1">
+                              {(question.questionType || 'text') === 'image' && question.questionImage ? (
+                                <div className="mb-2">
+                                  <OptimizedImage
+                                    src={question.questionImage}
+                                    alt={question.questionImageAlt || 'Frage'}
+                                    className="w-32 h-24 object-cover rounded"
+                                    width={128}
+                                    height={96}
+                                  />
+                                </div>
+                              ) : null}
                               <p className="font-medium text-gray-900 dark:text-white mb-1">
-                                {question.question}
+                                {(question.questionType || 'text') === 'image' 
+                                  ? (question.question || '[Bild-Frage]')
+                                  : question.question
+                                }
                               </p>
                               <p className="text-xs text-gray-500">
                                 {question.topicName} • {question.quizTitle}
@@ -345,8 +360,22 @@ export default function QuizChallengeManager({
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
+                            {(question.questionType || 'text') === 'image' && question.questionImage ? (
+                              <div className="mb-2">
+                                <OptimizedImage
+                                  src={question.questionImage}
+                                  alt={question.questionImageAlt || 'Frage'}
+                                  className="w-48 h-36 object-cover rounded"
+                                  width={192}
+                                  height={144}
+                                />
+                              </div>
+                            ) : null}
                             <p className="font-medium text-gray-900 dark:text-white mb-1">
-                              {question.question}
+                              {(question.questionType || 'text') === 'image' 
+                                ? (question.question || '[Bild-Frage]')
+                                : question.question
+                              }
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                               {question.topicName} • {question.quizTitle}

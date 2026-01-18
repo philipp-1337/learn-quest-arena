@@ -1,6 +1,7 @@
 import AnswerButton from './AnswerButton';
 import type { Question, Answer } from '../../types/quizTypes';
 import { formatTime } from '../../utils/formatTime';
+import OptimizedImage from '../shared/OptimizedImage';
 
 interface QuizQuestionProps {
   question: Question;
@@ -58,9 +59,28 @@ export default function QuizQuestion({
         </div>
 
         {/* Question */}
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8 force-break" lang="de">
-          {question.question}
-        </h2>
+        <div className="mb-8">
+          {(question.questionType || 'text') === 'image' && question.questionImage ? (
+            <div className="space-y-4">
+              <OptimizedImage
+                src={question.questionImage}
+                alt={question.questionImageAlt || 'Frage'}
+                className="w-full rounded-lg"
+                width={800}
+                height={600}
+              />
+              {question.question && (
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white force-break" lang="de">
+                  {question.question}
+                </h2>
+              )}
+            </div>
+          ) : (
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white force-break" lang="de">
+              {question.question}
+            </h2>
+          )}
+        </div>
 
         {/* Answers */}
         <div className="space-y-4 mb-8">

@@ -17,6 +17,7 @@ export default function QuestionEditorView() {
   const [quizDocument, setQuizDocument] = useState<QuizDocument | null>(null);
   const [question, setQuestion] = useState<Question>({
     question: '',
+    questionType: 'text',
     answerType: 'text',
     answers: [
       { type: 'text', content: '' },
@@ -70,9 +71,16 @@ export default function QuestionEditorView() {
   }, [id, index, isEditing, questionIndex, navigate]);
 
   const handleSaveQuestion = async () => {
-    if (!question.question.trim()) {
+    if (question.questionType === 'text' && !question.question.trim()) {
       toast.custom(() => (
         <CustomToast message="Bitte gib eine Frage ein" type="error" />
+      ));
+      return;
+    }
+    
+    if (question.questionType === 'image' && !question.questionImage) {
+      toast.custom(() => (
+        <CustomToast message="Bitte lade ein Fragen-Bild hoch" type="error" />
       ));
       return;
     }
@@ -180,6 +188,45 @@ export default function QuestionEditorView() {
     });
   };
 
+  const handleQuestionTypeChange = (type: 'text' | 'image') => {
+    setQuestion({
+      ...question,
+      questionType: type,
+      question: type === 'text' ? question.question : '',
+      questionImage: type === 'image' ? question.questionImage : undefined,
+      questionImageAlt: type === 'image' ? question.questionImageAlt : undefined,
+    });
+  };
+
+  // Helper: Get question type with default
+  const getQuestionType = (q: Question): 'text' | 'image' => q.questionType || 'text';
+
+  const handleQuestionImageUpload = async (file: File) => {
+    try {
+      const result = await uploadWithToast(file, {
+        resourceType: 'image',
+        folder: 'quiz-images',
+        tags: ['quiz', 'question-image'],
+      });
+
+      if (!result) return;
+
+      setQuestion({
+        ...question,
+        questionImage: result.url,
+        questionImageAlt: question.questionImageAlt || file.name,
+      });
+    } catch (error) {
+      console.error('Fehler beim Hochladen des Bildes:', error);
+      toast.custom(() => (
+        <CustomToast 
+          message="Fehler beim Verarbeiten des Bildes. Versuche es erneut." 
+          type="error" 
+        />
+      ));
+    }
+  };
+
   const handleImageUpload = async (index: number, file: File) => {
     try {
       const result = await uploadWithToast(file, {
@@ -271,19 +318,106 @@ export default function QuestionEditorView() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="space-y-6">
-            {/* Question Input */}
+            {/* Question Type Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Frage
+                Fragen-Typ
               </label>
-              <input
-                type="text"
-                value={question.question}
-                onChange={(e) => setQuestion({ ...question, question: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="Was ist 2 + 2?"
-              />
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleQuestionTypeChange('text')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
+                    getQuestionType(question) === 'text'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  Text
+                </button>
+                <button
+                  onClick={() => handleQuestionTypeChange('image')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
+                    getQuestionType(question) === 'image'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  Bild
+                </button>
+              </div>
             </div>
+
+            {/* Question Input */}
+            {getQuestionType(question) === 'text' ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Frage
+                </label>
+                <input
+                  type="text"
+                  value={question.question}
+                  onChange={(e) => setQuestion({ ...question, question: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="Was ist 2 + 2?"
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Fragen-Bild
+                </label>
+                <div className="space-y-4">
+                  {question.questionImage && (
+                    <OptimizedImage
+                      src={question.questionImage}
+                      alt={question.questionImageAlt || 'Frage'}
+                      className="w-full max-w-2xl rounded-lg"
+                      width={800}
+                      height={600}
+                    />
+                  )}
+                  
+                  <label
+                    htmlFor="question-image-upload"
+                    className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    <span>{question.questionImage ? 'Bild ändern' : 'Bild auswählen'}</span>
+                    <input
+                      id="question-image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleQuestionImageUpload(e.target.files[0]);
+                        }
+                      }}
+                      className="sr-only"
+                    />
+                  </label>
+
+                  <div>
+                    <input
+                      type="text"
+                      value={question.questionImageAlt || ''}
+                      onChange={(e) => setQuestion({ ...question, questionImageAlt: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg text-sm"
+                      placeholder="Alt-Text für Barrierefreiheit (z.B. 'Fragen-Bild')"
+                    />
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      ⚠️ Neutral halten - nicht die Antwort verraten!
+                    </p>
+                  </div>
+
+                  <input
+                    type="text"
+                    value={question.question}
+                    onChange={(e) => setQuestion({ ...question, question: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg text-sm"
+                    placeholder="Optionaler Fragentext (z.B. 'Was siehst du auf diesem Bild?')"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Answer Type Selection */}
             <div>
