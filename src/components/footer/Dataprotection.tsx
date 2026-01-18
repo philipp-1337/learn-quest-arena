@@ -78,6 +78,33 @@ export default function Dataprotection() {
               Europäischen Union (EU).
             </p>
             <h3 className="text-lg font-medium mt-4 mb-2 dark:text-gray-100">
+              Cloudinary (Cloud Storage für Medien)
+            </h3>
+            <p className="mb-4 text-gray-700 dark:text-gray-300">
+              Zur Speicherung und Bereitstellung von Mediendateien (Bilder,
+              Audio- und Videodateien) nutzen wir Cloudinary (Cloudinary Ltd.,
+              111 W Evelyn Ave, Suite 206, Sunnyvale, CA 94086, USA). Wenn Sie
+              Bilder oder andere Medien in der Anwendung hochladen oder
+              abrufen, werden diese Dateien über Cloudinary verarbeitet und
+              gespeichert. Dies dient der optimierten Bereitstellung von
+              Medieninhalten und ist für die Funktionalität der Anwendung
+              erforderlich. Die Datenverarbeitung erfolgt auf Grundlage von
+              Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) bzw. Art. 6 Abs. 1
+              lit. f DSGVO (berechtigtes Interesse an effizienter
+              Medienbereitstellung). Cloudinary nutzt Server in den USA und der
+              EU. Für die Datenübermittlung in die USA bestehen
+              EU-Standardvertragsklauseln gemäß Art. 46 DSGVO. Weitere
+              Informationen zum Datenschutz bei Cloudinary finden Sie unter:{" "}
+              <a
+                href="https://cloudinary.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                https://cloudinary.com/privacy
+              </a>
+            </p>
+            <h3 className="text-lg font-medium mt-4 mb-2 dark:text-gray-100">
               Datenverwendung durch Firebase/Google
             </h3>
             <p className="mb-4 text-gray-700 dark:text-gray-300">

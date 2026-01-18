@@ -8,6 +8,7 @@ import type { UserQuizProgress } from '../../types/userProgress';
 import { getQuestionId } from '../../utils/questionIdHelper';
 import { ensureSRSFields } from '../../utils/srsHelpers';
 import { calculateXP } from '../../utils/xpCalculation';
+import { useImagePreload } from '../../utils/useImagePreload';
 
 
 
@@ -43,6 +44,9 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
   } = quizPlayer;
 
   const [xpData, setXpData] = useState<{ xpEarned: number; xpDelta: number }>({ xpEarned: 0, xpDelta: 0 });
+
+  // Preload Bilder der nächsten 2 Fragen für bessere UX
+  useImagePreload(quiz.questions, currentQuestion, 2);
 
   // Fortschritt speichern nach jeder Aktion (neues Modell mit Question IDs)
   useEffect(() => {

@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { Check, X } from 'lucide-react';
 import type { Answer } from '../../types/quizTypes';
+import OptimizedImage from '../shared/OptimizedImage';
 
 interface AnswerButtonProps {
   answer: Answer & { originalIndex: number };
@@ -46,24 +47,15 @@ const AnswerButton = memo(function AnswerButton({
           {showFeedback && isSelected && !isCorrect && <X className="w-6 h-6 flex-shrink-0" />}
         </div>
       ) : (
-        <div className="flex flex-col items-center">
-          <div className="w-full flex justify-center mb-2">
-            <img 
-              src={answer.content} 
-              alt={answer.alt || 'Antwort'}
-              className="max-h-72 max-w-full object-contain rounded-lg"
-              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                const img = e.target as HTMLImageElement;
-                img.style.display = 'none';
-                if (img.nextSibling && img.nextSibling instanceof HTMLElement) {
-                  (img.nextSibling as HTMLElement).style.display = 'block';
-                }
-              }}
-            />
-            <div style={{display: 'none'}} className="max-h-72 w-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
-              Bild nicht verfügbar
-            </div>
-          </div>
+        <div className="flex flex-col items-center gap-2">
+          <OptimizedImage
+            src={answer.content}
+            alt={answer.alt || 'Antwort'}
+            className="w-full max-h-72 rounded-lg"
+            width={800}
+            height={600}
+            priority={false}
+          />
           {answer.alt && (
             <span className="font-medium text-sm">{answer.alt}</span>
           )}

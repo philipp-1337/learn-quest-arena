@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
 import { loadAllQuizDocuments, updateQuizDocument } from '../../utils/quizzesCollection';
 import type { QuizDocument } from '../../types/quizTypes';
+import { getThumbnailUrl } from '../../utils/cloudinaryTransform';
 
 export default function QuizEditorView() {
   const { id } = useParams<{ id: string }>();
@@ -118,37 +119,38 @@ export default function QuizEditorView() {
       {/* Header with Save/Cancel buttons */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={() => navigate('/admin')}
-                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
                 title="Zurück zur Admin-Übersicht"
                 aria-label="Zurück zur Admin-Übersicht"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Quiz bearbeiten</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">Quiz bearbeiten</h1>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
                   {quizDocument?.subjectName} • {quizDocument?.className} • {quizDocument?.topicName}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onClick={() => navigate('/admin')}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors"
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors"
               >
                 Abbrechen
               </button>
               <button
                 onClick={handleSaveQuiz}
                 disabled={saving}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center gap-2"
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center justify-center gap-2"
               >
                 <Save className="w-4 h-4" />
-                {saving ? 'Speichert...' : 'Speichern'}
+                <span className="hidden sm:inline">{saving ? 'Speichert...' : 'Speichern'}</span>
+                <span className="sm:hidden">{saving ? 'Speichert...' : 'Speichern'}</span>
               </button>
             </div>
           </div>
@@ -262,9 +264,10 @@ export default function QuizEditorView() {
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <img
-                                    src={answer.content}
+                                    src={getThumbnailUrl(answer.content, 64)}
                                     alt={answer.alt}
                                     className="w-16 h-16 object-cover rounded"
+                                    loading="lazy"
                                   />
                                   <span
                                     className={

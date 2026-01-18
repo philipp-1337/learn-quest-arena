@@ -7,6 +7,7 @@ import { CustomToast } from '../misc/CustomToast';
 import { uploadWithToast } from '../../utils/cloudinaryUpload';
 import { loadAllQuizDocuments, updateQuizDocument } from '../../utils/quizzesCollection';
 import type { QuizDocument } from '../../types/quizTypes';
+import OptimizedImage from '../shared/OptimizedImage';
 
 export default function QuestionEditorView() {
   const { id, index } = useParams<{ id: string; index?: string }>();
@@ -228,39 +229,39 @@ export default function QuestionEditorView() {
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={() => navigate(`/admin/quiz/edit/${id}`)}
-                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
                 title="Zurück zum Quiz"
                 aria-label="Zurück zum Quiz"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">
                   {isEditing ? 'Frage bearbeiten' : 'Neue Frage'}
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
                   {quizDocument.shortTitle || quizDocument.title}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onClick={() => navigate(`/admin/quiz/edit/${id}`)}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors"
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors"
               >
                 Abbrechen
               </button>
               <button
                 onClick={handleSaveQuestion}
                 disabled={saving}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center gap-2"
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 <Save className="w-4 h-4" />
-                {saving ? 'Speichert...' : isEditing ? 'Aktualisieren' : 'Hinzufügen'}
+                <span>{saving ? 'Speichert...' : isEditing ? 'Aktualisieren' : 'Hinzufügen'}</span>
               </button>
             </div>
           </div>
@@ -394,10 +395,12 @@ export default function QuestionEditorView() {
                         </label>
 
                         {answer.content && (
-                          <img
+                          <OptimizedImage
                             src={answer.content}
                             alt="Vorschau"
-                            className="w-full max-w-md h-48 object-cover rounded-lg"
+                            className="w-full max-w-md rounded-lg"
+                            width={600}
+                            height={400}
                           />
                         )}
 

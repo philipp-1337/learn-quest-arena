@@ -4,6 +4,7 @@ import type { Quiz, Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
 import { uploadWithToast } from '../../utils/cloudinaryUpload';
+import { getOptimizedImageUrl, getThumbnailUrl } from '../../utils/cloudinaryTransform';
 
 interface QuizEditorModalProps {
   quiz: Quiz;
@@ -272,9 +273,10 @@ export default function QuizEditorModal({
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <img
-                                    src={answer.content}
+                                    src={getThumbnailUrl(answer.content, 100)}
                                     alt={answer.alt}
                                     className="w-16 h-16 object-cover rounded"
+                                    loading="lazy"
                                   />
                                   <span
                                     className={
@@ -468,9 +470,10 @@ export default function QuizEditorModal({
 
                           {answer.content && (
                             <img
-                              src={answer.content}
+                              src={getOptimizedImageUrl(answer.content, 800, 600)}
                               alt="Vorschau"
                               className="w-full h-32 object-cover rounded-md mt-2 mb-2"
+                              loading="lazy"
                             />
                           )}
 
