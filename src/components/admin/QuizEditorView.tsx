@@ -426,59 +426,63 @@ export default function QuizEditorView() {
                           </div>
                         </div>
                         <div className="space-y-2 text-sm">
-                          {q.answers.map((answer: Answer, i: number) => (
-                            <div key={i} className="flex items-center gap-2">
-                              {i === q.correctAnswerIndex ? (
-                                <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                              ) : (
-                                <X className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                              )}
-                              {answer.type === 'text' ? (
-                                <span
-                                  className={
-                                    i === q.correctAnswerIndex
-                                      ? 'text-green-700 dark:text-green-400 font-medium'
-                                      : 'text-gray-600 dark:text-gray-400'
-                                  }
-                                >
-                                  {answer.content}
-                                </span>
-                              ) : answer.type === 'image' ? (
-                                <div className="flex items-center gap-2">
-                                  <img
-                                    src={getThumbnailUrl(answer.content, 64)}
-                                    alt={answer.alt}
-                                    className="w-16 h-16 object-cover rounded"
-                                    loading="lazy"
-                                  />
+                          {q.answers.map((answer: Answer, i: number) => {
+                            const correctIndices = q.correctAnswerIndices || [q.correctAnswerIndex];
+                            const isCorrect = correctIndices.includes(i);
+                            return (
+                              <div key={i} className="flex items-center gap-2">
+                                {isCorrect ? (
+                                  <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                                ) : (
+                                  <X className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                )}
+                                {answer.type === 'text' ? (
                                   <span
                                     className={
-                                      i === q.correctAnswerIndex
+                                      isCorrect
                                         ? 'text-green-700 dark:text-green-400 font-medium'
                                         : 'text-gray-600 dark:text-gray-400'
                                     }
                                   >
-                                    {answer.alt || 'Bild'}
+                                    {answer.content}
                                   </span>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-2">
-                                  <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded flex items-center justify-center">
-                                    <Volume2 className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                                ) : answer.type === 'image' ? (
+                                  <div className="flex items-center gap-2">
+                                    <img
+                                      src={getThumbnailUrl(answer.content, 64)}
+                                      alt={answer.alt}
+                                      className="w-16 h-16 object-cover rounded"
+                                      loading="lazy"
+                                    />
+                                    <span
+                                      className={
+                                        isCorrect
+                                          ? 'text-green-700 dark:text-green-400 font-medium'
+                                          : 'text-gray-600 dark:text-gray-400'
+                                      }
+                                    >
+                                      {answer.alt || 'Bild'}
+                                    </span>
                                   </div>
-                                  <span
-                                    className={
-                                      i === q.correctAnswerIndex
-                                        ? 'text-green-700 dark:text-green-400 font-medium'
-                                        : 'text-gray-600 dark:text-gray-400'
-                                    }
-                                  >
-                                    Audio
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          ))}
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded flex items-center justify-center">
+                                      <Volume2 className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                                    </div>
+                                    <span
+                                      className={
+                                        isCorrect
+                                          ? 'text-green-700 dark:text-green-400 font-medium'
+                                          : 'text-gray-600 dark:text-gray-400'
+                                      }
+                                    >
+                                      Audio
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                       <div className="flex gap-2">

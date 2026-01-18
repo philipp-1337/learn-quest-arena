@@ -6,9 +6,9 @@ import OptimizedImage from '../shared/OptimizedImage';
 interface QuizQuestionProps {
   question: Question;
   shuffledAnswers: Array<Answer & { originalIndex: number }>;
-  selectedAnswer: (Answer & { originalIndex: number }) | null;
+  selectedAnswers: Array<Answer & { originalIndex: number }>; // Changed to array for multi-select
   isAnswerSubmitted: boolean;
-  correctAnswer: (Answer & { originalIndex: number }) | undefined;
+  correctAnswers: Array<Answer & { originalIndex: number }>; // Changed to array for multi-select support
   currentQuestion: number;
   totalQuestions: number;
   onAnswerSelect: (answer: Answer & { originalIndex: number }) => void;
@@ -19,14 +19,15 @@ interface QuizQuestionProps {
   elapsedTime: number;
   showResultOverride?: boolean; // For Quiz Challenge mode
   hasProgress?: boolean; // Whether the user has progress being saved
+  isMultiSelect?: boolean; // Whether this question has multiple correct answers
 }
 
 export default function QuizQuestion({
   question,
   shuffledAnswers,
-  selectedAnswer,
+  selectedAnswers,
   isAnswerSubmitted,
-  correctAnswer,
+  correctAnswers,
   currentQuestion,
   totalQuestions,
   onAnswerSelect,
@@ -37,6 +38,7 @@ export default function QuizQuestion({
   elapsedTime,
   showResultOverride,
   hasProgress = false,
+  isMultiSelect = false,
 }: QuizQuestionProps) {
   const showFeedback = showResultOverride !== undefined ? showResultOverride : isAnswerSubmitted;
   const cancelButtonText = hasProgress ? 'Pausieren' : 'Quiz abbrechen';
@@ -96,13 +98,22 @@ export default function QuizQuestion({
               {question.question}
             </h2>
           )}
+          
+          {/* Multi-Select Hinweis */}
+          {isMultiSelect && !isAnswerSubmitted && (
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg">
+              <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
+                ⚠️ Mehrfachauswahl: Diese Frage hat mehrere richtige Antworten. Wähle alle richtigen Antworten aus.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Answers */}
         <div className="space-y-4 mb-8">
           {shuffledAnswers.map((answer, idx) => {
-            const isSelected = selectedAnswer === answer;
-            const isCorrect = answer === correctAnswer;
+            const isSelected = selectedAnswers.some(a => a.originalIndex === answer.originalIndex);
+            const isCorrect = correctAnswers.some(ca => ca.originalIndex === answer.originalIndex);
 
             return (
               <AnswerButton
@@ -113,20 +124,57 @@ export default function QuizQuestion({
                 showFeedback={showFeedback}
                 onSelect={onAnswerSelect}
                 disabled={isAnswerSubmitted}
+                isMultiSelect={isMultiSelect}
               />
             );
           })}
         </div>
 
+        {/* Feedback nach Submit bei Multi-Select */}
+        {isAnswerSubmitted && isMultiSelect && (
+          (() => {
+            const selectedCorrectCount = selectedAnswers.filter(a => 
+              correctAnswers.some(ca => ca.originalIndex === a.originalIndex)
+            ).length;
+            const totalCorrectCount = correctAnswers.length;
+            const missedCount = totalCorrectCount - selectedCorrectCount;
+            const hasWrongSelections = selectedAnswers.some(a => 
+              !correctAnswers.some(ca => ca.originalIndex === a.originalIndex)
+            );
+
+            if (selectedCorrectCount === totalCorrectCount && !hasWrongSelections) {
+              // Alles richtig
+              return (
+                <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg">
+                  <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+                    ✅ Perfekt! Du hast alle {totalCorrectCount} richtigen Antworten erkannt.
+                  </p>
+                </div>
+              );
+            } else {
+              // Nicht alle richtig oder falsche dabei
+              return (
+                <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg">
+                  <p className="text-sm text-red-800 dark:text-red-200 font-medium">
+                    ❌ Leider falsch. {totalCorrectCount > 1 ? `Es gab ${totalCorrectCount} richtige Antworten` : 'Es gab 1 richtige Antwort'}
+                    {missedCount > 0 && ` (${missedCount} ${missedCount === 1 ? 'wurde' : 'wurden'} nicht erkannt - gelb markiert)`}
+                    {hasWrongSelections && ' und du hast falsche Antworten ausgewählt'}.
+                  </p>
+                </div>
+              );
+            }
+          })()
+        )}
+
         {/* Submit Answer Button - erscheint wenn Antwort gewählt aber noch nicht geprüft */}
-        {selectedAnswer && !isAnswerSubmitted && (
+        {selectedAnswers.length > 0 && !isAnswerSubmitted && (
           <button
             onClick={onSubmitAnswer}
             className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors mb-4"
             title="Antwort prüfen"
             aria-label="Antwort prüfen"
           >
-            Antwort prüfen
+            Antwort prüfen {isMultiSelect && `(${selectedAnswers.length} ausgewählt)`}
           </button>
         )}
 

@@ -13,12 +13,14 @@ function findOriginalQuestionIndex(question: Question, quiz: Quiz): number {
   const directIndex = quiz.questions.indexOf(question);
   if (directIndex >= 0) return directIndex;
   
-  // If direct match fails, try matching by question text and correct answer index
+  // If direct match fails, try matching by question text and correct answer indices
   // This handles cases where question objects have been copied
-  return quiz.questions.findIndex(q => 
-    q.question === question.question && 
-    q.correctAnswerIndex === question.correctAnswerIndex
-  );
+  return quiz.questions.findIndex(q => {
+    const qIndices = q.correctAnswerIndices || [q.correctAnswerIndex];
+    const questionIndices = question.correctAnswerIndices || [question.correctAnswerIndex];
+    return q.question === question.question && 
+      JSON.stringify(qIndices) === JSON.stringify(questionIndices);
+  });
 }
 
 // Akzeptiert jetzt auch das neue Modell mit SRS
@@ -102,7 +104,7 @@ export function useQuizPlayer(
   const [questionProgress, setQuestionProgress] = useState<QuizPlayerInitialState['questions']>(initialState?.questions || {});
 
   const [currentQuestion, setCurrentQuestion] = useState<number>(getFirstUnsolvedIndex());
-  const [selectedAnswer, setSelectedAnswer] = useState<(Answer & { originalIndex: number }) | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<Array<Answer & { originalIndex: number }>>([]);
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState<boolean>(false);
   const [answers, setAnswers] = useState<boolean[]>(initialState?.answers || []);
   const [showResults, setShowResults] = useState<boolean>(false);
@@ -163,16 +165,41 @@ export function useQuizPlayer(
 
   const handleAnswerSelect = (answer: Answer & { originalIndex: number }) => {
     if (isAnswerSubmitted) return; // Kann nicht ändern nach Submit
-    setSelectedAnswer(answer);
+    
+    const questions = repeatQuestions || shuffledQuestions;
+    const currentQ = questions[currentQuestion];
+    const correctIndices = currentQ.correctAnswerIndices || [currentQ.correctAnswerIndex];
+    const isSingleSelect = correctIndices.length === 1;
+    
+    if (isSingleSelect) {
+      // Bei Single-Select: Ersetze Auswahl (nur eine Antwort möglich)
+      setSelectedAnswers([answer]);
+    } else {
+      // Bei Multi-Select: Toggle answer in selection
+      setSelectedAnswers(prev => {
+        const isSelected = prev.some(a => a.originalIndex === answer.originalIndex);
+        if (isSelected) {
+          return prev.filter(a => a.originalIndex !== answer.originalIndex);
+        } else {
+          return [...prev, answer];
+        }
+      });
+    }
   };
 
   const handleSubmitAnswer = () => {
-    if (!selectedAnswer || isAnswerSubmitted) return;
+    if (selectedAnswers.length === 0 || isAnswerSubmitted) return;
     
     setIsAnswerSubmitted(true);
     const questions = repeatQuestions || shuffledQuestions;
     const currentQ = questions[currentQuestion];
-    const isCorrect = selectedAnswer.originalIndex === currentQ.correctAnswerIndex;
+    // Support for multiple correct answers - ALL must be selected
+    const correctIndices = currentQ.correctAnswerIndices || [currentQ.correctAnswerIndex];
+    const selectedIndices = selectedAnswers.map(a => a.originalIndex).sort();
+    
+    // Check if selected answers exactly match correct answers
+    const isCorrect = correctIndices.length === selectedIndices.length &&
+      correctIndices.every(idx => selectedIndices.includes(idx));
     
     // Question ID für das Progress-Tracking ermitteln - verwende Helper-Funktion
     const originalIndex = findOriginalQuestionIndex(currentQ, quiz);
@@ -220,7 +247,7 @@ export function useQuizPlayer(
     const questions = repeatQuestions || shuffledQuestions;
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
-      setSelectedAnswer(null);
+      setSelectedAnswers([]);
       setIsAnswerSubmitted(false);
     } else {
       // Nach Abschluss: Alle korrekt beantworteten Fragen zu solvedQuestions hinzufügen
@@ -239,7 +266,7 @@ export function useQuizPlayer(
 
   const handleRestart = () => {
     setCurrentQuestion(0);
-    setSelectedAnswer(null);
+    setSelectedAnswers([]);
     setIsAnswerSubmitted(false);
     setAnswers([]);
     setShowResults(false);
@@ -271,7 +298,7 @@ export function useQuizPlayer(
     if (wrongQuestions.length > 0) {
       setRepeatQuestions(wrongQuestions);
       setCurrentQuestion(0);
-      setSelectedAnswer(null);
+      setSelectedAnswers([]);
       setIsAnswerSubmitted(false);
       setAnswers([]);
       setShowResults(false);
@@ -286,9 +313,8 @@ export function useQuizPlayer(
 
   const getCorrectAnswer = () => {
     const question = getCurrentQuestion();
-    return shuffledAnswers.find(
-      a => a.originalIndex === question.correctAnswerIndex
-    );
+    const correctIndices = question.correctAnswerIndices || [question.correctAnswerIndex];
+    return shuffledAnswers.filter(a => correctIndices.includes(a.originalIndex));
   };
 
   const getWrongQuestions = () => {
@@ -321,7 +347,7 @@ export function useQuizPlayer(
 
   return {
     currentQuestion,
-    selectedAnswer,
+    selectedAnswers,
     isAnswerSubmitted,
     answers,
     shuffledAnswers,
@@ -346,5 +372,10 @@ export function useQuizPlayer(
     getCorrectAnswer,
     getWrongQuestions,
     getStatistics,
+    isMultiSelect: () => {
+      const question = (repeatQuestions || shuffledQuestions)[currentQuestion];
+      const correctIndices = question.correctAnswerIndices || [question.correctAnswerIndex];
+      return correctIndices.length > 1;
+    },
   };
 }

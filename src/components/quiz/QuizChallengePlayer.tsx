@@ -194,7 +194,8 @@ export default function QuizChallengePlayer() {
     if (!selectedAnswer || !currentQuestion || isAnswerSubmitted) return;
     
     setIsAnswerSubmitted(true);
-    const isCorrect = selectedAnswer.originalIndex === currentQuestion.correctAnswerIndex;
+    const correctIndices = currentQuestion.correctAnswerIndices || [currentQuestion.correctAnswerIndex];
+    const isCorrect = correctIndices.includes(selectedAnswer.originalIndex);
     
     if (isCorrect) {
       setShowResult(true);
@@ -224,7 +225,8 @@ export default function QuizChallengePlayer() {
   const handleNext = () => {
     if (!selectedAnswer || !currentQuestion || !isAnswerSubmitted) return;
     
-    const isCorrect = selectedAnswer.originalIndex === currentQuestion.correctAnswerIndex;
+    const correctIndices = currentQuestion.correctAnswerIndices || [currentQuestion.correctAnswerIndex];
+    const isCorrect = correctIndices.includes(selectedAnswer.originalIndex);
     
     if (isCorrect) {
       if (currentLevel === 15) {
@@ -338,8 +340,11 @@ export default function QuizChallengePlayer() {
     );
   }
 
-  const correctAnswer = shuffledAnswers.find(
-    a => a.originalIndex === currentQuestion.correctAnswerIndex
+  const correctAnswers = shuffledAnswers.filter(
+    a => {
+      const correctIndices = currentQuestion.correctAnswerIndices || [currentQuestion.correctAnswerIndex];
+      return correctIndices.includes(a.originalIndex);
+    }
   );
 
   return (
@@ -387,9 +392,9 @@ export default function QuizChallengePlayer() {
         <QuizQuestion
           question={currentQuestion}
           shuffledAnswers={shuffledAnswers}
-          selectedAnswer={selectedAnswer}
+          selectedAnswers={selectedAnswer ? [selectedAnswer] : []}
           isAnswerSubmitted={isAnswerSubmitted}
-          correctAnswer={correctAnswer}
+          correctAnswers={correctAnswers}
           currentQuestion={currentLevel - 1}
           totalQuestions={15}
           onAnswerSelect={handleAnswerSelect}
@@ -399,6 +404,7 @@ export default function QuizChallengePlayer() {
           onBack={handleBack}
           elapsedTime={elapsedTime}
           showResultOverride={showResult}
+          isMultiSelect={false}
         />
       </div>
     </div>

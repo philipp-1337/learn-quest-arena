@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Trash2, Check, Lightbulb, MessageCircleWarning, Lock } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Lightbulb, MessageCircleWarning, Lock } from 'lucide-react';
 import type { Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
@@ -27,6 +27,7 @@ export default function QuestionEditorView() {
       { type: 'text', content: '' },
     ],
     correctAnswerIndex: 0,
+    correctAnswerIndices: [0],
   });
 
   const isEditing = index !== undefined;
@@ -73,7 +74,13 @@ export default function QuestionEditorView() {
 
         // Load existing question if editing
         if (isEditing && quiz.questions && quiz.questions[questionIndex]) {
-          setQuestion(quiz.questions[questionIndex]);
+          const existingQuestion = quiz.questions[questionIndex];
+          // Ensure correctAnswerIndices exists (backwards compatibility)
+          const correctIndices = existingQuestion.correctAnswerIndices || [existingQuestion.correctAnswerIndex];
+          setQuestion({
+            ...existingQuestion,
+            correctAnswerIndices: correctIndices,
+          });
         }
       } catch (error) {
         console.error('Error loading quiz:', error);
@@ -125,6 +132,13 @@ export default function QuestionEditorView() {
       return;
     }
 
+    if (!question.correctAnswerIndices || question.correctAnswerIndices.length === 0) {
+      toast.custom(() => (
+        <CustomToast message="Mindestens eine richtige Antwort erforderlich" type="error" />
+      ));
+      return;
+    }
+
     if (question.answerType === 'text') {
       if (question.answers.some((a) => !a.content.trim())) {
         toast.custom(() => (
@@ -153,15 +167,31 @@ export default function QuestionEditorView() {
     setSaving(true);
     try {
       // Bereinige die Frage von undefined-Werten für Firestore
+      const correctIndices = question.correctAnswerIndices || [question.correctAnswerIndex];
+      
+      // Bereinige Antworten von undefined-Werten
+      const cleanAnswers = question.answers.map(answer => {
+        const cleanAnswer: Answer = {
+          type: answer.type,
+          content: answer.content,
+        };
+        // Nur alt hinzufügen, wenn es definiert ist
+        if (answer.alt !== undefined && answer.alt !== null && answer.alt !== '') {
+          cleanAnswer.alt = answer.alt;
+        }
+        return cleanAnswer;
+      });
+      
       const cleanQuestion: Question = {
         question: question.question,
         questionType: question.questionType,
         answerType: question.answerType,
-        answers: question.answers,
-        correctAnswerIndex: question.correctAnswerIndex,
+        answers: cleanAnswers,
+        correctAnswerIndex: correctIndices[0],
+        correctAnswerIndices: correctIndices,
       };
 
-      // Füge nur die relevanten optionalen Felder hinzu
+      // Füge nur die relevanten optionalen Felder hinzu, wenn sie definiert sind
       if (question.id) {
         cleanQuestion.id = question.id;
       }
@@ -221,18 +251,29 @@ export default function QuestionEditorView() {
   const handleRemoveAnswer = (index: number) => {
     if (question.answers.length <= 2) return;
     const newAnswers = question.answers.filter((_, i) => i !== index);
-    let newCorrectIndex = question.correctAnswerIndex;
-    if (newCorrectIndex >= newAnswers.length) {
-      newCorrectIndex = newAnswers.length - 1;
+    
+    // Update correctAnswerIndices: remove deleted index and adjust remaining indices
+    const newCorrectIndices = (question.correctAnswerIndices || [question.correctAnswerIndex])
+      .filter(i => i !== index)
+      .map(i => i > index ? i - 1 : i);
+    
+    // Ensure at least one correct answer remains
+    if (newCorrectIndices.length === 0) {
+      newCorrectIndices.push(0);
     }
+    
     setQuestion({
       ...question,
       answers: newAnswers,
-      correctAnswerIndex: newCorrectIndex,
+      correctAnswerIndex: newCorrectIndices[0],
+      correctAnswerIndices: newCorrectIndices,
     });
   };
 
   const handleAnswerTypeChange = (type: string) => {
+    // Preserve correctAnswerIndices when changing answer type
+    const currentCorrectIndices = question.correctAnswerIndices || [question.correctAnswerIndex];
+    
     setQuestion({
       ...question,
       answerType: type,
@@ -241,6 +282,7 @@ export default function QuestionEditorView() {
         content: type === 'text' ? a.content || '' : '',
         alt: type === 'image' ? '' : undefined,
       })),
+      correctAnswerIndices: currentCorrectIndices,
     });
   };
 
@@ -252,6 +294,32 @@ export default function QuestionEditorView() {
       questionImage: type === 'image' ? question.questionImage : undefined,
       questionImageAlt: type === 'image' ? question.questionImageAlt : undefined,
       questionAudio: type === 'audio' ? question.questionAudio : undefined,
+    });
+  };
+
+  const handleToggleCorrectAnswer = (index: number) => {
+    const currentIndices = question.correctAnswerIndices || [question.correctAnswerIndex];
+    let newIndices: number[];
+    
+    if (currentIndices.includes(index)) {
+      // Remove from correct answers
+      newIndices = currentIndices.filter(i => i !== index);
+      // Ensure at least one correct answer remains
+      if (newIndices.length === 0) {
+        toast.custom(() => (
+          <CustomToast message="Mindestens eine Antwort muss richtig sein" type="error" />
+        ));
+        return;
+      }
+    } else {
+      // Add to correct answers
+      newIndices = [...currentIndices, index].sort((a, b) => a - b);
+    }
+    
+    setQuestion({
+      ...question,
+      correctAnswerIndex: newIndices[0],
+      correctAnswerIndices: newIndices,
     });
   };
 
@@ -329,6 +397,8 @@ export default function QuestionEditorView() {
       setQuestion({
         ...question,
         answers: newAnswers,
+        // Explicitly preserve correctAnswerIndices
+        correctAnswerIndices: question.correctAnswerIndices || [question.correctAnswerIndex],
       });
     } catch (error) {
       console.error('Fehler beim Hochladen des Bildes:', error);
@@ -360,6 +430,8 @@ export default function QuestionEditorView() {
       setQuestion({
         ...question,
         answers: newAnswers,
+        // Explicitly preserve correctAnswerIndices
+        correctAnswerIndices: question.correctAnswerIndices || [question.correctAnswerIndex],
       });
     } catch (error) {
       console.error('Fehler beim Hochladen der Audio-Datei:', error);
@@ -645,45 +717,44 @@ export default function QuestionEditorView() {
 
               {question.answerType === 'text' ? (
                 <div className="space-y-3">
-                  {question.answers.map((answer: Answer, i: number) => (
-                    <div key={i} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={answer.content}
-                        onChange={(e) => {
-                          const newAnswers = [...question.answers];
-                          newAnswers[i] = {
-                            type: 'text',
-                            content: e.target.value,
-                          };
-                          setQuestion({
-                            ...question,
-                            answers: newAnswers,
-                          });
-                        }}
-                        className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        placeholder={`Antwort ${i + 1}`}
-                      />
-                      <button
-                        onClick={() => setQuestion({ ...question, correctAnswerIndex: i })}
-                        className={`px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                          question.correctAnswerIndex === i
-                            ? 'bg-green-600 text-white'
-                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                        }`}
-                        title={question.correctAnswerIndex === i ? 'Korrekte Antwort' : 'Als korrekt markieren'}
-                      >
-                        <Check className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleRemoveAnswer(i)}
-                        disabled={question.answers.length <= 2}
-                        className="px-3 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  ))}
+                  {question.answers.map((answer: Answer, i: number) => {
+                    const isCorrect = (question.correctAnswerIndices || [question.correctAnswerIndex]).includes(i);
+                    return (
+                      <div key={i} className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={isCorrect}
+                          onChange={() => handleToggleCorrectAnswer(i)}
+                          className="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500 flex-shrink-0"
+                          title="Als richtige Antwort markieren"
+                        />
+                        <input
+                          type="text"
+                          value={answer.content}
+                          onChange={(e) => {
+                            const newAnswers = [...question.answers];
+                            newAnswers[i] = {
+                              type: 'text',
+                              content: e.target.value,
+                            };
+                            setQuestion({
+                              ...question,
+                              answers: newAnswers,
+                            });
+                          }}
+                          className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          placeholder={`Antwort ${i + 1}`}
+                        />
+                        <button
+                          onClick={() => handleRemoveAnswer(i)}
+                          disabled={question.answers.length <= 2}
+                          className="px-3 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : question.answerType === 'image' ? (
                 <div className="space-y-4">
@@ -754,28 +825,23 @@ export default function QuestionEditorView() {
                           placeholder="Beschreibung (optional)"
                         />
 
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => setQuestion({ ...question, correctAnswerIndex: i })}
-                            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                              question.correctAnswerIndex === i
-                                ? 'bg-green-600 text-white'
-                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                            }`}
-                          >
-                            {question.correctAnswerIndex === i ? (
-                              <span className="flex items-center justify-center gap-2">
-                                <Check className="w-4 h-4" />
-                                Korrekt
-                              </span>
-                            ) : (
-                              'Als korrekt markieren'
-                            )}
-                          </button>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={(question.correctAnswerIndices || [question.correctAnswerIndex]).includes(i)}
+                              onChange={() => handleToggleCorrectAnswer(i)}
+                              className="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
+                              title="Als richtige Antwort markieren"
+                            />
+                            <label className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                              Richtig
+                            </label>
+                          </div>
                           <button
                             onClick={() => handleRemoveAnswer(i)}
                             disabled={question.answers.length <= 2}
-                            className="px-4 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
+                            className="ml-auto px-4 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
                           >
                             <Trash2 className="w-4 h-4" />
                             Entfernen
@@ -833,27 +899,23 @@ export default function QuestionEditorView() {
                           />
                         </label>
 
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setQuestion(q => ({ ...q, correctAnswerIndex: i }))}
-                            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                              question.correctAnswerIndex === i
-                                ? 'bg-green-600 text-white'
-                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                            }`}
-                            title={question.correctAnswerIndex === i ? 'Korrekte Antwort' : 'Als korrekt markieren'}
-                          >
-                            <Check className="w-5 h-5 inline mr-2" />
-                            {question.correctAnswerIndex === i ? (
-                              'Korrekt'
-                            ) : (
-                              'Als korrekt markieren'
-                            )}
-                          </button>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={(question.correctAnswerIndices || [question.correctAnswerIndex]).includes(i)}
+                              onChange={() => handleToggleCorrectAnswer(i)}
+                              className="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
+                              title="Als richtige Antwort markieren"
+                            />
+                            <label className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                              Richtig
+                            </label>
+                          </div>
                           <button
                             onClick={() => handleRemoveAnswer(i)}
                             disabled={question.answers.length <= 2}
-                            className="px-4 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
+                            className="ml-auto px-4 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
                           >
                             <Trash2 className="w-4 h-4" />
                             Entfernen

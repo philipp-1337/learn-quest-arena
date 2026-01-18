@@ -25,7 +25,7 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
   const quizPlayer = useQuizPlayer(quiz, initialState, startMode || 'fresh');
   const {
     currentQuestion,
-    selectedAnswer,
+    selectedAnswers,
     isAnswerSubmitted,
     answers,
     shuffledAnswers,
@@ -42,7 +42,8 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
     solvedQuestions,
     totalTries,
     elapsedTime,
-    setCompletedTime
+    setCompletedTime,
+    isMultiSelect,
   } = quizPlayer;
 
   const [xpData, setXpData] = useState<{ xpEarned: number; xpDelta: number }>({ xpEarned: 0, xpDelta: 0 });
@@ -134,15 +135,16 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
   }
 
   const question = getCurrentQuestion();
-  const correctAnswer = getCorrectAnswer();
+  const correctAnswers = getCorrectAnswer(); // Now returns an array
+  const isMultiSelectQuestion = isMultiSelect();
 
   return (
     <QuizQuestion
       question={question}
       shuffledAnswers={shuffledAnswers}
-      selectedAnswer={selectedAnswer}
+      selectedAnswers={selectedAnswers}
       isAnswerSubmitted={isAnswerSubmitted}
-      correctAnswer={correctAnswer}
+      correctAnswers={correctAnswers}
       currentQuestion={currentQuestion}
       totalQuestions={quizPlayer.totalQuestions}
       onAnswerSelect={handleAnswerSelect}
@@ -151,6 +153,7 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
       onHome={onHome}
       elapsedTime={elapsedTime}
       hasProgress={!!username && username !== 'Gast'}
+      isMultiSelect={isMultiSelectQuestion}
     />
   );
 }

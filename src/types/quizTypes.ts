@@ -81,7 +81,8 @@ export interface Question {
   questionAudio?: string; // URL of question audio if questionType is 'audio'
   answerType: string;
   answers: Answer[];
-  correctAnswerIndex: number;
+  correctAnswerIndex: number; // Deprecated: Use correctAnswerIndices for multi-select support
+  correctAnswerIndices?: number[]; // Array of correct answer indices (supports multiple correct answers)
 }
 
 export interface Answer {
