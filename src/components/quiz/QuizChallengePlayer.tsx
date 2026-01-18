@@ -24,6 +24,7 @@ export default function QuizChallengePlayer() {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [shuffledAnswers, setShuffledAnswers] = useState<Array<Answer & { originalIndex: number }>>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<(Answer & { originalIndex: number }) | null>(null);
+  const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [isWinner, setIsWinner] = useState(false);
@@ -179,14 +180,21 @@ export default function QuizChallengePlayer() {
       }));
     setShuffledAnswers(shuffled);
     setSelectedAnswer(null);
+    setIsAnswerSubmitted(false);
     setShowResult(false);
   }, [currentLevel, gameOver, challenge, questionMap]);
 
   const handleAnswerSelect = (answer: Answer & { originalIndex: number }) => {
-    if (selectedAnswer !== null || !currentQuestion) return;
+    if (isAnswerSubmitted || !currentQuestion) return;
     
     setSelectedAnswer(answer);
-    const isCorrect = answer.originalIndex === currentQuestion.correctAnswerIndex;
+  };
+
+  const handleSubmitAnswer = () => {
+    if (!selectedAnswer || !currentQuestion || isAnswerSubmitted) return;
+    
+    setIsAnswerSubmitted(true);
+    const isCorrect = selectedAnswer.originalIndex === currentQuestion.correctAnswerIndex;
     
     if (isCorrect) {
       setShowResult(true);
@@ -214,7 +222,7 @@ export default function QuizChallengePlayer() {
   };
 
   const handleNext = () => {
-    if (!selectedAnswer || !currentQuestion) return;
+    if (!selectedAnswer || !currentQuestion || !isAnswerSubmitted) return;
     
     const isCorrect = selectedAnswer.originalIndex === currentQuestion.correctAnswerIndex;
     
@@ -380,10 +388,12 @@ export default function QuizChallengePlayer() {
           question={currentQuestion}
           shuffledAnswers={shuffledAnswers}
           selectedAnswer={selectedAnswer}
+          isAnswerSubmitted={isAnswerSubmitted}
           correctAnswer={correctAnswer}
           currentQuestion={currentLevel - 1}
           totalQuestions={15}
           onAnswerSelect={handleAnswerSelect}
+          onSubmitAnswer={handleSubmitAnswer}
           onNext={handleNext}
           onHome={handleHome}
           onBack={handleBack}
