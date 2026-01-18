@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Check, X, ArrowLeft, Save, Image as ImageIcon, Lock, Volume2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, X, ArrowLeft, Save, Check as CheckIcon, Image as ImageIcon, Lock, Volume2 } from 'lucide-react';
 import type { Quiz, Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
@@ -19,11 +19,24 @@ export default function QuizEditorView() {
   const [editedQuiz, setEditedQuiz] = useState<Quiz | null>(null);
   const [quizDocument, setQuizDocument] = useState<QuizDocument | null>(null);
   const [saving, setSaving] = useState(false);
+  const [allChangesSaved, setAllChangesSaved] = useState(true); // Neu: Status für dynamischen Button
   const [urlShared, setUrlShared] = useState(false);
   const [hasLock, setHasLock] = useState(false);
   const [lockConflict, setLockConflict] = useState<string | null>(null);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; index: number | null }>({ open: false, index: null });
   const lockRefreshInterval = useRef<number | null>(null);
+
+  // Track, ob es ungespeicherte Änderungen gibt (außer Fragen, die werden direkt gespeichert)
+  useEffect(() => {
+    if (!editedQuiz || !quizDocument) return;
+    // Vergleiche relevante Felder
+    const changed =
+      editedQuiz.title !== quizDocument.title ||
+      editedQuiz.shortTitle !== (quizDocument.shortTitle || quizDocument.title) ||
+      editedQuiz.hidden !== (quizDocument.hidden === undefined ? true : quizDocument.hidden) ||
+      urlShared !== (quizDocument.urlShared || false);
+    setAllChangesSaved(!changed);
+  }, [editedQuiz, quizDocument, urlShared]);
 
   // Acquire edit lock and load quiz data
   useEffect(() => {
@@ -166,6 +179,7 @@ export default function QuizEditorView() {
         hidden: editedQuiz.hidden,
         urlShared: urlShared,
       });
+      setAllChangesSaved(true);
       
       // Release lock after successful save
       if (currentUser) {
@@ -175,8 +189,7 @@ export default function QuizEditorView() {
       toast.custom(() => (
         <CustomToast message="Quiz erfolgreich gespeichert" type="success" />
       ));
-      
-      // Navigate back to admin after short delay
+      // Navigiere zurück nach kurzer Verzögerung
       setTimeout(() => navigate('/admin'), 500);
     } catch (error) {
       console.error('Error saving quiz:', error);
@@ -191,6 +204,54 @@ export default function QuizEditorView() {
   // Öffnet das DeleteConfirmModal für die Frage
   const handleDeleteQuestion = (index: number) => {
     setDeleteModal({ open: true, index });
+  }
+
+  // Handler für Zurück-Pfeil: prüft auf ungespeicherte Änderungen
+  const handleBack = () => {
+    if (!allChangesSaved) {
+      toast.custom((t) => (
+        <div className="max-w-xs w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-5 flex flex-col">
+          <div className="text-gray-900 dark:text-white text-base font-medium mb-2">
+            Ungespeicherte Änderungen
+          </div>
+          <div className="text-gray-700 dark:text-gray-300 text-sm mb-4">
+            Du hast ungespeicherte Änderungen. Bitte speichere zuerst oder verwerfe deine Änderungen.
+          </div>
+          <div className="flex gap-2 w-full">
+            <button
+              className="flex-1 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm font-medium border border-gray-300 dark:border-gray-600 transition-colors"
+              onClick={() => {
+                if (quizDocument) {
+                  setEditedQuiz({
+                    id: quizDocument.id,
+                    uuid: quizDocument.id,
+                    title: quizDocument.title,
+                    shortTitle: quizDocument.shortTitle || quizDocument.title,
+                    questions: quizDocument.questions || [],
+                    hidden: quizDocument.hidden === undefined ? true : quizDocument.hidden,
+                  });
+                  setUrlShared(quizDocument.urlShared || false);
+                }
+                toast.dismiss(t);
+              }}
+            >
+              Änderungen verwerfen
+            </button>
+            <button
+              className="flex-1 px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium border border-indigo-700 transition-colors"
+              onClick={() => {
+                handleSaveQuiz();
+                toast.dismiss(t);
+              }}
+            >
+              Speichern
+            </button>
+          </div>
+        </div>
+      ));
+      return;
+    }
+    navigate('/admin');
   };
 
   // Persistente Löschung nach Bestätigung
@@ -283,7 +344,7 @@ export default function QuizEditorView() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <button
-                onClick={() => navigate('/admin')}
+                onClick={handleBack}
                 className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
                 title="Zurück zur Admin-Übersicht"
                 aria-label="Zurück zur Admin-Übersicht"
@@ -299,20 +360,32 @@ export default function QuizEditorView() {
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
-                onClick={() => navigate('/admin')}
+                onClick={handleBack}
                 className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors"
               >
                 Abbrechen
               </button>
-              <button
-                onClick={handleSaveQuiz}
-                disabled={saving}
-                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center justify-center gap-2"
-              >
-                <Save className="w-4 h-4" />
-                <span className="hidden sm:inline">{saving ? 'Speichert...' : 'Speichern'}</span>
-                <span className="sm:hidden">{saving ? 'Speichert...' : 'Speichern'}</span>
-              </button>
+              {allChangesSaved ? (
+                <button
+                  onClick={handleBack}
+                  disabled={saving}
+                  className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-green-400 transition-colors flex items-center justify-center gap-2 transition-colors"
+                >
+                  <CheckIcon className="w-4 h-4" />
+                  <span className="hidden sm:inline">Gespeichert</span>
+                  <span className="sm:hidden">Gespeichert</span>
+                </button>
+              ) : (
+                <button
+                  onClick={handleSaveQuiz}
+                  disabled={saving}
+                  className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  <span className="hidden sm:inline">{saving ? 'Speichert...' : 'Speichern'}</span>
+                  <span className="sm:hidden">{saving ? 'Speichert...' : 'Speichern'}</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
