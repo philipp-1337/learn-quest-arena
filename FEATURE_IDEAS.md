@@ -169,7 +169,7 @@ Nutzer müssen selbst daran denken, fällige SRS-Wiederholungen zu machen.
 
 ## 👥 Kollaborative Features
 
-### Was aktuell fehlt
+### Was aktuell fehlt (Kollaboration)
 
 Die App ist primär auf Einzelnutzung ausgelegt.
 
@@ -204,7 +204,7 @@ Die App ist primär auf Einzelnutzung ausgelegt.
 
 ## 📱 Verbesserte Offline-Funktionalität
 
-### Aktueller Stand
+### Aktueller Stand PWA
 
 - PWA mit Service Worker vorhanden
 - Grundlegende Offline-Fähigkeit
@@ -396,7 +396,7 @@ Navigation erfolgt nur über Hierarchie (Fach → Klasse → Thema → Quiz)
 
 ## 🎯 Barrierefreiheit (Accessibility)
 
-### Aktueller Stand
+### Aktueller Stand (Accessibility)
 
 - Teilweise aria-labels vorhanden
 - Dark Mode implementiert

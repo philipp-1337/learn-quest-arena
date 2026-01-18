@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Filter, Plus, X, Eye, EyeOff, Pencil, Trash2, QrCode, ChevronDown, Edit3, MoreVertical, ArrowLeftRight } from "lucide-react";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
 import type { QuizDocument } from "../../types/quizTypes";
 import { loadAllQuizDocuments, deleteQuizDocument, updateQuizDocument } from "../../utils/quizzesCollection";
-import QuizEditorModal from "../modals/QuizEditorModal";
 import DeleteConfirmModal from "../modals/DeleteConfirmModal";
 import CreateQuizWizard from "../modals/CreateQuizWizard";
 import RenameCategoryModal from "../modals/RenameCategoryModal";
@@ -26,6 +26,7 @@ interface FilterState {
 }
 
 export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
+  const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState<QuizDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [authorAbbreviations, setAuthorAbbreviations] = useState<Map<string, string>>(new Map());
@@ -39,7 +40,6 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
   });
   const [showFilters, setShowFilters] = useState(false);
   const [showCreateWizard, setShowCreateWizard] = useState(false);
-  const [editingQuiz, setEditingQuiz] = useState<QuizDocument | null>(null);
   const [deletingQuiz, setDeletingQuiz] = useState<QuizDocument | null>(null);
   const [reassignQuiz, setReassignQuiz] = useState<QuizDocument | null>(null);
   const [openMobileMenuId, setOpenMobileMenuId] = useState<string | null>(null);
@@ -242,28 +242,6 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     setShowCreateWizard(false);
     await loadQuizzes();
     if (onRefetch) await onRefetch();
-  };
-
-  const handleQuizUpdated = async (updatedQuiz: QuizDocument) => {
-    const result = await updateQuizDocument(updatedQuiz.id, {
-      title: updatedQuiz.title,
-      shortTitle: updatedQuiz.shortTitle,
-      questions: updatedQuiz.questions,
-      hidden: updatedQuiz.hidden,
-    });
-    
-    if (result.success) {
-      setQuizzes(prev => prev.map(q => 
-        q.id === updatedQuiz.id ? { ...q, ...updatedQuiz } : q
-      ));
-      toast.custom(() => (
-        <CustomToast 
-          message="Quiz gespeichert" 
-          type="success" 
-        />
-      ));
-    }
-    setEditingQuiz(null);
   };
 
   const handleRenameCategory = (type: 'subject' | 'class' | 'topic', id: string, name: string) => {
@@ -557,7 +535,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                       <ArrowLeftRight className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => setEditingQuiz(quiz)}
+                      onClick={() => navigate(`/admin/quiz/edit/${quiz.id}`)}
                       className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
                       title="Bearbeiten"
                     >
@@ -650,7 +628,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
                   </button>
                   <button 
                     onClick={() => {
-                      setEditingQuiz(quiz);
+                      navigate(`/admin/quiz/edit/${quiz.id}`);
                       setOpenMobileMenuId(null);
                     }} 
                     className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
@@ -683,21 +661,6 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
           existingTopics={filterOptions.topics}
           onClose={() => setShowCreateWizard(false)}
           onQuizCreated={handleQuizCreated}
-        />
-      )}
-
-      {editingQuiz && (
-        <QuizEditorModal
-          quiz={{
-            id: editingQuiz.id,
-            uuid: editingQuiz.id,
-            title: editingQuiz.title,
-            shortTitle: editingQuiz.shortTitle,
-            questions: editingQuiz.questions,
-            hidden: editingQuiz.hidden,
-          }}
-          onSave={(updatedQuiz) => handleQuizUpdated({ ...editingQuiz, ...updatedQuiz })}
-          onClose={() => setEditingQuiz(null)}
         />
       )}
 

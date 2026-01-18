@@ -3,6 +3,7 @@ import { Plus, Edit2, Trash2, Check, X, Lightbulb, MessageCircleWarning } from '
 import type { Quiz, Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
+import { uploadWithToast } from '../../utils/cloudinaryUpload';
 
 interface QuizEditorModalProps {
   quiz: Quiz;
@@ -12,45 +13,8 @@ interface QuizEditorModalProps {
 
 type QuestionEditor = Question & { isEditing?: boolean; editIndex?: number };
 
-const MAX_IMAGE_SIZE = 500 * 1024; // 500 KB
-const MAX_BASE64_SIZE = 1 * 1024 * 1024; // 1 MB for Base64 encoded data
-
-const compressImage = (file: Blob, maxWidth: number = 1024, maxHeight: number = 1024): Promise<Blob> => {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, width, height);
-
-        canvas.toBlob((blob) => {
-          resolve(blob || file);
-        }, 'image/jpeg', 0.8);
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  });
-};
+// Cloudinary Upload - keine lokalen Limits mehr nötig
+// Cloudinary Free Plan: 25 GB Storage, 25 GB Bandwidth/Monat
 
 export default function QuizEditorModal({
   quiz,
@@ -123,84 +87,34 @@ export default function QuizEditorModal({
     });
   };
 
-  const handleImageUpload = async (index: number, file: Blob) => {
+  const handleImageUpload = async (index: number, file: File) => {
+    if (!currentQuestion) return;
+
     try {
-      const fileName = (file as File).name;
+      // Upload zu Cloudinary
+      const result = await uploadWithToast(file, {
+        resourceType: 'image',
+        folder: 'quiz-images',
+        tags: ['quiz', 'answer-image'],
+      });
 
-      // Check original file size
-      if (file.size > MAX_IMAGE_SIZE) {
-        toast.custom(() => (
-          <CustomToast 
-            message={`Bild zu groß! Max. 500 KB. Dein Bild: ${(file.size / 1024).toFixed(1)} KB`} 
-            type="error" 
-          />
-        ));
-
-        // Ask user if they want compression help
-        const shouldCompress = window.confirm(
-          `Dein Bild ist zu groß (${(file.size / 1024).toFixed(1)} KB, max. 500 KB).\n\nMöchtest du eine Anleitung zur Bildkomprimierung?\n\nEmpfohlen:\n• Online: tinypng.com oder imagecompressor.com\n• Desktop: ImageMagick, GIMP oder Preview (macOS)`
-        );
-
-        if (shouldCompress) {
-          toast.custom(() => (
-            <CustomToast 
-              message="Komprimiere dein Bild online oder mit einem Tool und lade es erneut hoch." 
-              type="info" 
-            />
-          ));
-        }
+      if (!result) {
+        // Upload fehlgeschlagen (Toast wird bereits in uploadWithToast angezeigt)
         return;
       }
 
-      const loadingToast = toast.loading('Bild wird verarbeitet...');
-
-      // Compress image if needed
-      let compressedFile = file;
-      if (file.size > 300 * 1024) {
-        compressedFile = await compressImage(file);
-      }
-
-      // Convert to Base64
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64String = reader.result as string;
-
-        // Check Base64 size
-        if (base64String.length > MAX_BASE64_SIZE) {
-          toast.dismiss(loadingToast);
-          toast.custom(() => (
-            <CustomToast 
-              message="Base64-Daten zu groß! Bitte komprimiere das Bild stärker." 
-              type="error" 
-            />
-          ));
-          return;
-        }
-
-        if (!currentQuestion) return;
-
-        const newAnswers = [...currentQuestion.answers];
-        newAnswers[index] = {
-          type: 'image',
-          content: base64String, // Base64 encoded image
-          alt: newAnswers[index].alt || fileName,
-        };
-
-        setCurrentQuestion({
-          ...currentQuestion,
-          answers: newAnswers,
-        });
-
-        toast.dismiss(loadingToast);
-        toast.custom(() => (
-          <CustomToast 
-            message="Bild erfolgreich hochgeladen!" 
-            type="success" 
-          />
-        ));
+      // Antwort mit Cloudinary URL aktualisieren
+      const newAnswers = [...currentQuestion.answers];
+      newAnswers[index] = {
+        type: 'image',
+        content: result.url, // Cloudinary URL statt Base64
+        alt: newAnswers[index].alt || file.name,
       };
 
-      reader.readAsDataURL(compressedFile);
+      setCurrentQuestion({
+        ...currentQuestion,
+        answers: newAnswers,
+      });
     } catch (error) {
       console.error('Fehler beim Hochladen des Bildes:', error);
       toast.custom(() => (
@@ -532,12 +446,12 @@ export default function QuizEditorModal({
                   <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-4">
                     <p className="text-xs font-medium text-blue-900 dark:text-blue-200 flex items-center gap-1.5">
                       <MessageCircleWarning className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      <span>Bildgröße max. 500 KB. Größere Bilder werden automatisch komprimiert.</span>
+                      <span>Bilder werden auf Cloudinary gehostet (max. 10 MB pro Bild).</span>
                     </p>
                     <p className="text-xs text-blue-700 dark:text-blue-300 mt-2 flex items-center gap-1.5">
                       <Lightbulb className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       <span>
-                        Tipp: Nutze tinypng.com oder imagecompressor.com zur Optimierung.
+                        Tipp: Für beste Performance unter 2 MB bleiben.
                       </span>
                     </p>
                   </div>

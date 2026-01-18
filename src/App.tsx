@@ -7,6 +7,8 @@ import LoginView from './components/login/LoginView';
 import QuizView from './components/quiz/QuizView';
 import AdminView from './components/admin/AdminView';
 import AdminProfileView from './components/admin/AdminProfileView';
+import QuizEditorView from './components/admin/QuizEditorView';
+import QuestionEditorView from './components/admin/QuestionEditorView';
 import UserView from './components/user/UserView';
 import QuizChallengePlayer from './components/quiz/QuizChallengePlayer';
 import Dataprotection from './components/footer/Dataprotection';
@@ -158,6 +160,30 @@ export default function FlashcardQuizApp() {
           element={
             <ProtectedRoute>
               <AdminProfileView onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/quiz/edit/:id"
+          element={
+            <ProtectedRoute>
+              <QuizEditorView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/quiz/edit/:id/question/new"
+          element={
+            <ProtectedRoute>
+              <QuestionEditorView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/quiz/edit/:id/question/:index"
+          element={
+            <ProtectedRoute>
+              <QuestionEditorView />
             </ProtectedRoute>
           }
         />
