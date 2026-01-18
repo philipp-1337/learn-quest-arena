@@ -4,6 +4,7 @@ import { Plus, Edit2, Trash2, Check, X, ArrowLeft, Save, Image as ImageIcon, Loc
 import type { Quiz, Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
+import DeleteConfirmModal from '../modals/DeleteConfirmModal';
 import { loadAllQuizDocuments, updateQuizDocument, acquireEditLock, releaseEditLock, refreshEditLock, subscribeToQuiz } from '../../utils/quizzesCollection';
 import type { QuizDocument } from '../../types/quizTypes';
 import { getThumbnailUrl } from '../../utils/cloudinaryTransform';
@@ -21,6 +22,7 @@ export default function QuizEditorView() {
   const [urlShared, setUrlShared] = useState(false);
   const [hasLock, setHasLock] = useState(false);
   const [lockConflict, setLockConflict] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; index: number | null }>({ open: false, index: null });
   const lockRefreshInterval = useRef<number | null>(null);
 
   // Acquire edit lock and load quiz data
@@ -186,12 +188,31 @@ export default function QuizEditorView() {
     }
   };
 
+  // Öffnet das DeleteConfirmModal für die Frage
   const handleDeleteQuestion = (index: number) => {
-    if (!editedQuiz) return;
-    setEditedQuiz({
-      ...editedQuiz,
-      questions: editedQuiz.questions.filter((_, i) => i !== index),
-    });
+    setDeleteModal({ open: true, index });
+  };
+
+  // Persistente Löschung nach Bestätigung
+  const confirmDeleteQuestion = async () => {
+    if (!editedQuiz || !quizDocument || deleteModal.index === null) return;
+    const newQuestions = editedQuiz.questions.filter((_, i) => i !== deleteModal.index);
+    try {
+      await updateQuizDocument(quizDocument.id, {
+        ...quizDocument,
+        questions: newQuestions,
+      });
+      setEditedQuiz({ ...editedQuiz, questions: newQuestions });
+      toast.custom(() => (
+        <CustomToast message="Frage gelöscht" type="success" />
+      ));
+    } catch (error) {
+      toast.custom(() => (
+        <CustomToast message="Fehler beim Löschen der Frage" type="error" />
+      ));
+    } finally {
+      setDeleteModal({ open: false, index: null });
+    }
   };
 
   const handleUrlSharedToggle = (checked: boolean) => {
@@ -248,6 +269,14 @@ export default function QuizEditorView() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* DeleteConfirmModal für Frage-Löschung */}
+      {deleteModal.open && editedQuiz && (
+        <DeleteConfirmModal
+          itemName={`Frage ${deleteModal.index !== null ? deleteModal.index + 1 : ''}`}
+          onConfirm={confirmDeleteQuestion}
+          onClose={() => setDeleteModal({ open: false, index: null })}
+        />
+      )}
       {/* Header with Save/Cancel buttons */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -346,7 +375,7 @@ export default function QuizEditorView() {
                     className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-700"
                   />
                   <label htmlFor="url-shared-toggle" className="text-sm text-gray-700 dark:text-gray-300">
-                    Quiz URL wurde geteilt
+                    Kurztitel nicht änderbar (URL wurde geteilt)
                   </label>
                 </div>
               </div>
