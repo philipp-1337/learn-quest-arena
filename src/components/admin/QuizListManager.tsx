@@ -332,7 +332,20 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     });
   };
 
-  const hasActiveFilters = filters.search || filters.subject || filters.class || filters.topic || !filters.showHidden || filters.author || filters.dateFrom || filters.dateTo;
+  const hasActiveFilters = filters.search || filters.subject || filters.class || filters.topic || !filters.showHidden || filters.author || filters.dateFrom || filters.dateTo || filters.sortBy !== 'title' || filters.limit !== null;
+  
+  const activeFilterCount = [
+    filters.search,
+    filters.subject,
+    filters.class,
+    filters.topic,
+    !filters.showHidden,
+    filters.author,
+    filters.dateFrom,
+    filters.dateTo,
+    filters.sortBy !== 'title',
+    filters.limit !== null
+  ].filter(Boolean).length;
 
   return (
     <div className="space-y-4">
@@ -363,7 +376,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
           <span className="max-sm:hidden">Filter</span>
           {hasActiveFilters && (
             <span className="bg-indigo-600 text-white text-xs px-1.5 py-0.5 rounded-full">
-            {[filters.subject, filters.class, filters.topic, !filters.showHidden, filters.author, filters.dateFrom, filters.dateTo].filter(Boolean).length}
+              {activeFilterCount}
             </span>
           )}
           <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
