@@ -3,10 +3,12 @@
 ## Applied Performance Improvements
 
 ### 1. Fixed setState in useEffect Patterns (High Priority)
+
 **Issue**: Multiple components were calling setState synchronously within useEffect, causing cascading renders and performance issues.
 
 **Fixed in:**
-- `useQuizPlayer.ts`: 
+
+- `useQuizPlayer.ts`:
   - Replaced `useState` with `useRef` for `startTime` to avoid unnecessary re-renders
   - Converted `shuffledAnswers` from state to `useMemo` to avoid setState in useEffect
   
@@ -26,9 +28,10 @@
 **Impact**: Reduced lint errors from 39 to 36, improved render performance by preventing cascading renders.
 
 ### 2. Animation Performance Optimizations (High Priority)
+
 **Implementation**: Created custom animation hooks using `requestAnimationFrame` for smooth animations:
 
-- `useCountUpAnimation.ts`: 
+- `useCountUpAnimation.ts`:
   - Uses RAF instead of setInterval for smoother animations
   - Implements easing function (easeOutCubic) for natural deceleration
   - Properly cleans up animation frames on unmount
@@ -44,9 +47,11 @@
 ### 1. Memoization Opportunities (Medium Priority)
 
 #### QuizPlayer Component
+
 **Location**: `src/components/quiz/QuizPlayer.tsx`
 **Issue**: Large useEffect at lines 48-110 runs on every answer change
-**Recommendation**: 
+**Recommendation**:
+
 ```typescript
 // Memoize expensive calculations
 const statistics = useMemo(() => getStatistics(), [answers, solvedQuestions]);
@@ -57,17 +62,20 @@ const xpCalculation = useMemo(() => {
 ```
 
 #### QuizView Component
+
 **Location**: `src/components/quiz/QuizView.tsx` (468 lines)
 **Issue**: Large component with multiple state updates
 **Recommendation**: Split into smaller components, use React.memo for child components
 
 ### 2. Firebase Optimization (High Priority)
 
-#### Current Issues:
+#### Current Issues
+
 1. **Excessive Writes**: `saveUserQuizProgress` is called on every answer change (line 108 in QuizPlayer.tsx)
 2. **No Batching**: Progress updates trigger individual Firestore writes
 
 **Recommendations**:
+
 ```typescript
 // Debounce progress saves
 const debouncedSave = useMemo(
@@ -86,11 +94,13 @@ const debouncedSave = useMemo(
 ### 3. Component Memoization (Medium Priority)
 
 **Candidates for React.memo:**
+
 - `AnswerButton.tsx`: Rendered multiple times per question
 - `QuizQuestion.tsx`: Re-renders on every state change
 - `Breadcrumb.tsx`: Static display component
 
 **Example**:
+
 ```typescript
 export const AnswerButton = React.memo(({ 
   answer, 
@@ -111,21 +121,26 @@ export const AnswerButton = React.memo(({
 ### 5. Bundle Size Optimization (Medium Priority)
 
 **Current Bundle Sizes** (from build output):
+
 - firebase: 337.75 kB (104.72 kB gzipped)
 - index: 198.40 kB (49.07 kB gzipped)
 - react: 229.63 kB (74.06 kB gzipped)
 
 **Recommendations**:
+
 1. **Tree-shake lucide-react icons**: Import only needed icons
+
    ```typescript
    // Instead of
    import { Trophy, PartyPopper, ... } from 'lucide-react';
    // Use
    import Trophy from 'lucide-react/dist/esm/icons/trophy';
    ```
+
    **Potential saving**: ~5-10 kB
 
 2. **Code splitting**: Use dynamic imports for admin/modal components
+
    ```typescript
    const QuizEditorModal = lazy(() => import('./modals/QuizEditorModal'));
    ```
@@ -143,27 +158,32 @@ export const AnswerButton = React.memo(({
 
 **Current Status**: Good cleanup in most hooks
 **Potential Issues**:
+
 - Long-lived timers in `useQuizPlayer` (elapsed time interval)
 - Event listeners in various components
 
 **Recommendation**: Audit all useEffect cleanup functions, especially in:
+
 - `useQuizPlayer.ts`: Timer cleanup ✓ (already implemented)
 - `useMaintenanceMode.ts`: Firestore listener cleanup ✓ (already implemented)
 - `usePwaPrompt.tsx`: Event listener cleanup ✓ (already implemented)
 
 ## Summary of Impact
 
-### High Priority (Should Implement):
+### High Priority (Should Implement)
+
 1. ✅ **Fixed setState in useEffect** - Already implemented
 2. **Debounce Firebase writes** - Could save 80-90% of Firestore operations
 3. ✅ **Animation optimizations** - Already implemented
 
-### Medium Priority (Consider for Next Phase):
+### Medium Priority (Consider for Next Phase)
+
 1. **Memoize expensive calculations** in QuizPlayer
 2. **Component memoization** for frequently rendered components
 3. **Bundle size optimization** with tree-shaking
 
-### Low Priority (Optional):
+### Low Priority (Optional)
+
 1. **Code splitting** for admin components
 2. **List rendering keys** optimization
 

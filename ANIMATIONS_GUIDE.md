@@ -2,7 +2,7 @@
 
 ## Animation Timeline
 
-```
+```bash
 Time (ms)    Element                 Animation Type                    Duration
 ────────────────────────────────────────────────────────────────────────────────
 0            Header                  Fade in + Slide down              700ms
@@ -30,12 +30,14 @@ Continuous   All Buttons             Hover: scale(1.02)                200ms
 ## Animation Easing Functions
 
 ### Count-Up Animations
+
 - **Easing**: easeOutCubic
 - **Formula**: `1 - (1 - progress)³`
 - **Effect**: Fast start, slow smooth finish
 - **Use cases**: XP count, Percentage count
 
 ### Entrance Animations
+
 - **Easing**: CSS transition defaults (ease)
 - **Properties**: opacity (0 → 1), transform (translateY)
 - **Stagger**: 150ms between elements
@@ -43,7 +45,8 @@ Continuous   All Buttons             Hover: scale(1.02)                200ms
 ## Visual States by Performance
 
 ### Perfect Score (100%, all questions correct, no mistakes)
-```
+
+```bash
 ┌─────────────────────────────────────┐
 │           🏆 + ✨                   │  ← Bouncing trophy + pulsing sparkles
 │         🎉 Perfekt!                 │  ← Header text
@@ -61,7 +64,8 @@ Continuous   All Buttons             Hover: scale(1.02)                200ms
 ```
 
 ### Good Score (80-99%)
-```
+
+```bash
 ┌─────────────────────────────────────┐
 │           🎊                         │  ← Bouncing party popper
 │        Sehr gut!                     │
@@ -80,7 +84,8 @@ Continuous   All Buttons             Hover: scale(1.02)                200ms
 ```
 
 ### Okay Score (60-79%)
-```
+
+```bash
 ┌─────────────────────────────────────┐
 │           👍                         │  ← Thumbs up
 │       Gut gemacht!                   │
@@ -99,7 +104,8 @@ Continuous   All Buttons             Hover: scale(1.02)                200ms
 ```
 
 ### Lower Score (<60%)
-```
+
+```bash
 ┌─────────────────────────────────────┐
 │           🏅                         │  ← Award icon
 │        Weiter so!                    │
@@ -120,6 +126,7 @@ Continuous   All Buttons             Hover: scale(1.02)                200ms
 ## Animation Implementation Details
 
 ### useCountUpAnimation Hook
+
 ```typescript
 // Usage in QuizResults.tsx
 const animatedXP = useCountUpAnimation(
@@ -134,6 +141,7 @@ const animatedXP = useCountUpAnimation(
 ```
 
 ### useStaggeredAnimation Hook
+
 ```typescript
 // Usage in QuizResults.tsx
 const card1Visible = useStaggeredAnimation(1, 150);
@@ -149,6 +157,7 @@ const card3Visible = useStaggeredAnimation(3, 150);
 ## CSS Transitions Used
 
 ### Entrance Animations
+
 ```css
 transition-all duration-700
   opacity: 0 → 1
@@ -157,6 +166,7 @@ transition-all duration-700
 ```
 
 ### Interactive Elements
+
 ```css
 transition-all duration-200
   hover: scale(1.02)
@@ -164,12 +174,14 @@ transition-all duration-200
 ```
 
 ### Progress Bar
+
 ```css
 transition: width 1000ms ease-out
   width: 0% → actual %
 ```
 
 ### Icon Animations (Tailwind utilities)
+
 ```css
 animate-bounce (trophy, party popper)
 animate-pulse (sparkles)
@@ -186,25 +198,27 @@ animate-pulse (sparkles)
 ## Color Scheme by Grade
 
 | Grade | Percentage | Label        | Color       | Use Case       |
-|-------|-----------|--------------|-------------|----------------|
-| 1     | ≥92%      | Sehr gut     | Green       | Perfect/Great  |
-| 2     | 81-91%    | Gut          | Lime        | Good           |
-| 3     | 67-80%    | Befriedigend | Yellow      | Satisfactory   |
-| 4     | 50-66%    | Ausreichend  | Orange      | Adequate       |
-| 5     | 30-49%    | Mangelhaft   | Red         | Deficient      |
-| 6     | <30%      | Ungenügend   | Dark Red    | Insufficient   |
+|-------|------------|--------------|-------------|----------------|
+| 1     | ≥92%       | Sehr gut     | Green       | Perfect/Great  |
+| 2     | 81-91%     | Gut          | Lime        | Good           |
+| 3     | 67-80%     | Befriedigend | Yellow      | Satisfactory   |
+| 4     | 50-66%     | Ausreichend  | Orange      | Adequate       |
+| 5     | 30-49%     | Mangelhaft   | Red         | Deficient      |
+| 6     | <30%       | Ungenügend   | Dark Red    | Insufficient   |
 
 ## Interactive Elements Behavior
 
 ### Button Hover/Active States
-```
+
+```bash
 Normal → Hover → Active → Release
 scale(1) → scale(1.02) → scale(0.98) → scale(1)
          200ms          200ms          200ms
 ```
 
 ### Wrong Questions Accordion
-```
+
+```bash
 Collapsed                    Expanded
 [⌄] Zu wiederholende    →   [^] Zu wiederholende
     Fragen (3)                  Fragen (3)
@@ -218,11 +232,13 @@ Transition: ChevronDown rotation 180deg
 ## Responsive Behavior
 
 ### Desktop (≥768px)
+
 - 3 cards in a row (grid-cols-3)
 - Buttons in a row (flex-row)
 - Full animations
 
 ### Mobile (<768px)
+
 - Cards stacked (grid-cols-1)
 - Buttons stacked (flex-col)
 - Same animations (just layout changes)
@@ -230,6 +246,7 @@ Transition: ChevronDown rotation 180deg
 ## Dark Mode Support
 
 All animations work seamlessly in both light and dark modes:
+
 - Color transitions handled by Tailwind's dark: variants
 - No animation differences between modes
 - Smooth theme switching (if implemented)
