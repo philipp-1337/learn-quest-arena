@@ -43,7 +43,10 @@ const ProgressAccordionItem: React.FC<{
   onNavigateToQuiz: (mode: "fresh" | "continue" | "review") => void;
 }> = ({ progress, isOpen, onToggle, onNavigateToQuiz }) => {
   const quiz = progress.quiz;
-  const displayTitle = quiz?.shortTitle || quiz?.title || progress.quizId;
+  const isDeletedQuiz = !quiz;
+  const displayTitle = isDeletedQuiz
+    ? "Gelöschtes Quiz"
+    : quiz?.shortTitle || quiz?.title || progress.quizId;
   const isCompleted = progress.completed;
   const totalQuestions = Object.keys(progress.questions).length;
   const correctAnswers = Object.values(progress.questions).filter(
@@ -104,6 +107,9 @@ const ProgressAccordionItem: React.FC<{
           <div className="flex-1 min-w-0 max-w-xs">
             <h3 className="font-semibold text-gray-900 dark:text-white truncate block">
               {displayTitle}
+              {isDeletedQuiz && (
+                <span className="ml-2 text-xs text-red-500 dark:text-red-400 font-normal">(Quiz gelöscht)</span>
+              )}
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {correctAnswers}/{totalQuestions} korrekt
@@ -149,6 +155,13 @@ const ProgressAccordionItem: React.FC<{
       {/* Accordion Content */}
       {isOpen && (
         <div className="px-4 py-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 space-y-3">
+          {isDeletedQuiz && (
+            <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg p-3 mb-2">
+              <p className="text-sm text-red-700 dark:text-red-300">
+                Dieses Quiz wurde gelöscht. Dein Fortschritt bleibt erhalten, aber du kannst das Quiz nicht mehr starten.
+              </p>
+            </div>
+          )}
           <div
             className={`grid gap-4 ${
               isCompleted && progress.completedTime
