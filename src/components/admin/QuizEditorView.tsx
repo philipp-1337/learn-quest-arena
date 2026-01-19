@@ -24,6 +24,7 @@ export default function QuizEditorView() {
   const [hasLock, setHasLock] = useState(false);
   const [lockConflict, setLockConflict] = useState<string | null>(null);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; index: number | null }>({ open: false, index: null });
+  const [userRole, setUserRole] = useState<string | null>(null);
   const lockRefreshInterval = useRef<number | null>(null);
 
   // Track, ob es ungespeicherte Änderungen gibt (außer Fragen, die werden direkt gespeichert)
@@ -149,6 +150,27 @@ export default function QuizEditorView() {
       }
     };
   }, [id, navigate]);
+
+  // Rolle des aktuellen Nutzers
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+        if (!currentUser) return;
+        const db = await import('firebase/firestore');
+        const { getFirestore, doc, getDoc } = db;
+        const authorDoc = await getDoc(doc(getFirestore(), 'author', currentUser.uid));
+        if (authorDoc.exists()) {
+          const data = authorDoc.data();
+          setUserRole(data.role || null);
+        }
+      } catch (err) {
+        setUserRole(null);
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   const handleSaveQuiz = async () => {
     if (!editedQuiz || !quizDocument) return;
@@ -434,9 +456,13 @@ export default function QuizEditorView() {
                     checked={!!editedQuiz.hidden}
                     onChange={e => setEditedQuiz(q => q ? { ...q, hidden: e.target.checked } : null)}
                     className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-700"
+                    disabled={userRole === 'supporter'}
                   />
                   <label htmlFor="hidden-toggle" className="text-sm text-gray-700 dark:text-gray-300">
                     Quiz ist <span className={editedQuiz.hidden ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400'}>{editedQuiz.hidden ? 'ausgeblendet' : 'sichtbar'}</span>
+                    {userRole === 'supporter' && (
+                      <span className="ml-2 text-xs text-gray-400">(Du kannst die Sichtbarkeit nicht ändern)</span>
+                    )}
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
