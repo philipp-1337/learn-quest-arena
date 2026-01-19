@@ -49,7 +49,7 @@ interface FilterState {
   limit: number | null;
 }
 
-export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
+export default function QuizListManager({}: QuizListManagerProps) {
   const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState<QuizDocument[]>([]);
   const [loading, setLoading] = useState(true);
@@ -337,7 +337,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
       toast.custom(() => (
         <CustomToast message="Quiz gelöscht" type="success" />
       ));
-      if (onRefetch) await onRefetch();
+      // Kein onRefetch mehr nötig, da onSnapshot die Liste aktuell hält
     } else {
       let errorMsg = "Fehler beim Löschen";
       if (result.error && result.error.includes("permission-denied")) {
@@ -370,7 +370,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
   const handleQuizCreated = async () => {
     setShowCreateWizard(false);
-    if (onRefetch) await onRefetch();
+    // Kein onRefetch mehr nötig, da onSnapshot die Liste aktuell hält
   };
 
   const handleRenameCategory = (
