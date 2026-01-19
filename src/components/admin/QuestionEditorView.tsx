@@ -5,7 +5,7 @@ import type { Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
 import { uploadWithToast } from '../../utils/cloudinaryUpload';
-import { loadAllQuizDocuments, updateQuizDocument, isQuizLocked } from '../../utils/quizzesCollection';
+import { loadQuizDocument, updateQuizDocument, isQuizLocked } from '../../utils/quizzesCollection';
 import type { QuizDocument } from '../../types/quizTypes';
 import OptimizedImage from '../shared/OptimizedImage';
 import { getAuth } from 'firebase/auth';
@@ -53,9 +53,7 @@ export default function QuestionEditorView() {
           return;
         }
 
-        const quizzes = await loadAllQuizDocuments();
-        const quiz = quizzes.find(q => q.id === id);
-
+        const quiz = await loadQuizDocument(id);
         if (!quiz) {
           toast.custom(() => (
             <CustomToast message="Quiz nicht gefunden" type="error" />

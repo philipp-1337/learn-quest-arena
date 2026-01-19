@@ -5,7 +5,7 @@ import type { Quiz, Question, Answer } from '../../types/quizTypes';
 import { toast } from 'sonner';
 import { CustomToast } from '../misc/CustomToast';
 import DeleteConfirmModal from '../modals/DeleteConfirmModal';
-import { loadAllQuizDocuments, updateQuizDocument, acquireEditLock, releaseEditLock, refreshEditLock, subscribeToQuiz } from '../../utils/quizzesCollection';
+import { loadQuizDocument, updateQuizDocument, acquireEditLock, releaseEditLock, refreshEditLock, subscribeToQuiz } from '../../utils/quizzesCollection';
 import type { QuizDocument } from '../../types/quizTypes';
 import { getThumbnailUrl } from '../../utils/cloudinaryTransform';
 import { showConfirmationToast } from '../../utils/confirmationToast';
@@ -93,9 +93,7 @@ export default function QuizEditorView() {
         setHasLock(true);
 
         // Load quiz data
-        const quizzes = await loadAllQuizDocuments();
-        const quiz = quizzes.find(q => q.id === id);
-
+        const quiz = await loadQuizDocument(id);
         if (!quiz) {
           await releaseEditLock(id, currentUser.uid);
           toast.custom(() => (
