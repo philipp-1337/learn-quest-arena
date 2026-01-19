@@ -218,8 +218,12 @@ export default function QuizListManager({}: QuizListManagerProps) {
   // Filter quizzes based on current filters
   const filteredQuizzes = useMemo(() => {
     let result = quizzes.filter((quiz) => {
-      // Search filter
-      if (filters.search) {
+      // Spezialfilter: Quiz ohne Fragen
+      if (filters.search === "__noQuestions__") {
+        return !quiz.questions || quiz.questions.length === 0;
+      }
+      // Standard-Suchfilter
+      if (filters.search && filters.search !== "__editLock__" && filters.search !== "__noQuestions__") {
         const searchLower = filters.search.toLowerCase();
         const matchesSearch =
           quiz.title.toLowerCase().includes(searchLower) ||
@@ -229,22 +233,18 @@ export default function QuizListManager({}: QuizListManagerProps) {
           quiz.topicName?.toLowerCase().includes(searchLower);
         if (!matchesSearch) return false;
       }
-
       // Subject filter
       if (filters.subject && quiz.subjectId !== filters.subject) return false;
-
       // Class filter
       if (filters.class && quiz.classId !== filters.class) return false;
-
       // Topic filter
       if (filters.topic && quiz.topicId !== filters.topic) return false;
-
-      // Hidden filter
-      if (!filters.showHidden && quiz.hidden) return false;
-
+      // Versteckte Quiz Filter: Nur versteckte anzeigen, wenn showHidden === false
+      if (filters.showHidden === false) {
+        return quiz.hidden === true;
+      }
       // Author filter
       if (filters.author && quiz.authorId !== filters.author) return false;
-
       return true;
     });
 
@@ -488,69 +488,60 @@ export default function QuizListManager({}: QuizListManagerProps) {
               Schnellfilter
             </label>
             <div className="flex flex-wrap gap-2">
-              {[
-                {
-                  label: "Letzte 5",
-                  onClick: () => {
-                    setFilters((prev) => ({
-                      ...prev,
-                      sortBy: "createdAt-desc",
-                      limit: 5,
-                    }));
-                    setShowFilters(false);
-                  },
-                },
-                {
-                  label: "Letzte 10",
-                  onClick: () => {
-                    setFilters((prev) => ({
-                      ...prev,
-                      sortBy: "createdAt-desc",
-                      limit: 10,
-                    }));
-                    setShowFilters(false);
-                  },
-                },
-                {
-                  label: "Heute",
-                  onClick: () => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    const dateStr = today.toISOString().split("T")[0];
-                    setFilters((prev) => ({
-                      ...prev,
-                      dateFrom: dateStr,
-                      sortBy: "createdAt-desc",
-                      limit: null,
-                    }));
-                    setShowFilters(false);
-                  },
-                },
-                {
-                  label: "Letzte Woche",
-                  onClick: () => {
-                    const weekAgo = new Date();
-                    weekAgo.setDate(weekAgo.getDate() - 7);
-                    weekAgo.setHours(0, 0, 0, 0);
-                    const dateStr = weekAgo.toISOString().split("T")[0];
-                    setFilters((prev) => ({
-                      ...prev,
-                      dateFrom: dateStr,
-                      sortBy: "createdAt-desc",
-                      limit: null,
-                    }));
-                    setShowFilters(false);
-                  },
-                },
-              ].map((filter) => (
-                <button
-                  key={filter.label}
-                  onClick={filter.onClick}
-                  className="px-3 py-1.5 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
-                >
-                  {filter.label}
-                </button>
-              ))}
+              {/* Meine Quiz */}
+              <button
+                onClick={() => {
+                  const auth = getAuth();
+                  setFilters((prev) => ({
+                    ...prev,
+                    author: auth.currentUser?.uid || "",
+                  }));
+                  setShowFilters(false);
+                }}
+                className="px-3 py-1.5 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
+              >
+                Meine Quiz
+              </button>
+              {/* Versteckte Quiz */}
+              <button
+                onClick={() => {
+                  setFilters((prev) => ({
+                    ...prev,
+                    showHidden: false,
+                  }));
+                  setShowFilters(false);
+                }}
+                className="px-3 py-1.5 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
+              >
+                Versteckte Quiz
+              </button>
+              {/* Neuste 10 */}
+              <button
+                onClick={() => {
+                  setFilters((prev) => ({
+                    ...prev,
+                    sortBy: "createdAt-desc",
+                    limit: 10,
+                  }));
+                  setShowFilters(false);
+                }}
+                className="px-3 py-1.5 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
+              >
+                Neuste 10
+              </button>
+              {/* Quiz ohne Fragen */}
+              <button
+                onClick={() => {
+                  setFilters((prev) => ({
+                    ...prev,
+                    search: "__noQuestions__",
+                  }));
+                  setShowFilters(false);
+                }}
+                className="px-3 py-1.5 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
+              >
+                Quiz ohne Fragen
+              </button>
             </div>
           </div>
 
