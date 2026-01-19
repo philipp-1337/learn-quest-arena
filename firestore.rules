@@ -78,8 +78,11 @@ service cloud.firestore {
             )
           );
 
-        // Delete: only admin
-        allow delete: if request.auth != null && getUserRole(request.auth.uid) == 'admin';
+        // Delete: admin, teacher (teacher can only delete their own quizzes)
+        allow delete: if request.auth != null && (
+          getUserRole(request.auth.uid) == 'admin' ||
+          (getUserRole(request.auth.uid) == 'teacher' && resource.data.authorId == request.auth.uid)
+        );
     }
     
     // Author Collection - Speichert Author-Abbreviations

@@ -293,6 +293,19 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
       ));
       return;
     }
+
+    // Rollenlogik: Lehrer:innen dürfen nur eigene Quiz sichtbar schalten
+    const auth = getAuth();
+    if (userRole === "teacher" && quiz.authorId !== auth.currentUser?.uid) {
+      toast.custom(() => (
+        <CustomToast
+          message="Lehrer:innen dürfen nur eigene Quiz sichtbar schalten."
+          type="error"
+        />
+      ));
+      return;
+    }
+
     const result = await updateQuizDocument(quiz.id, { hidden: !quiz.hidden });
     if (!result.success) {
       let errorMsg = "Fehler beim Ändern der Sichtbarkeit";
@@ -305,6 +318,18 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
   const handleDelete = async () => {
     if (!deletingQuiz) return;
+
+    const auth = getAuth();
+    // Rollenlogik: Lehrer:innen dürfen nur eigene Quiz löschen
+    if (userRole === "teacher" && deletingQuiz?.authorId !== auth.currentUser?.uid) {
+      toast.custom(() => (
+        <CustomToast
+          message="Lehrer:innen dürfen nur eigene Quiz löschen."
+          type="error"
+        />
+      ));
+      return;
+    }
 
     const result = await deleteQuizDocument(deletingQuiz.id);
     if (result.success) {
