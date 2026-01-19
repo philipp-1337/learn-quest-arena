@@ -249,8 +249,15 @@ export async function updateQuizDocument(
     await setDoc(ref, cleanedUpdates, { merge: true });
     
     return { success: true, error: null };
-  } catch (err: unknown) {
-    const errorMessage = err instanceof Error ? err.message : "Unknown error";
+  } catch (err: any) {
+    let errorMessage = "Unknown error";
+    if (err && typeof err === "object") {
+      if (err.code) {
+        errorMessage = err.code;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+    }
     console.error("Error updating quiz document:", errorMessage);
     return { success: false, error: errorMessage };
   }
