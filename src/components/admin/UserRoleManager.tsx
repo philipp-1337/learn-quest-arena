@@ -282,18 +282,16 @@ export const UserRoleManager: React.FC = () => {
                               <h3 className="font-semibold text-gray-900 dark:text-white truncate flex-1">
                                 {user.displayName || user.name || "Unbekannt"}
                               </h3>
-                              {!isCurrentUser && (
-                                <button
-                                  className="p-2.5 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center shrink-0"
-                                  onClick={() =>
-                                    handleNameEdit(user.id, user.name || "")
-                                  }
-                                  disabled={isUpdating}
-                                  title="Name bearbeiten"
-                                >
-                                  <Pencil className="w-4 h-4" />
-                                </button>
-                              )}
+                              <button
+                                className="p-2.5 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center shrink-0"
+                                onClick={() =>
+                                  handleNameEdit(user.id, user.name || "")
+                                }
+                                disabled={isUpdating}
+                                title="Name bearbeiten"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
                             </div>
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {user.authorAbbreviation && (
