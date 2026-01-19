@@ -216,8 +216,15 @@ export async function deleteQuizDocument(quizId: string): Promise<{ success: boo
     await deleteDoc(ref);
     
     return { success: true, error: null };
-  } catch (err: unknown) {
-    const errorMessage = err instanceof Error ? err.message : "Unknown error";
+  } catch (err: any) {
+    let errorMessage = "Unknown error";
+    if (err && typeof err === "object") {
+      if (err.code) {
+        errorMessage = err.code;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+    }
     console.error("Error deleting quiz document:", errorMessage);
     return { success: false, error: errorMessage };
   }

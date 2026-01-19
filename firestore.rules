@@ -70,10 +70,12 @@ service cloud.firestore {
           && request.resource.data.authorId == request.auth.uid;
 
         // Update: admin, teacher, supporter (supporter cannot set visible)
-        allow update: if request.auth != null && (
-          getUserRole(request.auth.uid) in ['admin', 'teacher'] ||
-          (getUserRole(request.auth.uid) == 'supporter' && !request.resource.data.visible)
-        );
+          allow update: if request.auth != null && (
+            getUserRole(request.auth.uid) == 'admin' ||
+            ((getUserRole(request.auth.uid) in ['teacher', 'supporter'])
+              && resource.data.authorId == request.auth.uid
+              && (!('visible' in request.resource.data) || !request.resource.data.visible))
+          );
 
         // Delete: only admin
         allow delete: if request.auth != null && getUserRole(request.auth.uid) == 'admin';
