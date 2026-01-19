@@ -43,8 +43,6 @@ interface FilterState {
   topic: string;
   showHidden: boolean;
   author: string;
-  dateFrom: string;
-  dateTo: string;
   sortBy: "title" | "createdAt-desc" | "createdAt-asc";
   limit: number | null;
 }
@@ -63,8 +61,6 @@ export default function QuizListManager({}: QuizListManagerProps) {
     topic: "",
     showHidden: true,
     author: "",
-    dateFrom: "",
-    dateTo: "",
     sortBy: "title",
     limit: null,
   });
@@ -249,18 +245,6 @@ export default function QuizListManager({}: QuizListManagerProps) {
       // Author filter
       if (filters.author && quiz.authorId !== filters.author) return false;
 
-      // Date filter
-      if (filters.dateFrom) {
-        const fromDate = new Date(filters.dateFrom);
-        fromDate.setHours(0, 0, 0, 0);
-        if (quiz.createdAt < fromDate.getTime()) return false;
-      }
-      if (filters.dateTo) {
-        const toDate = new Date(filters.dateTo);
-        toDate.setHours(23, 59, 59, 999);
-        if (quiz.createdAt > toDate.getTime()) return false;
-      }
-
       return true;
     });
 
@@ -405,8 +389,6 @@ export default function QuizListManager({}: QuizListManagerProps) {
       topic: "",
       showHidden: true,
       author: "",
-      dateFrom: "",
-      dateTo: "",
       sortBy: "title",
       limit: null,
     });
@@ -419,8 +401,6 @@ export default function QuizListManager({}: QuizListManagerProps) {
     filters.topic ||
     !filters.showHidden ||
     filters.author ||
-    filters.dateFrom ||
-    filters.dateTo ||
     filters.sortBy !== "title" ||
     filters.limit !== null;
 
@@ -431,8 +411,6 @@ export default function QuizListManager({}: QuizListManagerProps) {
     filters.topic,
     !filters.showHidden,
     filters.author,
-    filters.dateFrom,
-    filters.dateTo,
     filters.sortBy !== "title",
     filters.limit !== null,
   ].filter(Boolean).length;
@@ -513,21 +491,25 @@ export default function QuizListManager({}: QuizListManagerProps) {
               {[
                 {
                   label: "Letzte 5",
-                  onClick: () =>
+                  onClick: () => {
                     setFilters((prev) => ({
                       ...prev,
                       sortBy: "createdAt-desc",
                       limit: 5,
-                    })),
+                    }));
+                    setShowFilters(false);
+                  },
                 },
                 {
                   label: "Letzte 10",
-                  onClick: () =>
+                  onClick: () => {
                     setFilters((prev) => ({
                       ...prev,
                       sortBy: "createdAt-desc",
                       limit: 10,
-                    })),
+                    }));
+                    setShowFilters(false);
+                  },
                 },
                 {
                   label: "Heute",
@@ -541,6 +523,7 @@ export default function QuizListManager({}: QuizListManagerProps) {
                       sortBy: "createdAt-desc",
                       limit: null,
                     }));
+                    setShowFilters(false);
                   },
                 },
                 {
@@ -556,6 +539,7 @@ export default function QuizListManager({}: QuizListManagerProps) {
                       sortBy: "createdAt-desc",
                       limit: null,
                     }));
+                    setShowFilters(false);
                   },
                 },
               ].map((filter) => (
@@ -762,56 +746,6 @@ export default function QuizListManager({}: QuizListManagerProps) {
                 ))}
               </select>
             </div>
-
-            {/* Date Range Filter */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  Erstellt von
-                </label>
-                <input
-                  type="date"
-                  value={filters.dateFrom}
-                  onChange={(e) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      dateFrom: e.target.value,
-                    }))
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  Erstellt bis
-                </label>
-                <input
-                  type="date"
-                  value={filters.dateTo}
-                  onChange={(e) =>
-                    setFilters((prev) => ({ ...prev, dateTo: e.target.value }))
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-            </div>
-
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={filters.showHidden}
-                onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    showHidden: e.target.checked,
-                  }))
-                }
-                className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-700"
-              />
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Versteckte Quizze anzeigen
-              </span>
-            </label>
           </div>
         </div>
       )}
@@ -976,6 +910,12 @@ export default function QuizListManager({}: QuizListManagerProps) {
                       In Bearbeitung ({quiz.editLock.userName})
                     </span>
                   )}
+                    {/* CreatedAt Tag */}
+                    {quiz.createdAt && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-200 dark:bg-gray-900/40 text-gray-700 dark:text-gray-300 truncate" title={`Erstellt am ${new Date(quiz.createdAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}`}> 
+                        {new Date(quiz.createdAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                      </span>
+                    )}
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 truncate">
                     {quiz.questions?.length || 0} Fragen
                   </span>
