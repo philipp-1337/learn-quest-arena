@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
 // Hilfsfunktion zur Übersetzung von Firebase Auth-Fehlercodes in benutzerfreundliche deutsche Nachrichten
 const getFirebaseErrorMessage = (errorCode: string): string => {
@@ -37,10 +38,22 @@ const useFirebaseAuth = () => {
     setError(null);
     setLoading(true);
     const auth = getAuth();
+      const db = getFirestore();
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       setLoading(false);
+        // Nach Login: author-Dokument prüfen/anlegen
+        const uid = userCredential.user.uid;
+        const authorRef = doc(db, "author", uid);
+        const authorSnap = await getDoc(authorRef);
+        if (!authorSnap.exists()) {
+            await setDoc(authorRef, {
+              name: userCredential.user.displayName || "",
+              email: userCredential.user.email || "",
+              role: "supporter" // Default role
+            });
+        }
       return userCredential.user;
     } catch (err: any) {
       const errorCode = err.code || 'unknown';

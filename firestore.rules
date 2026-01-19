@@ -9,6 +9,11 @@ service cloud.firestore {
       // Prüfe: Mindestens 1 Buchstabe, dann Bindestrich, dann genau 6 alphanumerische Zeichen
       return username.matches('^[A-Za-zäöüßÄÖÜ]+-[A-Za-z0-9]{6}$');
     }
+
+      // Hilfsfunktion: Rolle aus author Collection holen
+      function getUserRole(uid) {
+        return get(/databases/$(database)/documents/author/$(uid)).data.role;
+      }
     
     // Users Collection - Streng kontrolliert
     match /users/{userId} {
@@ -59,14 +64,19 @@ service cloud.firestore {
       // Jeder kann Quizze lesen (für Quiz-Teilnehmer)
       allow read: if true;
       
-      // Nur eingeloggte Admins können Quizze erstellen/ändern/löschen
-      // Bei Erstellung muss authorId dem aktuellen Benutzer entsprechen
-      allow create: if request.auth != null 
-        && request.resource.data.authorId == request.auth.uid;
-      
-      // Bei Änderung/Löschung: Nur der Autor oder jeder Admin
-      // (Für einfache Verwaltung erlauben wir allen Admins das Bearbeiten)
-      allow update, delete: if request.auth != null;
+        // Create: admin, teacher, supporter
+        allow create: if request.auth != null
+          && getUserRole(request.auth.uid) in ['admin', 'teacher', 'supporter']
+          && request.resource.data.authorId == request.auth.uid;
+
+        // Update: admin, teacher, supporter (supporter cannot set visible)
+        allow update: if request.auth != null && (
+          getUserRole(request.auth.uid) in ['admin', 'teacher'] ||
+          (getUserRole(request.auth.uid) == 'supporter' && !request.resource.data.visible)
+        );
+
+        // Delete: only admin
+        allow delete: if request.auth != null && getUserRole(request.auth.uid) == 'admin';
     }
     
     // Author Collection - Speichert Author-Abbreviations
