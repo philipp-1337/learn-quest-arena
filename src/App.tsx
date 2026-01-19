@@ -9,6 +9,7 @@ import AdminView from './components/admin/AdminView';
 import AdminProfileView from './components/admin/AdminProfileView';
 import QuizEditorView from './components/admin/QuizEditorView';
 import QuestionEditorView from './components/admin/QuestionEditorView';
+import UserRoleManagerView from './components/admin/UserRoleManagerView';
 import UserView from './components/user/UserView';
 import QuizChallengePlayer from './components/quiz/QuizChallengePlayer';
 import Dataprotection from './components/footer/Dataprotection';
@@ -160,6 +161,14 @@ export default function FlashcardQuizApp() {
           element={
             <ProtectedRoute>
               <AdminProfileView onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/roles"
+          element={
+            <ProtectedRoute>
+              <UserRoleManagerView onBack={() => navigate('/admin')} />
             </ProtectedRoute>
           }
         />
