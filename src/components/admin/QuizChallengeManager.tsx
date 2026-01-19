@@ -25,13 +25,13 @@ export default function QuizChallengeManager({
   const [showQuestionSelector, setShowQuestionSelector] = useState(false);
   const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set());
 
-  // Load all questions from existing quizzes
+  // Lade alle Fragen erst, wenn der Frageauswahl-Dialog geöffnet wird
   useEffect(() => {
+    if (!showQuestionSelector || availableQuestions.length > 0) return;
     const loadQuestions = async () => {
       try {
         const quizDocs = await loadAllQuizDocuments();
         const allQuestions: (Question & { quizTitle?: string; topicName?: string })[] = [];
-        
         quizDocs.forEach((quizDoc) => {
           quizDoc.questions?.forEach((question, index) => {
             const questionId = getQuestionId(question, quizDoc.id, index);
@@ -43,15 +43,13 @@ export default function QuizChallengeManager({
             });
           });
         });
-        
         setAvailableQuestions(allQuestions);
       } catch (error) {
         console.error('Error loading questions:', error);
       }
     };
-    
     loadQuestions();
-  }, []);
+  }, [showQuestionSelector, availableQuestions.length]);
 
   // Load selected questions when level changes
   useEffect(() => {
