@@ -283,11 +283,11 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
 
   // Handle quiz actions
   const handleToggleHidden = async (quiz: QuizDocument) => {
-    // Rollenlogik: Supporter dürfen Quiz NICHT sichtbar oder unsichtbar schalten
+    // Rollenlogik: Unterstützer:innen dürfen Quiz NICHT sichtbar oder unsichtbar schalten
     if (userRole === "supporter") {
       toast.custom(() => (
         <CustomToast
-          message="Supporter dürfen die Sichtbarkeit von Quizzen nicht ändern."
+          message="Unterstützer:innen dürfen die Sichtbarkeit von Quizzen nicht ändern."
           type="error"
         />
       ));
