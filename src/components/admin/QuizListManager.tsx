@@ -93,7 +93,7 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
     const unsubscribe = subscribeToQuizzes(
       async (docs) => {
         setQuizzes(docs);
-        
+
         // Load author abbreviations
         const authorIds = docs.map(q => q.authorId).filter(Boolean);
         if (authorIds.length > 0) {
@@ -229,14 +229,15 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
   // Handle quiz actions
   const handleToggleHidden = async (quiz: QuizDocument) => {
     const result = await updateQuizDocument(quiz.id, { hidden: !quiz.hidden });
-    if (result.success) {
-      setQuizzes(prev => prev.map(q => 
-        q.id === quiz.id ? { ...q, hidden: !q.hidden } : q
-      ));
+    if (!result.success) {
+      let errorMsg = "Fehler beim Ändern der Sichtbarkeit";
+      if (result.error && result.error.includes("permission-denied")) {
+        errorMsg = "Du hast für diese Aktion keine Berechtigung.";
+      }
       toast.custom(() => (
         <CustomToast 
-          message={quiz.hidden ? "Quiz sichtbar" : "Quiz versteckt"} 
-          type="success" 
+          message={errorMsg}
+          type="error" 
         />
       ));
     }
