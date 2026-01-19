@@ -256,12 +256,16 @@ export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
       ));
       if (onRefetch) await onRefetch();
     } else {
-      toast.custom(() => (
-        <CustomToast 
-          message="Fehler beim Löschen" 
-          type="error" 
-        />
-      ));
+        let errorMsg = "Fehler beim Löschen";
+        if (result.error && result.error.includes("permission-denied")) {
+          errorMsg = "Du hast für diese Aktion keine Berechtigung.";
+        }
+        toast.custom(() => (
+          <CustomToast 
+            message={errorMsg}
+            type="error" 
+          />
+        ));
     }
     setDeletingQuiz(null);
   };
