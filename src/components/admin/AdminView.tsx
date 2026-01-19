@@ -11,7 +11,6 @@ import ImportModal from "../modals/ImportModal";
 import ExportModal from "../modals/ExportModal";
 import QuizListManager from "./QuizListManager";
 import QuizChallengeManager from "./QuizChallengeManager";
-import { UserRoleManager } from "./UserRoleManager";
 
 // ============================================
 // ADMIN VIEW COMPONENT
@@ -86,9 +85,6 @@ export default function AdminView({
             totalQuizzes={stats.totalQuizzes}
             totalQuestions={stats.totalQuestions}
           />
-
-          {/* User & Rollenverwaltung nur für Admins */}
-          <UserRoleManager />
 
           {/* Content Management */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">

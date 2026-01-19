@@ -6,40 +6,85 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import { toast } from "sonner";
 import { CustomToast } from "../misc/CustomToast";
+import { Shield, User, Mail, Loader2 } from "lucide-react";
+
+interface AuthorUser {
+  id: string;
+  role: string;
+  authorAbbreviation?: string;
+  displayName?: string;
+  name?: string;
+  email?: string;
+}
 
 const ROLE_OPTIONS = [
-  { value: "admin", label: "Administration" },
-  { value: "teacher", label: "Lehrer:in" },
-  { value: "supporter", label: "Unterstützer:in" },
+  { value: "admin", label: "Administration", color: "red" },
+  { value: "teacher", label: "Lehrer:in", color: "blue" },
+  { value: "supporter", label: "Unterstützer:in", color: "green" },
 ];
 
 export const UserRoleManager: React.FC = () => {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<AuthorUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+  const [editingNameUserId, setEditingNameUserId] = useState<string | null>(null);
+  const [nameInput, setNameInput] = useState<string>("");
+  // Name ändern
+  const handleNameEdit = (userId: string, currentName: string) => {
+    setEditingNameUserId(userId);
+    setNameInput(currentName || "");
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNameInput(e.target.value);
+  };
+
+  const handleNameSave = async (userId: string) => {
+    setUpdatingUserId(userId);
+    try {
+      const db = getFirestore();
+      await updateDoc(doc(db, "author", userId), { name: nameInput });
+      setUsers((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, name: nameInput } : u)),
+      );
+      toast.custom(() => (
+        <CustomToast message="Name erfolgreich geändert" type="success" />
+      ));
+      setEditingNameUserId(null);
+    } catch (err) {
+      toast.custom(() => (
+        <CustomToast message="Fehler beim Ändern des Namens" type="error" />
+      ));
+    } finally {
+      setUpdatingUserId(null);
+    }
+  };
 
   useEffect(() => {
     // Firebase Auth: Hole aktuellen User und dessen Rolle
     const fetchCurrentUserRole = async () => {
       setAuthLoading(true);
       try {
-        const auth = await import("firebase/auth");
-        const db = getFirestore();
-        const firebaseAuth = auth.getAuth();
-        const user = firebaseAuth.currentUser;
+        const auth = getAuth();
+        const user = auth.currentUser;
         if (!user) {
           setCurrentUserRole(null);
+          setCurrentUserId(null);
           setAuthLoading(false);
           return;
         }
+        setCurrentUserId(user.uid);
+        const db = getFirestore();
         const authorRef = doc(db, "author", user.uid);
-        const authorSnap = await (
-          await import("firebase/firestore")
-        ).getDoc(authorRef);
+        const { getDoc } = await import("firebase/firestore");
+        const authorSnap = await getDoc(authorRef);
         if (authorSnap.exists()) {
           setCurrentUserRole(authorSnap.data().role || null);
         } else {
@@ -47,6 +92,7 @@ export const UserRoleManager: React.FC = () => {
         }
       } catch (err) {
         setCurrentUserRole(null);
+        setCurrentUserId(null);
       } finally {
         setAuthLoading(false);
       }
@@ -60,10 +106,21 @@ export const UserRoleManager: React.FC = () => {
       try {
         const db = getFirestore();
         const querySnapshot = await getDocs(collection(db, "author"));
-        const userList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const userList: AuthorUser[] = querySnapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            role: doc.data().role || "",
+            authorAbbreviation: doc.data().authorAbbreviation,
+            displayName: doc.data().displayName,
+            name: doc.data().name,
+            email: doc.data().email,
+          }))
+          .sort((a, b) => {
+            // Sortiere nach authorAbbreviation oder displayName
+            const nameA = a.authorAbbreviation || a.displayName || a.name || "";
+            const nameB = b.authorAbbreviation || b.displayName || b.name || "";
+            return nameA.localeCompare(nameB);
+          });
         setUsers(userList);
       } catch (err) {
         setError("Fehler beim Laden der Nutzer");
@@ -75,6 +132,7 @@ export const UserRoleManager: React.FC = () => {
   }, []);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
+    setUpdatingUserId(userId);
     try {
       const db = getFirestore();
       await updateDoc(doc(db, "author", userId), { role: newRole });
@@ -88,58 +146,226 @@ export const UserRoleManager: React.FC = () => {
       toast.custom(() => (
         <CustomToast message="Fehler beim Ändern der Rolle" type="error" />
       ));
+    } finally {
+      setUpdatingUserId(null);
     }
   };
 
+  const getRoleColor = (role: string) => {
+    const roleOption = ROLE_OPTIONS.find((opt) => opt.value === role);
+    return roleOption?.color || "gray";
+  };
+
+  const getRoleBadgeClasses = (role: string) => {
+    const color = getRoleColor(role);
+    const colorMap = {
+      red: "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300",
+      blue: "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300",
+      green:
+        "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300",
+      gray: "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300",
+    };
+    return colorMap[color as keyof typeof colorMap] || colorMap.gray;
+  };
+
   if (authLoading) {
-    return <div>Lade Berechtigungen...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[200px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 dark:border-indigo-400 mx-auto"></div>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
+            Lade Berechtigungen...
+          </p>
+        </div>
+      </div>
+    );
   }
+
   if (currentUserRole !== "admin") {
     return null;
   }
 
   return (
-    <div className="p-4 bg-white rounded shadow">
-      <h2 className="text-xl font-bold mb-4">User & Rollen verwalten</h2>
+    <div className="space-y-4">
+
+      {/* Users count */}
+      <div className="text-sm text-gray-500 dark:text-gray-400">
+        {users.length} {users.length === 1 ? "Nutzer" : "Nutzer"}
+      </div>
+
+      {/* User List */}
       {loading ? (
-        <div>Lade Nutzer...</div>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 dark:border-indigo-400 mx-auto"></div>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
+            Lade Nutzer...
+          </p>
+        </div>
       ) : error ? (
-        <div className="text-red-500">{error}</div>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <p className="text-red-600 dark:text-red-400 text-center">{error}</p>
+        </div>
+      ) : users.length === 0 ? (
+        <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <p className="text-gray-500 dark:text-gray-400">
+            Keine Nutzer gefunden
+          </p>
+        </div>
       ) : (
-        <table className="min-w-full border">
-          <thead>
-            <tr>
-              <th className="border px-2 py-1">Name</th>
-              <th className="border px-2 py-1">E-Mail</th>
-              <th className="border px-2 py-1">Rolle</th>
-              <th className="border px-2 py-1">Aktion</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.id}>
-                <td className="border px-2 py-1">
-                  {u.displayName || u.name || "-"}
-                </td>
-                <td className="border px-2 py-1">{u.email || "-"}</td>
-                <td className="border px-2 py-1">{u.role}</td>
-                <td className="border px-2 py-1">
-                  <select
-                    value={u.role}
-                    onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                    className="border rounded px-2 py-1"
-                  >
-                    {ROLE_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="space-y-2">
+          {users.map((user) => {
+            const isCurrentUser = user.id === currentUserId;
+            const isUpdating = updatingUserId === user.id;
+            const isEditingName = editingNameUserId === user.id;
+
+            return (
+              <div
+                key={user.id}
+                className={`bg-white dark:bg-gray-800 border rounded-lg p-4 transition-all ${
+                  isCurrentUser
+                    ? "border-indigo-300 dark:border-indigo-700 ring-2 ring-indigo-100 dark:ring-indigo-900/40"
+                    : "border-gray-300 dark:border-gray-600 hover:shadow-md"
+                } ${isUpdating ? "animate-pulse" : ""}`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  {/* User Info */}
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded">
+                        <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {/* Name anzeigen oder bearbeiten */}
+                          {isEditingName ? (
+                            <>
+                              <input
+                                type="text"
+                                value={nameInput}
+                                onChange={handleNameChange}
+                                className="font-semibold text-gray-900 dark:text-white truncate px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                disabled={isUpdating}
+                              />
+                              <button
+                                className="ml-2 px-2 py-1 text-xs rounded bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-medium hover:bg-indigo-200 dark:hover:bg-indigo-800 transition"
+                                onClick={() => handleNameSave(user.id)}
+                                disabled={isUpdating || nameInput.trim() === ""}
+                              >
+                                Speichern
+                              </button>
+                              <button
+                                className="ml-1 px-2 py-1 text-xs rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-200 dark:hover:bg-gray-800 transition"
+                                onClick={() => setEditingNameUserId(null)}
+                                disabled={isUpdating}
+                              >
+                                Abbrechen
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+                                {user.displayName || user.name || "Unbekannt"}
+                              </h3>
+                              {!isCurrentUser && (
+                                <button
+                                  className="ml-2 px-2 py-1 text-xs rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-200 dark:hover:bg-gray-800 transition"
+                                  onClick={() => handleNameEdit(user.id, user.name || "")}
+                                  disabled={isUpdating}
+                                  title="Name bearbeiten"
+                                >
+                                  Bearbeiten
+                                </button>
+                              )}
+                            </>
+                          )}
+                          {user.authorAbbreviation && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 shrink-0">
+                              {user.authorAbbreviation}
+                            </span>
+                          )}
+                          {isCurrentUser && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 shrink-0">
+                              Du
+                            </span>
+                          )}
+                        </div>
+                        {user.email && (
+                          <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                            <Mail className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{user.email}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Current Role Badge (Mobile) */}
+                    <div className="sm:hidden">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getRoleBadgeClasses(user.role)}`}
+                      >
+                        {ROLE_OPTIONS.find((opt) => opt.value === user.role)
+                          ?.label || user.role}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Role Selection */}
+                  <div className="flex items-center gap-2 sm:shrink-0">
+                    {/* Current Role Badge (Desktop) */}
+                    <span
+                      className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getRoleBadgeClasses(user.role)}`}
+                    >
+                      {ROLE_OPTIONS.find((opt) => opt.value === user.role)
+                        ?.label || user.role}
+                    </span>
+
+                    {/* Role Selector */}
+                    <div className="relative">
+                      {isUpdating && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                          <Loader2 className="w-4 h-4 animate-spin text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                      )}
+                      <select
+                        value={user.role}
+                        onChange={(e) =>
+                          handleRoleChange(user.id, e.target.value)
+                        }
+                        disabled={isCurrentUser || isUpdating}
+                        className={`w-full sm:w-auto px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
+                          isCurrentUser
+                            ? "border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed"
+                            : "border-gray-300 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-700"
+                        }`}
+                        title={
+                          isCurrentUser
+                            ? "Du kannst deine eigene Rolle nicht ändern"
+                            : "Rolle ändern"
+                        }
+                      >
+                        {ROLE_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Self-edit warning */}
+                {isCurrentUser && (
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <Shield className="w-3 h-3" />
+                      Du kannst deine eigene Rolle nicht ändern
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );
