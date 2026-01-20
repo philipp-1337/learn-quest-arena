@@ -9,8 +9,8 @@ import { createDeterministicId } from "./slugify";
 
 const QUIZZES_COLLECTION = "quizzes";
 
-// Lock timeout: 30 minutes
-const LOCK_TIMEOUT_MS = 30 * 60 * 1000;
+// Lock timeout: 5 minutes
+const LOCK_TIMEOUT_MS = 5 * 60 * 1000;
 
 /**
  * Converts an embedded Quiz to a QuizDocument for the new collection.
