@@ -183,7 +183,7 @@ export default function AbbreviationForm({
             onChange={(e) => setAbbreviation(e.target.value)}
             placeholder="z.B. mk, th, jd"
             maxLength={10}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-[16px]"
             disabled={saving}
           />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">

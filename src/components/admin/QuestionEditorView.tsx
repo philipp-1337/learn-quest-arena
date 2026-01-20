@@ -600,7 +600,7 @@ export default function QuestionEditorView() {
                       type="text"
                       value={question.questionImageAlt || ''}
                       onChange={(e) => setQuestion({ ...question, questionImageAlt: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg text-sm"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg text-sm text-[16px]"
                       placeholder="Alt-Text für Barrierefreiheit (z.B. 'Fragen-Bild')"
                     />
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -612,7 +612,7 @@ export default function QuestionEditorView() {
                     type="text"
                     value={question.question}
                     onChange={(e) => setQuestion({ ...question, question: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg text-sm"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg text-sm text-[16px]"
                     placeholder="Optionaler Fragentext (z.B. 'Was siehst du auf diesem Bild?')"
                   />
                 </div>

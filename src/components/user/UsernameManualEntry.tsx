@@ -64,7 +64,7 @@ export default function UsernameManualEntry({
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Tiername-XXXXXX"
-        className="border rounded px-3 py-1 mb-2 dark:bg-gray-900 dark:text-white w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        className="border rounded px-3 py-1 mb-2 dark:bg-gray-900 dark:text-white w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-[16px]"
       />
       <div className="flex gap-2 w-full justify-center">
         <button
