@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import AppHeader from "../shared/AppHeader";
+import AppHeader from "../../shared/AppHeader";
 
 interface AdminHeaderProps {
   onProfileClick: () => void;

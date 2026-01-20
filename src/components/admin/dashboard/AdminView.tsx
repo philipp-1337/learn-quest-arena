@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, Download, Sparkles, BadgeInfoIcon } from "lucide-react";
-import type { Subject, QuizChallenge } from "../../types/quizTypes";
-import useFirestore from "../../hooks/useFirestore";
-import { useStatsCalculation } from "../../hooks/useStatsCalculation";
+import type { Subject, QuizChallenge } from "../../../types/quizTypes";
+import useFirestore from "../../../hooks/useFirestore";
+import { useStatsCalculation } from "../../../hooks/useStatsCalculation";
 import AdminHeader from "./AdminHeader";
 import AdminStats from "./AdminStats";
-import QRCodeInfo from "./QRCodeInfo";
-import ImportModal from "../modals/ImportModal";
-import ExportModal from "../modals/ExportModal";
-import QuizListManager from "./QuizListManager";
-import QuizChallengeManager from "./QuizChallengeManager";
+import QRCodeInfo from "../misc/QRCodeInfo";
+import ImportModal from "../../modals/ImportModal";
+import ExportModal from "../..//modals/ExportModal";
+import QuizListManager from "../quiz-editor/QuizListManager";
+import QuizChallengeManager from "../misc/QuizChallengeManager";
 
 // ============================================
 // ADMIN VIEW COMPONENT

@@ -1,8 +1,8 @@
 import { ArrowLeft, LogOut } from "lucide-react";
 import { getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import AbbreviationForm from "./AbbreviationForm";
-import PasswordChangeForm from "./PasswordChangeForm";
+import AbbreviationForm from "../forms/AbbreviationForm";
+import PasswordChangeForm from "../forms/PasswordChangeForm";
 
 interface AdminProfileViewProps {
   onLogout?: () => void;

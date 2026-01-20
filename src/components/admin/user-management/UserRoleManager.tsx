@@ -8,7 +8,7 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { toast } from "sonner";
-import { CustomToast } from "../misc/CustomToast";
+import { CustomToast } from "../../misc/CustomToast";
 import { Shield, Loader2, Pencil, Check, X } from "lucide-react";
 
 interface AuthorUser {
