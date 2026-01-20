@@ -24,3 +24,68 @@ html.dark body {
   ) !important;
   background-attachment: fixed;
 }
+
+/* globals.css */
+
+/* View Transitions API für moderne Browser */
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutToLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+@keyframes slideOutToRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+}
+
+/* Fallback für Browser ohne View Transitions */
+.page-transition-enter {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+.page-transition-exit {
+  animation: slideOutToLeft 0.3s ease-out;
+}
+
+/* Native View Transitions API */
+::view-transition-old(root) {
+  animation: slideOutToLeft 0.3s ease-out;
+}
+
+::view-transition-new(root) {
+  animation: slideInFromRight 0.3s ease-out;
+}

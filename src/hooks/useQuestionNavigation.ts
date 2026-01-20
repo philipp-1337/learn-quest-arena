@@ -18,6 +18,17 @@ export function useQuestionNavigation(options: UseQuestionNavigationOptions) {
   const hasPrevious = currentIndex > 0;
   const hasNext = currentIndex < totalQuestions - 1;
 
+  const animateNavigation = (callback: () => void) => {
+    // Check if browser supports View Transitions API
+    if (document.startViewTransition) {
+      document.startViewTransition(() => {
+        callback();
+      });
+    } else {
+      callback();
+    }
+  };
+
   const navigateToPrevious = () => {
     if (!canNavigate) {
       alert('Du hast ungespeicherte Änderungen. Bitte speichern oder verwerfen.');
@@ -26,7 +37,9 @@ export function useQuestionNavigation(options: UseQuestionNavigationOptions) {
     if (!hasPrevious) return;
     
     onNavigateAway?.();
-    navigate(`/admin/quiz/edit/${quizId}/question/${currentIndex - 1}`);
+    animateNavigation(() => {
+      navigate(`/admin/quiz/edit/${quizId}/question/${currentIndex - 1}`);
+    });
   };
 
   const navigateToNext = () => {
@@ -37,10 +50,11 @@ export function useQuestionNavigation(options: UseQuestionNavigationOptions) {
     if (!hasNext) return;
     
     onNavigateAway?.();
-    navigate(`/admin/quiz/edit/${quizId}/question/${currentIndex + 1}`);
+    animateNavigation(() => {
+      navigate(`/admin/quiz/edit/${quizId}/question/${currentIndex + 1}`);
+    });
   };
 
-  // Specify HTMLDivElement as the generic type
   const swipeRef = useSwipe<HTMLDivElement>({
     onSwipeLeft: navigateToNext,
     onSwipeRight: navigateToPrevious,
