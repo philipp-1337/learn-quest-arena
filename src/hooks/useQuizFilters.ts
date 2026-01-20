@@ -71,11 +71,16 @@ export function useQuizFilters(
 
   const filteredQuizzes = useMemo(() => {
     let result = quizzes.filter((quiz) => {
-      if (filters.search === "__noQuestions__") {
-        return !quiz.questions || quiz.questions.length === 0;
+      // __noQuestions__ ist jetzt eine zusätzliche Bedingung
+      if (filters.search === "__noQuestions__" && quiz.questions && quiz.questions.length > 0) {
+        return false;
       }
 
-      if (filters.search && filters.search !== "__editLock__" && filters.search !== "__noQuestions__") {
+      if (
+        filters.search &&
+        filters.search !== "__editLock__" &&
+        filters.search !== "__noQuestions__"
+      ) {
         const searchLower = filters.search.toLowerCase();
         const matchesSearch =
           quiz.title.toLowerCase().includes(searchLower) ||
@@ -89,13 +94,13 @@ export function useQuizFilters(
       if (filters.subject && quiz.subjectId !== filters.subject) return false;
       if (filters.class && quiz.classId !== filters.class) return false;
       if (filters.topic && quiz.topicId !== filters.topic) return false;
-      
-      if (filters.showHidden === false) {
-        return quiz.hidden === true;
+
+      if (filters.showHidden === false && quiz.hidden !== true) {
+        return false;
       }
 
       if (filters.author && quiz.authorId !== filters.author) return false;
-      
+
       return true;
     });
 
@@ -128,22 +133,22 @@ export function useQuizFilters(
   };
 
   const hasActiveFilters =
-    filters.search ||
-    filters.subject ||
-    filters.class ||
-    filters.topic ||
-    !filters.showHidden ||
-    filters.author ||
+    filters.search !== "" ||
+    filters.subject !== "" ||
+    filters.class !== "" ||
+    filters.topic !== "" ||
+    filters.showHidden === false ||
+    filters.author !== "" ||
     filters.sortBy !== "title" ||
     filters.limit !== null;
 
   const activeFilterCount = [
-    filters.search,
-    filters.subject,
-    filters.class,
-    filters.topic,
-    !filters.showHidden,
-    filters.author,
+    filters.search !== "",
+    filters.subject !== "",
+    filters.class !== "",
+    filters.topic !== "",
+    filters.showHidden === false,
+    filters.author !== "",
     filters.sortBy !== "title",
     filters.limit !== null,
   ].filter(Boolean).length;
