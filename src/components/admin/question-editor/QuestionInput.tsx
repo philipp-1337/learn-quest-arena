@@ -92,7 +92,7 @@ export default function QuestionInput({
             <OptimizedImage
               src={question.questionImage}
               alt={question.questionImageAlt || "Frage"}
-              className="w-full max-w-2xl rounded-lg"
+              className="w-full max-w-2xl rounded-lg object-contain"
               width={800}
               height={600}
             />
