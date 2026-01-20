@@ -69,6 +69,9 @@ export default defineConfig({
             if (id.includes("firebase")) {
               return "firebase";
             }
+            if (id.includes("cloudinary")) {
+              return "cloudinary";
+            }
             if (id.includes("lucide-react")) {
               return "lucide";
             }
