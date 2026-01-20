@@ -1,4 +1,4 @@
-import { ArrowLeft, Save, Check as CheckIcon } from "lucide-react";
+import { ArrowLeft, Save, Check as CheckIcon, X as XIcon } from "lucide-react";
 
 interface QuizEditorHeaderProps {
   quizDocument: {
@@ -22,8 +22,8 @@ export default function QuizEditorHeader({
   return (
     <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-          <div className="flex items-center gap-3 min-w-0">
+        <div className="flex flex-row items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <button
               onClick={onBack}
               className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
@@ -45,27 +45,31 @@ export default function QuizEditorHeader({
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={onBack}
-              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors"
+              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-gray-100 dark:bg-gray-900/40 border border-gray-300 dark:border-gray-700 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-900/50 font-medium transition-colors flex items-center justify-center gap-2"
+              aria-label="Abbrechen"
             >
-              Abbrechen
+              <XIcon className="w-4 h-4 sm:hidden" />
+              <span className="hidden sm:inline">Abbrechen</span>
             </button>
             {allChangesSaved ? (
               <button
                 onClick={onBack}
                 disabled={saving}
                 className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:bg-green-400 transition-colors flex items-center justify-center gap-2"
+                aria-label="Gespeichert"
               >
                 <CheckIcon className="w-4 h-4" />
-                <span>Gespeichert</span>
+                <span className="hidden sm:inline">Gespeichert</span>
               </button>
             ) : (
               <button
                 onClick={onSave}
                 disabled={saving}
                 className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center justify-center gap-2"
+                aria-label={saving ? "Speichert..." : "Speichern"}
               >
                 <Save className="w-4 h-4" />
-                <span>{saving ? "Speichert..." : "Speichern"}</span>
+                <span className="hidden sm:inline">{saving ? "Speichert..." : "Speichern"}</span>
               </button>
             )}
           </div>
