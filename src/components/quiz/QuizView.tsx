@@ -61,6 +61,7 @@ export default function QuizView({
   const [loading, setLoading] = useState(true);
   const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
   const [featuredQuizzes, setFeaturedQuizzes] = useState<QuizDocument[]>([]);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
   // Username ist standardmäßig "Gast", außer es ist ein anderer im LocalStorage gespeichert
   const [username, setUsername] = useState<string>(() => {
     const stored = localStorage.getItem("lqa_username");
@@ -158,6 +159,7 @@ export default function QuizView({
   // Load featured quizzes (newest 3, visible, >3 questions)
   useEffect(() => {
     const fetchFeaturedQuizzes = async () => {
+      setFeaturedLoading(true);
       try {
         const allQuizzes = await loadAllQuizDocuments();
         const visibleQuizzes = allQuizzes
@@ -169,6 +171,8 @@ export default function QuizView({
         setFeaturedQuizzes(visibleQuizzes.slice(0, 3));
       } catch (err) {
         console.error("Error loading featured quizzes:", err);
+      } finally {
+        setFeaturedLoading(false);
       }
     };
     fetchFeaturedQuizzes();
@@ -396,7 +400,7 @@ export default function QuizView({
           homeUrl="/"
         />
         {/* Feature Section: Newest 3 visible quizzes with >3 questions */}
-        {!selectedSubject && featuredQuizzes.length > 0 && (
+        {!selectedSubject && (
           <div className="mb-5">
             <div className="flex items-center gap-3 mb-4">
               <Flame className="w-8 h-8 text-indigo-400" />
@@ -405,43 +409,62 @@ export default function QuizView({
               </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
-              {featuredQuizzes.map((quiz) => (
-                <div key={quiz.id} className="relative flex flex-col h-full">
-                  <div className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="text-left flex-1">
-                          <h3
-                            className="text-2xl font-bold mb-2 force-break"
-                            lang="de"
-                          >
-                            {quiz.title}
-                          </h3>
-                          <p className="text-indigo-100">
-                            {quiz.questions.length} Fragen
-                          </p>
-                          {quiz.topicName && (
-                            <p className="text-xs text-purple-200 mt-1">
-                              {quiz.topicName}
-                            </p>
-                          )}
+              {featuredLoading
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="relative flex flex-col h-full animate-pulse">
+                      <div className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg flex flex-col h-full justify-between">
+                        <div>
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="text-left flex-1">
+                              <div className="h-7 bg-white/30 rounded w-3/4 mb-2" />
+                              <div className="h-4 bg-white/20 rounded w-1/2 mb-1" />
+                              <div className="h-3 bg-white/10 rounded w-1/3 mt-1" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          <div className="w-full h-10 bg-white/20 rounded-xl" />
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      <button
-                        onClick={() => handleQuizSelect(quiz)}
-                        className="w-full bg-white/20 hover:bg-white/30 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
-                        title={quiz.title}
-                        aria-label={quiz.title}
-                      >
-                        <Play className="w-6 h-6" />
-                        <span>Quiz starten</span>
-                      </button>
+                  ))
+                : featuredQuizzes.map((quiz) => (
+                    <div key={quiz.id} className="relative flex flex-col h-full">
+                      <div className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg flex flex-col h-full justify-between">
+                        <div>
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="text-left flex-1">
+                              <h3
+                                className="text-2xl font-bold mb-2 force-break"
+                                lang="de"
+                              >
+                                {quiz.title}
+                              </h3>
+                              <p className="text-indigo-100">
+                                {quiz.questions.length} Fragen
+                              </p>
+                              {quiz.topicName && (
+                                <p className="text-xs text-purple-200 mt-1">
+                                  {quiz.topicName}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          <button
+                            onClick={() => handleQuizSelect(quiz)}
+                            className="w-full bg-white/20 hover:bg-white/30 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                            title={quiz.title}
+                            aria-label={quiz.title}
+                          >
+                            <Play className="w-6 h-6" />
+                            <span>Quiz starten</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  ))}
             </div>
           </div>
         )}
