@@ -635,10 +635,8 @@ export default function QuizEditorView() {
                       ) : (
                         hasImageQuestions && (
                           // Platzhalter für Nicht-Bild-Fragen
-                          <div className="hidden sm:flex w-full h-40 bg-gray-200 dark:bg-gray-700 items-center justify-center">
-                            <span className="text-gray-500 dark:text-gray-400 text-sm">
-                              Kein Bild
-                            </span>
+                          <div className="hidden sm:flex w-full h-40 items-center justify-center bg-diagonal-stripes">
+                            <span className="text-gray-500 dark:text-gray-400 text-sm"></span>
                           </div>
                         )
                       )}
