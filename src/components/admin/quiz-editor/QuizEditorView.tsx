@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
-// ✅ FIX: Quiz Type Import entfernt, da nicht verwendet
 import { toast } from "sonner";
 import { CustomToast } from "../../misc/CustomToast";
 import DeleteConfirmModal from "../../modals/DeleteConfirmModal";
-import { updateQuizDocument, releaseEditLock } from "../../../utils/quizzesCollection";
 import { getAuth } from "firebase/auth";
-import { useEditLock } from "../../../hooks/useEditLock";
+import { useQuizEditLock } from "../../../contexts/QuizEditLockContext";
+import { updateQuizDocument } from "../../../utils/quizzesCollection";
 import { useQuizEditorState } from "../../../hooks/useQuizEditorState";
 import QuizEditorHeader from "./QuizEditorHeader";
 import QuizDetailsForm from "./QuizDetailsForm";
@@ -37,30 +36,9 @@ export default function QuizEditorView() {
     isLoading: quizLoading,
   } = useQuizEditorState({ quizId: id || "" });
 
-  const { hasLock, lockConflict, isLoading: lockLoading } = useEditLock({
-    quizId: id || "",
-    userId: currentUser?.uid || "",
-    userName: currentUser?.email || "Unbekannt",
-    onLockLost: () => {
-      toast.custom(() => (
-        <CustomToast
-          message="Edit-Lock verloren. Bitte Änderungen speichern."
-          type="error"
-        />
-      ));
-    },
-  });
+  const { hasLock, lockConflict, isLoading: lockLoading } = useQuizEditLock();
 
   const loading = quizLoading || lockLoading;
-
-  // Release edit lock on unmount if held
-  useEffect(() => {
-    return () => {
-      if (quizDocument && currentUser && hasLock) {
-        releaseEditLock(quizDocument.id, currentUser.uid);
-      }
-    };
-  }, [quizDocument, currentUser, hasLock]);
 
   // Redirect if no ID or not logged in
   useEffect(() => {
@@ -77,7 +55,7 @@ export default function QuizEditorView() {
         const db = await import("firebase/firestore");
         const { getFirestore, doc, getDoc } = db;
         const authorDoc = await getDoc(
-          doc(getFirestore(), "author", currentUser.uid)
+          doc(getFirestore(), "author", currentUser.uid),
         );
         if (authorDoc.exists()) {
           const data = authorDoc.data();
@@ -120,13 +98,11 @@ export default function QuizEditorView() {
         urlShared: urlShared,
       });
 
-      await releaseEditLock(quizDocument.id, currentUser.uid);
-
       toast.custom(() => (
         <CustomToast message="Quiz erfolgreich gespeichert" type="success" />
       ));
 
-      setTimeout(() => navigate("/admin"), 500);
+      navigate("/admin"); // ✅ Lock wird automatisch durch Context released
     } catch (error) {
       console.error("Error saving quiz:", error);
       toast.custom(() => (
@@ -192,7 +168,7 @@ export default function QuizEditorView() {
     if (!editedQuiz || !quizDocument || deleteModal.index === null) return;
 
     const newQuestions = editedQuiz.questions.filter(
-      (_, i) => i !== deleteModal.index
+      (_, i) => i !== deleteModal.index,
     );
 
     try {
@@ -287,13 +263,13 @@ export default function QuizEditorView() {
           {/* Questions List */}
           <QuestionsList
             questions={editedQuiz.questions}
-            onAddQuestion={() => navigate(`/admin/quiz/edit/${id}/question/new`)}
+            onAddQuestion={() =>
+              navigate(`/admin/quiz/edit/${id}/question/new`)
+            }
             onEditQuestion={(index) =>
               navigate(`/admin/quiz/edit/${id}/question/${index}`)
             }
-            onDeleteQuestion={(index) =>
-              setDeleteModal({ open: true, index })
-            }
+            onDeleteQuestion={(index) => setDeleteModal({ open: true, index })}
           />
         </div>
       </div>

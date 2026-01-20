@@ -3,6 +3,7 @@ import LoadingScreen from './components/misc/LoadingScreen';
 import MaintenanceView from './components/misc/MaintenanceView';
 import Toaster from './utils/ToasterProvider';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import QuizEditLayout from './components/admin/quiz-editor/QuizEditLayout';
 import LoginView from './components/login/LoginView';
 import QuizView from './components/quiz/QuizView';
 import AdminView from './components/admin/dashboard/AdminView';
@@ -175,26 +176,15 @@ export default function FlashcardQuizApp() {
           path="/admin/quiz/edit/:id"
           element={
             <ProtectedRoute>
-              <QuizEditorView />
+              <QuizEditLayout />
             </ProtectedRoute>
           }
-        />
-        <Route
-          path="/admin/quiz/edit/:id/question/new"
-          element={
-            <ProtectedRoute>
-              <QuestionEditorView />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/quiz/edit/:id/question/:index"
-          element={
-            <ProtectedRoute>
-              <QuestionEditorView />
-            </ProtectedRoute>
-          }
-        />
+        >
+          {/* Nested Routes - diese werden im Outlet gerendert */}
+          <Route index element={<QuizEditorView />} />
+          <Route path="question/new" element={<QuestionEditorView />} />
+          <Route path="question/:index" element={<QuestionEditorView />} />
+        </Route>
         <Route
           path="/quiz"
           element={<Navigate to="/" replace />}
