@@ -9,6 +9,7 @@ interface OptimizedImageProps {
   height?: number;
   aspectRatio?: string; // z.B. "16/9" oder "1/1"
   priority?: boolean; // Für above-the-fold Bilder
+  objectFit?: "cover" | "contain"; // Bildfüllung
 }
 
 /**
@@ -26,6 +27,7 @@ export default function OptimizedImage({
   height,
   aspectRatio,
   priority = false,
+  objectFit = "contain",
 }: OptimizedImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -103,7 +105,7 @@ export default function OptimizedImage({
           alt=""
           aria-hidden="true"
           style={placeholderStyle}
-          className="w-full h-full object-contain"
+          className={`w-full h-full object-${objectFit}`}
         />
       )}
 
@@ -119,7 +121,7 @@ export default function OptimizedImage({
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         style={imageStyle}
-        className="w-full h-full object-contain"
+        className={`w-full h-full object-${objectFit}`}
         onLoad={() => setIsLoaded(true)}
         onError={() => setHasError(true)}
       />

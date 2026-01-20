@@ -411,7 +411,7 @@ export default function QuizEditorView() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
           {/* Quiz Details Card */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -500,86 +500,89 @@ export default function QuizEditorView() {
                 <p className="text-sm">Klicke auf "Frage hinzufügen" um zu starten.</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {editedQuiz.questions.map((q: Question, index: number) => (
-                  <div
-                    key={index}
-                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-start gap-3 mb-2">
-                          {(q.questionType || 'text') === 'image' && q.questionImage && (
-                            <OptimizedImage
-                              src={q.questionImage}
-                              alt={q.questionImageAlt || 'Frage'}
-                              className="w-24 h-18 object-cover rounded"
-                              width={96}
-                              height={72}
-                            />
-                          )}
-                          {(q.questionType || 'text') === 'audio' && q.questionAudio && (
-                            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                              <Volume2 className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                            </div>
-                          )}
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-semibold text-gray-900 dark:text-white">
-                                {index + 1}. {(q.questionType || 'text') === 'image' 
-                                  ? (q.question || '[Bild-Frage]') 
-                                  : (q.questionType || 'text') === 'audio'
-                                  ? (q.question || '[Audio-Frage]')
-                                  : q.question
+              <div
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 space-y-3"
+              >
+                {editedQuiz.questions.map((q: Question, index: number) => {
+                  const isImageQuestion = (q.questionType || 'text') === 'image' && q.questionImage;
+                  const hasImageQuestions = editedQuiz.questions.some(
+                    (question) => (question.questionType || 'text') === 'image' && question.questionImage
+                  );
+
+                  return (
+                    <div
+                      key={index}
+                      className="border border-gray-200 dark:border-gray-700 rounded-lg p-0 bg-gray-50 dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600 transition-colors overflow-hidden flex flex-col"
+                    >
+                      {/* Bild-Frage: Thumbnail oben, vollflächig, gecroppt */}
+                      {isImageQuestion ? (
+                        <div className="w-full h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
+                          <OptimizedImage
+                            src={q.questionImage || ""}
+                            alt={q.questionImageAlt || 'Frage'}
+                            className="w-full h-full"
+                            objectFit="cover"
+                            width={400}
+                            height={256}
+                          />
+                        </div>
+                      ) : hasImageQuestions && (
+                        // Platzhalter für Nicht-Bild-Fragen
+                        <div className="hidden sm:flex w-full h-40 bg-gray-200 dark:bg-gray-700 items-center justify-center">
+                          <span className="text-gray-500 dark:text-gray-400 text-sm">Kein Bild</span>
+                        </div>
+                      )}
+
+                      {/* Rest der Frage */}
+                      <div className="flex justify-between items-start mb-2 p-4 pt-3">
+                        <div className="flex-1">
+                          <div className="flex items-start gap-3 mb-2">
+                            {/* Audio-Frage: Icon oben links */}
+                            {(q.questionType || 'text') === 'audio' && q.questionAudio && (
+                              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                                <Volume2 className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                              </div>
+                            )}
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-semibold text-gray-900 dark:text-white">
+                                  {index + 1}. {(q.questionType || 'text') === 'image' 
+                                    ? (q.question || '[Bild-Frage]') 
+                                    : (q.questionType || 'text') === 'audio'
+                                    ? (q.question || '[Audio-Frage]')
+                                    : q.question
                                 }
-                              </span>
-                              {(q.questionType || 'text') === 'image' && (
-                                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded flex items-center gap-1">
-                                  <ImageIcon className="w-3 h-3" />
-                                  Bild-Frage
                                 </span>
-                              )}
-                              {(q.questionType || 'text') === 'audio' && (
-                                <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-1 rounded flex items-center gap-1">
-                                  <Volume2 className="w-3 h-3" />
-                                  Audio-Frage
+                                {(q.questionType || 'text') === 'image' && (
+                                  <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded flex items-center gap-1">
+                                    <ImageIcon className="w-3 h-3" />
+                                    Bild-Frage
+                                  </span>
+                                )}
+                                {(q.questionType || 'text') === 'audio' && (
+                                  <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-1 rounded flex items-center gap-1">
+                                    <Volume2 className="w-3 h-3" />
+                                    Audio-Frage
+                                  </span>
+                                )}
+                                <span className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded">
+                                  {q.answerType === 'text' ? 'Text' : q.answerType === 'image' ? 'Bilder' : 'Audio'}
                                 </span>
-                              )}
-                              <span className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded">
-                                {q.answerType === 'text' ? 'Text' : q.answerType === 'image' ? 'Bilder' : 'Audio'}
-                              </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="space-y-2 text-sm">
-                          {q.answers.map((answer: Answer, i: number) => {
-                            const correctIndices = q.correctAnswerIndices || [q.correctAnswerIndex];
-                            const isCorrect = correctIndices.includes(i);
-                            return (
-                              <div key={i} className="flex items-center gap-2">
-                                {isCorrect ? (
-                                  <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                                ) : (
-                                  <X className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                                )}
-                                {answer.type === 'text' ? (
-                                  <span
-                                    className={
-                                      isCorrect
-                                        ? 'text-green-700 dark:text-green-400 font-medium'
-                                        : 'text-gray-600 dark:text-gray-400'
-                                    }
-                                  >
-                                    {answer.content}
-                                  </span>
-                                ) : answer.type === 'image' ? (
-                                  <div className="flex items-center gap-2">
-                                    <img
-                                      src={getThumbnailUrl(answer.content, 64)}
-                                      alt={answer.alt}
-                                      className="w-16 h-16 object-cover rounded"
-                                      loading="lazy"
-                                    />
+                          <div className="space-y-2 text-sm">
+                            {q.answers.map((answer: Answer, i: number) => {
+                              const correctIndices = q.correctAnswerIndices || [q.correctAnswerIndex];
+                              const isCorrect = correctIndices.includes(i);
+                              return (
+                                <div key={i} className="flex items-center gap-2">
+                                  {isCorrect ? (
+                                    <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                                  ) : (
+                                    <X className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                  )}
+                                  {answer.type === 'text' ? (
                                     <span
                                       className={
                                         isCorrect
@@ -587,51 +590,69 @@ export default function QuizEditorView() {
                                           : 'text-gray-600 dark:text-gray-400'
                                       }
                                     >
-                                      {answer.alt || 'Bild'}
+                                      {answer.content}
                                     </span>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded flex items-center justify-center">
-                                      <Volume2 className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                                  ) : answer.type === 'image' ? (
+                                    <div className="flex items-center gap-2">
+                                      <img
+                                        src={getThumbnailUrl(answer.content, 64)}
+                                        alt={answer.alt}
+                                        className="w-16 h-16 object-cover rounded"
+                                        loading="lazy"
+                                      />
+                                      <span
+                                        className={
+                                          isCorrect
+                                            ? 'text-green-700 dark:text-green-400 font-medium'
+                                            : 'text-gray-600 dark:text-gray-400'
+                                        }
+                                      >
+                                        {answer.alt || 'Bild'}
+                                      </span>
                                     </div>
-                                    <span
-                                      className={
-                                        isCorrect
-                                          ? 'text-green-700 dark:text-green-400 font-medium'
-                                          : 'text-gray-600 dark:text-gray-400'
-                                      }
-                                    >
-                                      Audio
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
+                                  ) : (
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded flex items-center justify-center">
+                                        <Volume2 className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                                      </div>
+                                      <span
+                                        className={
+                                          isCorrect
+                                            ? 'text-green-700 dark:text-green-400 font-medium'
+                                            : 'text-gray-600 dark:text-gray-400'
+                                        }
+                                      >
+                                        Audio
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => navigate(`/admin/quiz/edit/${id}/question/${index}`)}
-                          className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
-                          title="Frage bearbeiten"
-                          aria-label="Frage bearbeiten"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteQuestion(index)}
-                          className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
-                          title="Frage löschen"
-                          aria-label="Frage löschen"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => navigate(`/admin/quiz/edit/${id}/question/${index}`)}
+                            className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+                            title="Frage bearbeiten"
+                            aria-label="Frage bearbeiten"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteQuestion(index)}
+                            className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
+                            title="Frage löschen"
+                            aria-label="Frage löschen"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
