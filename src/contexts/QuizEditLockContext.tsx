@@ -2,8 +2,6 @@ import { createContext, useContext, useEffect } from "react";
 import type { ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import { getAuth } from "firebase/auth";
-import { toast } from "sonner";
-import { CustomToast } from "../components/misc/CustomToast";
 import { useEditLock } from "../hooks/useEditLock";
 import { releaseEditLock, refreshEditLock } from "../utils/quizzesCollection"; 
 
@@ -24,14 +22,6 @@ export function QuizEditLockProvider({ children }: { children: ReactNode }) {
     quizId: id || "",
     userId: currentUser?.uid || "",
     userName: currentUser?.email || "Unbekannt",
-    onLockLost: () => {
-      toast.custom(() => (
-        <CustomToast
-          message="Edit-Lock verloren. Bitte Änderungen speichern."
-          type="error"
-        />
-      ));
-    },
   });
 
   // beforeunload Handler für Browser-Close
