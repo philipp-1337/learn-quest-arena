@@ -30,3 +30,5 @@ dist-ssr
 
 # Documentation
 documentation
+setup-refactored-quiz-manager.sh
+src/components/admin/QuizListManager.tsx.backup
