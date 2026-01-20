@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import UsernamePicker from "../user/UsernamePicker";
 import UsernameManualEntry from "../user/UsernameManualEntry";
-import { Cog, Sword, UserCircle, Trophy, Sparkles, BadgeInfoIcon } from "lucide-react";
+import { Cog, Sword, UserCircle, Trophy, Sparkles, BadgeInfoIcon, Play, Flame } from "lucide-react";
 import AppHeader, { type MenuItem } from "../shared/AppHeader";
 import { useQuizState } from "../../hooks/useQuizState";
 import { getAuth } from "firebase/auth";
@@ -15,6 +15,8 @@ import { QuizSelector, type QuizStartMode } from "./QuizSelector";
 import QuizPlayer from "./QuizPlayer";
 import Footer from "../footer/Footer";
 import type { Subject, Class, Topic, Quiz, QuizChallenge, QuizChallengeLevel } from "../../types/quizTypes";
+import type { QuizDocument } from "../../types/quizTypes";
+import { loadAllQuizDocuments } from "../../utils/quizzesCollection";
 import useFirestore from "../../hooks/useFirestore";
 import { 
   filterVisibleSubjects, 
@@ -38,6 +40,7 @@ export default function QuizView({
   const [subjects, setSubjects] = useState(initialSubjects);
   const [loading, setLoading] = useState(true);
   const [challenges, setChallenges] = useState<QuizChallenge[]>([]);
+  const [featuredQuizzes, setFeaturedQuizzes] = useState<QuizDocument[]>([]);
   // Username ist standardmäßig "Gast", außer es ist ein anderer im LocalStorage gespeichert
   const [username, setUsername] = useState<string>(() => {
     const stored = localStorage.getItem("lqa_username");
@@ -130,6 +133,22 @@ export default function QuizView({
     loadChallenges();
   }, [fetchCollection]);
 
+  // Load featured quizzes (newest 3, visible, >3 questions)
+  useEffect(() => {
+    const fetchFeaturedQuizzes = async () => {
+      try {
+        const allQuizzes = await loadAllQuizDocuments();
+        const visibleQuizzes = allQuizzes
+          .filter(q => !q.hidden && Array.isArray(q.questions) && q.questions.length > 3)
+          .sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+        setFeaturedQuizzes(visibleQuizzes.slice(0, 3));
+      } catch (err) {
+        console.error("Error loading featured quizzes:", err);
+      }
+    };
+    fetchFeaturedQuizzes();
+  }, []);
+
   const handleReset = () => {
     resetSelection();
     navigateToHome();
@@ -154,42 +173,44 @@ export default function QuizView({
 
   const handleQuizSelect = (quiz: Quiz, mode?: QuizStartMode) => {
     console.log("Selected quiz:", quiz, "mode:", mode);
-    
-    // Set the start mode
     setQuizStartMode(mode || 'fresh');
 
-    // Find the subject, class, and topic for this quiz
-    const subject = subjects.find((s) =>
-      s.classes.some((c) => c.topics.some((t) => t.quizzes.includes(quiz)))
-    );
+    // Support QuizDocument (from featuredQuizzes) and legacy Quiz
+    let subject: Subject | undefined;
+    let classItem: Class | undefined;
+    let topic: Topic | undefined;
+
+    // If quiz has subjectId/classId/topicId, use those for lookup
+    const hasIds = (quiz as any).subjectId && (quiz as any).classId && (quiz as any).topicId;
+    if (hasIds) {
+      subject = subjects.find(s => s.id === (quiz as any).subjectId);
+      classItem = subject?.classes.find(c => c.id === (quiz as any).classId);
+      topic = classItem?.topics.find(t => t.id === (quiz as any).topicId);
+    } else {
+      // Fallback: legacy lookup
+      subject = subjects.find((s) =>
+        s.classes.some((c) => c.topics.some((t) => t.quizzes.includes(quiz)))
+      );
+      classItem = subject?.classes.find((c) =>
+        c.topics.some((t) => t.quizzes.includes(quiz))
+      );
+      topic = classItem?.topics.find((t) => t.quizzes.includes(quiz));
+    }
 
     if (!subject) {
       console.error("Subject not found for quiz:", quiz);
       return;
     }
-
-    const classItem = subject.classes.find((c) =>
-      c.topics.some((t) => t.quizzes.includes(quiz))
-    );
-
     if (!classItem) {
       console.error("Class not found for quiz:", quiz);
       return;
     }
-
-    const topic = classItem.topics.find((t) => t.quizzes.includes(quiz));
-
     if (!topic) {
       console.error("Topic not found for quiz:", quiz);
       return;
     }
 
-    console.log(
-      "Navigating to quiz with subject, class, topic:",
-      subject,
-      classItem,
-      topic
-    );
+    console.log("Navigating to quiz with subject, class, topic:", subject, classItem, topic);
     selectQuiz(quiz);
     navigateToQuiz(subject, classItem, topic, quiz);
   };
@@ -339,7 +360,44 @@ export default function QuizView({
           titleIcon={headerIcon}
           menuItems={menuItems}
           breadcrumb={breadcrumbComponent}
-        />
+          />
+          {/* Feature Section: Newest 3 visible quizzes with >3 questions */}
+          {!selectedSubject && featuredQuizzes.length > 0 && (
+            <div className="mb-5">
+              <div className="flex items-center gap-3 mb-4">
+                <Flame className="w-8 h-8 text-indigo-400" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Neue Quizze</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                {featuredQuizzes.map((quiz) => (
+                  <div key={quiz.id} className="relative flex flex-col h-full">
+                    <div className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg flex flex-col h-full justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="text-left flex-1">
+                            <h3 className="text-2xl font-bold mb-2 force-break" lang="de">{quiz.title}</h3>
+                            <p className="text-indigo-100">{quiz.questions.length} Fragen</p>
+                            {quiz.topicName && <p className="text-xs text-purple-200 mt-1">{quiz.topicName}</p>}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        <button
+                          onClick={() => handleQuizSelect(quiz)}
+                          className="w-full bg-white/20 hover:bg-white/30 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                          title={quiz.title}
+                          aria-label={quiz.title}
+                        >
+                          <Play className="w-6 h-6" />
+                          <span>Quiz starten</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
         {/* Quiz Challenge Section - Show before subject selection */}
         {!selectedSubject && challenges.length > 0 && isAuthenticated && (
