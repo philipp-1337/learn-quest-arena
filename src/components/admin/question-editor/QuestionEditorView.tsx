@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { Question, Answer } from "../../../types/quizTypes";
 import { toast } from "sonner";
@@ -6,16 +6,38 @@ import { CustomToast } from "../../misc/CustomToast";
 import { updateQuizDocument } from "../../../utils/quizzesCollection";
 import { useQuestionEditor } from "../../../hooks/useQuestionEditor";
 import { useQuestionValidation } from "../../../hooks/useQuestionValidation";
+import { useQuestionNavigation } from "../../../hooks/useQuestionNavigation";
 import QuestionEditorHeader from "./QuestionEditorHeader";
 import QuestionTypeSelector from "./QuestionTypeSelector";
 import QuestionInput from "./QuestionInput";
 import AnswerTypeSelector from "./AnswerTypeSelector";
 import AnswersList from "./AnswersList";
 
+// Deep equality check helper
+function deepEqual(obj1: any, obj2: any): boolean {
+  if (obj1 === obj2) return true;
+  
+  if (obj1 == null || obj2 == null) return false;
+  if (typeof obj1 !== 'object' || typeof obj2 !== 'object') return false;
+  
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  
+  if (keys1.length !== keys2.length) return false;
+  
+  for (const key of keys1) {
+    if (!keys2.includes(key)) return false;
+    if (!deepEqual(obj1[key], obj2[key])) return false;
+  }
+  
+  return true;
+}
+
 export default function QuestionEditorView() {
   const { id, index } = useParams<{ id: string; index?: string }>();
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
   const isEditing = index !== undefined;
   const questionIndex = index !== undefined ? parseInt(index, 10) : -1;
@@ -37,6 +59,54 @@ export default function QuestionEditorView() {
   });
 
   const { validateQuestion } = useQuestionValidation();
+
+  // Track original question for dirty state detection
+  const originalQuestionRef = useRef<Question | null>(null);
+  const isInitializedRef = useRef(false);
+  const previousIndexRef = useRef<number>(questionIndex);
+
+  // Reset initialization when navigating to a different question
+  useEffect(() => {
+    if (previousIndexRef.current !== questionIndex) {
+      isInitializedRef.current = false;
+      originalQuestionRef.current = null;
+      previousIndexRef.current = questionIndex;
+      setIsDirty(false);
+    }
+  }, [questionIndex]);
+
+  // Initialize original question only once when question is loaded
+  useEffect(() => {
+    if (question && !isInitializedRef.current && !loading) {
+      originalQuestionRef.current = JSON.parse(JSON.stringify(question));
+      isInitializedRef.current = true;
+      setIsDirty(false);
+    }
+  }, [question, loading]);
+
+  // Check for changes using deep equality
+  useEffect(() => {
+    if (!isInitializedRef.current || !originalQuestionRef.current || !question) {
+      return;
+    }
+
+    const hasChanges = !deepEqual(question, originalQuestionRef.current);
+    setIsDirty(hasChanges);
+    
+    // Debug: Uncomment to see what's different
+    // if (hasChanges) {
+    //   console.log('Original:', originalQuestionRef.current);
+    //   console.log('Current:', question);
+    // }
+  }, [question]);
+
+  // Question Navigation
+  const { swipeRef, canNavigatePrevious, canNavigateNext } = useQuestionNavigation({
+    quizId: id || "",
+    currentIndex: questionIndex,
+    totalQuestions: quizDocument?.questions.length || 0,
+    isDirty,
+  });
 
   const handleSaveQuestion = async () => {
     if (!validateQuestion(question)) return;
@@ -97,6 +167,10 @@ export default function QuestionEditorView() {
         />
       ));
 
+      // Reset dirty state and original question after save
+      originalQuestionRef.current = JSON.parse(JSON.stringify(cleanQuestion));
+      setIsDirty(false);
+
       navigate(`/admin/quiz/edit/${id}`);
     } catch (error) {
       console.error("Error saving question:", error);
@@ -149,7 +223,10 @@ export default function QuestionEditorView() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div 
+      ref={swipeRef}
+      className="min-h-screen bg-gray-50 dark:bg-gray-900"
+    >
       <QuestionEditorHeader
         isEditing={isEditing}
         saving={saving}
@@ -160,6 +237,19 @@ export default function QuestionEditorView() {
       />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Navigation Indicator */}
+        {isEditing && quizDocument.questions.length > 1 && (
+          <div className="mb-4 text-center text-sm text-gray-500 dark:text-gray-400">
+            Frage {questionIndex + 1} von {quizDocument.questions.length}
+            <span className="block text-xs mt-1">
+              {canNavigatePrevious && "← Links"} 
+              {canNavigatePrevious && canNavigateNext && " / "}
+              {canNavigateNext && "Rechts →"}
+              {isDirty && " (ungespeicherte Änderungen)"}
+            </span>
+          </div>
+        )}
+
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="space-y-6">
             <QuestionTypeSelector
