@@ -1,5 +1,6 @@
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { useState, useRef, useEffect, type ComponentType } from "react";
+import { Link } from "react-router-dom";
 import useDarkMode from "../../hooks/useDarkMode";
 
 export interface MenuItem {
@@ -18,6 +19,7 @@ interface AppHeaderProps {
   titleIcon?: React.ReactNode;
   menuItems: MenuItem[];
   breadcrumb?: React.ReactNode;
+  homeUrl?: string; // URL der jeweiligen Startseite
 }
 
 export default function AppHeader({
@@ -26,6 +28,7 @@ export default function AppHeader({
   titleIcon,
   menuItems,
   breadcrumb,
+  homeUrl,
 }: AppHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -66,10 +69,22 @@ export default function AppHeader({
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 mb-5">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {title}
-            {titleIcon}
-          </h1>
+          {homeUrl ? (
+            <Link
+              to={homeUrl}
+              className="text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2 focus:outline-none focus:ring-0 focus:ring-indigo-400"
+              title={title}
+              style={{ textDecoration: "none" }}
+            >
+              {title}
+              {titleIcon}
+            </Link>
+          ) : (
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+              {title}
+              {titleIcon}
+            </h1>
+          )}
           <p className="text-gray-700 dark:text-gray-200">{subtitle}</p>
         </div>
         <div className="flex flex-row gap-2 items-end relative" ref={menuRef}>

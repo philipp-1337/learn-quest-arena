@@ -360,6 +360,7 @@ export default function QuizView({
           titleIcon={headerIcon}
           menuItems={menuItems}
           breadcrumb={breadcrumbComponent}
+          homeUrl="/"
           />
           {/* Feature Section: Newest 3 visible quizzes with >3 questions */}
           {!selectedSubject && featuredQuizzes.length > 0 && (
