@@ -22,8 +22,7 @@ export default function QuizFilters({
   hasActiveFilters,
   onFilterChange,
   onClearFilters,
-  onRenameCategory,
-  onClose,
+  onRenameCategory
 }: QuizFiltersProps) {
   return (
     <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
@@ -48,43 +47,75 @@ export default function QuizFilters({
           Schnellfilter
         </label>
         <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => {
-              const auth = getAuth();
-              onFilterChange({ author: auth.currentUser?.uid || "" });
-              onClose();
-            }}
-            className="px-3 py-1.5 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
-          >
-            Meine Quiz
-          </button>
-          <button
-            onClick={() => {
-              onFilterChange({ showHidden: false });
-              onClose();
-            }}
-            className="px-3 py-1.5 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
-          >
-            Versteckte Quiz
-          </button>
-          <button
-            onClick={() => {
-              onFilterChange({ sortBy: "createdAt-desc", limit: 10 });
-              onClose();
-            }}
-            className="px-3 py-1.5 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
-          >
-            Neuste 10
-          </button>
-          <button
-            onClick={() => {
-              onFilterChange({ search: "__noQuestions__" });
-              onClose();
-            }}
-            className="px-3 py-1.5 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
-          >
-            Quiz ohne Fragen
-          </button>
+            {/* Meine Quiz Schnellfilter */}
+            <button
+              onClick={() => {
+                const auth = getAuth();
+                if (filters.author === auth.currentUser?.uid) {
+                  onFilterChange({ author: "" });
+                } else {
+                  onFilterChange({ author: auth.currentUser?.uid || "" });
+                }
+              }}
+              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors
+                ${filters.author === getAuth().currentUser?.uid
+                  ? "bg-indigo-100 dark:bg-indigo-900/50 border-indigo-400 dark:border-indigo-700 text-indigo-900 dark:text-indigo-200"
+                  : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-700"}
+              `}
+            >
+              Meine Quiz
+            </button>
+            {/* Versteckte Quiz Schnellfilter */}
+            <button
+              onClick={() => {
+                if (filters.showHidden === false) {
+                  onFilterChange({ showHidden: undefined });
+                } else {
+                  onFilterChange({ showHidden: false });
+                }
+              }}
+              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors
+                ${filters.showHidden === false
+                  ? "bg-indigo-100 dark:bg-indigo-900/50 border-indigo-400 dark:border-indigo-700 text-indigo-900 dark:text-indigo-200"
+                  : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-700"}
+              `}
+            >
+              Versteckte Quiz
+            </button>
+            {/* Neuste 10 Schnellfilter */}
+            <button
+              onClick={() => {
+                if (filters.sortBy === "createdAt-desc" && filters.limit === 10) {
+                  onFilterChange({ sortBy: "title", limit: null });
+                } else {
+                  onFilterChange({ sortBy: "createdAt-desc", limit: 10 });
+                }
+              }}
+              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors
+                ${(filters.sortBy === "createdAt-desc" && filters.limit === 10)
+                  ? "bg-indigo-100 dark:bg-indigo-900/50 border-indigo-400 dark:border-indigo-700 text-indigo-900 dark:text-indigo-200"
+                  : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-700"}
+              `}
+            >
+              Neuste 10
+            </button>
+            {/* Quiz ohne Fragen Schnellfilter */}
+            <button
+              onClick={() => {
+                if (filters.search === "__noQuestions__") {
+                  onFilterChange({ search: "" });
+                } else {
+                  onFilterChange({ search: "__noQuestions__" });
+                }
+              }}
+              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors
+                ${filters.search === "__noQuestions__"
+                  ? "bg-indigo-100 dark:bg-indigo-900/50 border-indigo-400 dark:border-indigo-700 text-indigo-900 dark:text-indigo-200"
+                  : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-700"}
+              `}
+            >
+              Quiz ohne Fragen
+            </button>
         </div>
       </div>
 
