@@ -36,7 +36,8 @@ export default function OptimizedImage({
   const isCloudinary = src.includes('cloudinary.com');
 
   // Berechne aspect-ratio falls width/height gegeben
-  const calculatedAspectRatio = aspectRatio || (width && height ? `${width}/${height}` : undefined);
+  // Default-Aspect-Ratio: 16/9, falls nichts übergeben wird
+  const calculatedAspectRatio = aspectRatio || (width && height ? `${width}/${height}` : '16/9');
 
   // URLs für Progressive Loading
   const placeholderUrl = isCloudinary
@@ -65,7 +66,10 @@ export default function OptimizedImage({
   const containerStyle: React.CSSProperties = {
     position: 'relative',
     overflow: 'hidden',
-    ...(calculatedAspectRatio && { aspectRatio: calculatedAspectRatio }),
+    aspectRatio: calculatedAspectRatio,
+    width: '100%',
+    height: 'auto',
+    display: 'block',
   };
 
   const imageStyle: React.CSSProperties = {
