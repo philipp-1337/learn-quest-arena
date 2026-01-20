@@ -53,6 +53,15 @@ export default function QuizEditorView() {
 
   const loading = quizLoading || lockLoading;
 
+  // Release edit lock on unmount if held
+  useEffect(() => {
+    return () => {
+      if (quizDocument && currentUser && hasLock) {
+        releaseEditLock(quizDocument.id, currentUser.uid);
+      }
+    };
+  }, [quizDocument, currentUser, hasLock]);
+
   // Redirect if no ID or not logged in
   useEffect(() => {
     if (!id || !currentUser) {
