@@ -1,16 +1,35 @@
-import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Check, X, ArrowLeft, Save, Check as CheckIcon, Image as ImageIcon, Lock, Volume2 } from 'lucide-react';
-import type { Quiz, Question, Answer } from '../../types/quizTypes';
-import { toast } from 'sonner';
-import { CustomToast } from '../misc/CustomToast';
-import DeleteConfirmModal from '../modals/DeleteConfirmModal';
-import { loadQuizDocument, updateQuizDocument, acquireEditLock, releaseEditLock, refreshEditLock, subscribeToQuiz } from '../../utils/quizzesCollection';
-import type { QuizDocument } from '../../types/quizTypes';
-import { getThumbnailUrl } from '../../utils/cloudinaryTransform';
-import { showConfirmationToast } from '../../utils/confirmationToast';
-import OptimizedImage from '../shared/OptimizedImage';
-import { getAuth } from 'firebase/auth';
+import { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Check,
+  X,
+  ArrowLeft,
+  Save,
+  Check as CheckIcon,
+  Image as ImageIcon,
+  Lock,
+  Volume2,
+} from "lucide-react";
+import type { Quiz, Question, Answer } from "../../types/quizTypes";
+import { toast } from "sonner";
+import { CustomToast } from "../misc/CustomToast";
+import DeleteConfirmModal from "../modals/DeleteConfirmModal";
+import {
+  loadQuizDocument,
+  updateQuizDocument,
+  acquireEditLock,
+  releaseEditLock,
+  refreshEditLock,
+  subscribeToQuiz,
+} from "../../utils/quizzesCollection";
+import type { QuizDocument } from "../../types/quizTypes";
+import { getThumbnailUrl } from "../../utils/cloudinaryTransform";
+import { showConfirmationToast } from "../../utils/confirmationToast";
+import OptimizedImage from "../shared/OptimizedImage";
+import { getAuth } from "firebase/auth";
 
 export default function QuizEditorView() {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +42,10 @@ export default function QuizEditorView() {
   const [urlShared, setUrlShared] = useState(false);
   const [hasLock, setHasLock] = useState(false);
   const [lockConflict, setLockConflict] = useState<string | null>(null);
-  const [deleteModal, setDeleteModal] = useState<{ open: boolean; index: number | null }>({ open: false, index: null });
+  const [deleteModal, setDeleteModal] = useState<{
+    open: boolean;
+    index: number | null;
+  }>({ open: false, index: null });
   const [userRole, setUserRole] = useState<string | null>(null);
   const lockRefreshInterval = useRef<number | null>(null);
 
@@ -33,8 +55,10 @@ export default function QuizEditorView() {
     // Vergleiche relevante Felder
     const changed =
       editedQuiz.title !== quizDocument.title ||
-      editedQuiz.shortTitle !== (quizDocument.shortTitle || quizDocument.title) ||
-      editedQuiz.hidden !== (quizDocument.hidden === undefined ? true : quizDocument.hidden) ||
+      editedQuiz.shortTitle !==
+        (quizDocument.shortTitle || quizDocument.title) ||
+      editedQuiz.hidden !==
+        (quizDocument.hidden === undefined ? true : quizDocument.hidden) ||
       urlShared !== (quizDocument.urlShared || false);
     setAllChangesSaved(!changed);
   }, [editedQuiz, quizDocument, urlShared]);
@@ -42,7 +66,7 @@ export default function QuizEditorView() {
   // Acquire edit lock and load quiz data
   useEffect(() => {
     if (!id) {
-      navigate('/admin');
+      navigate("/admin");
       return;
     }
 
@@ -53,7 +77,7 @@ export default function QuizEditorView() {
       toast.custom(() => (
         <CustomToast message="Nicht angemeldet" type="error" />
       ));
-      navigate('/admin');
+      navigate("/admin");
       return;
     }
 
@@ -63,18 +87,23 @@ export default function QuizEditorView() {
         const lockResult = await acquireEditLock(
           id,
           currentUser.uid,
-          currentUser.email || 'Unbekannt'
+          currentUser.email || "Unbekannt",
         );
 
         if (!lockResult.success) {
           if (lockResult.lockedBy) {
-            setLockConflict(`Dieses Quiz wird bereits von ${lockResult.lockedBy.userName} bearbeitet.`);
-            
+            setLockConflict(
+              `Dieses Quiz wird bereits von ${lockResult.lockedBy.userName} bearbeitet.`,
+            );
+
             // Subscribe to quiz to detect when lock is released
             const unsubscribe = subscribeToQuiz(id, (quiz) => {
               if (quiz && !quiz.editLock) {
                 toast.custom(() => (
-                  <CustomToast message="Quiz ist jetzt verfügbar. Seite neu laden." type="info" />
+                  <CustomToast
+                    message="Quiz ist jetzt verfügbar. Seite neu laden."
+                    type="info"
+                  />
                 ));
               }
             });
@@ -83,9 +112,14 @@ export default function QuizEditorView() {
             return () => unsubscribe();
           } else {
             toast.custom(() => (
-              <CustomToast message={lockResult.error || "Lock konnte nicht erworben werden"} type="error" />
+              <CustomToast
+                message={
+                  lockResult.error || "Lock konnte nicht erworben werden"
+                }
+                type="error"
+              />
             ));
-            navigate('/admin');
+            navigate("/admin");
             return;
           }
         }
@@ -99,7 +133,7 @@ export default function QuizEditorView() {
           toast.custom(() => (
             <CustomToast message="Quiz nicht gefunden" type="error" />
           ));
-          navigate('/admin');
+          navigate("/admin");
           return;
         }
 
@@ -115,24 +149,30 @@ export default function QuizEditorView() {
         setUrlShared(quiz.urlShared || false);
 
         // Set up lock refresh interval (every 15 minutes)
-        lockRefreshInterval.current = setInterval(async () => {
-          const refreshResult = await refreshEditLock(id, currentUser.uid);
-          if (!refreshResult.success) {
-            console.warn('Failed to refresh lock:', refreshResult.error);
-            setHasLock(false);
-            toast.custom(() => (
-              <CustomToast message="Edit-Lock verloren. Bitte Änderungen speichern." type="error" />
-            ));
-          }
-        }, 15 * 60 * 1000); // 15 minutes
+        lockRefreshInterval.current = setInterval(
+          async () => {
+            const refreshResult = await refreshEditLock(id, currentUser.uid);
+            if (!refreshResult.success) {
+              console.warn("Failed to refresh lock:", refreshResult.error);
+              setHasLock(false);
+              toast.custom(() => (
+                <CustomToast
+                  message="Edit-Lock verloren. Bitte Änderungen speichern."
+                  type="error"
+                />
+              ));
+            }
+          },
+          15 * 60 * 1000,
+        ); // 15 minutes
 
         setLoading(false);
       } catch (error) {
-        console.error('Error initializing editor:', error);
+        console.error("Error initializing editor:", error);
         toast.custom(() => (
           <CustomToast message="Fehler beim Laden des Quiz" type="error" />
         ));
-        navigate('/admin');
+        navigate("/admin");
       }
     };
 
@@ -156,9 +196,11 @@ export default function QuizEditorView() {
         const auth = getAuth();
         const currentUser = auth.currentUser;
         if (!currentUser) return;
-        const db = await import('firebase/firestore');
+        const db = await import("firebase/firestore");
         const { getFirestore, doc, getDoc } = db;
-        const authorDoc = await getDoc(doc(getFirestore(), 'author', currentUser.uid));
+        const authorDoc = await getDoc(
+          doc(getFirestore(), "author", currentUser.uid),
+        );
         if (authorDoc.exists()) {
           const data = authorDoc.data();
           setUserRole(data.role || null);
@@ -175,7 +217,10 @@ export default function QuizEditorView() {
 
     if (!hasLock) {
       toast.custom(() => (
-        <CustomToast message="Kein Edit-Lock vorhanden. Speichern nicht möglich." type="error" />
+        <CustomToast
+          message="Kein Edit-Lock vorhanden. Speichern nicht möglich."
+          type="error"
+        />
       ));
       return;
     }
@@ -200,19 +245,19 @@ export default function QuizEditorView() {
         urlShared: urlShared,
       });
       setAllChangesSaved(true);
-      
+
       // Release lock after successful save
       if (currentUser) {
         await releaseEditLock(quizDocument.id, currentUser.uid);
       }
-      
+
       toast.custom(() => (
         <CustomToast message="Quiz erfolgreich gespeichert" type="success" />
       ));
       // Navigiere zurück nach kurzer Verzögerung
-      setTimeout(() => navigate('/admin'), 500);
+      setTimeout(() => navigate("/admin"), 500);
     } catch (error) {
-      console.error('Error saving quiz:', error);
+      console.error("Error saving quiz:", error);
       toast.custom(() => (
         <CustomToast message="Fehler beim Speichern des Quiz" type="error" />
       ));
@@ -224,7 +269,7 @@ export default function QuizEditorView() {
   // Öffnet das DeleteConfirmModal für die Frage
   const handleDeleteQuestion = (index: number) => {
     setDeleteModal({ open: true, index });
-  }
+  };
 
   // Handler für Zurück-Pfeil: prüft auf ungespeicherte Änderungen
   const handleBack = () => {
@@ -235,7 +280,8 @@ export default function QuizEditorView() {
             Ungespeicherte Änderungen
           </div>
           <div className="text-gray-700 dark:text-gray-300 text-sm mb-4">
-            Du hast ungespeicherte Änderungen. Bitte speichere zuerst oder verwerfe deine Änderungen.
+            Du hast ungespeicherte Änderungen. Bitte speichere zuerst oder
+            verwerfe deine Änderungen.
           </div>
           <div className="flex gap-2 w-full">
             <button
@@ -248,7 +294,10 @@ export default function QuizEditorView() {
                     title: quizDocument.title,
                     shortTitle: quizDocument.shortTitle || quizDocument.title,
                     questions: quizDocument.questions || [],
-                    hidden: quizDocument.hidden === undefined ? true : quizDocument.hidden,
+                    hidden:
+                      quizDocument.hidden === undefined
+                        ? true
+                        : quizDocument.hidden,
                   });
                   setUrlShared(quizDocument.urlShared || false);
                 }
@@ -271,13 +320,15 @@ export default function QuizEditorView() {
       ));
       return;
     }
-    navigate('/admin');
+    navigate("/admin");
   };
 
   // Persistente Löschung nach Bestätigung
   const confirmDeleteQuestion = async () => {
     if (!editedQuiz || !quizDocument || deleteModal.index === null) return;
-    const newQuestions = editedQuiz.questions.filter((_, i) => i !== deleteModal.index);
+    const newQuestions = editedQuiz.questions.filter(
+      (_, i) => i !== deleteModal.index,
+    );
     try {
       await updateQuizDocument(quizDocument.id, {
         ...quizDocument,
@@ -300,9 +351,10 @@ export default function QuizEditorView() {
     if (!checked) {
       // User wants to deactivate "URL wurde geteilt" - show warning
       showConfirmationToast({
-        message: 'Achtung: Eine Änderung am Kurztitel ändert auch die URL. Dies kann Auswirkungen auf bereits geteilte URLs haben.',
-        confirmText: 'Verstanden',
-        cancelText: 'Abbrechen',
+        message:
+          "Achtung: Eine Änderung am Kurztitel ändert auch die URL. Dies kann Auswirkungen auf bereits geteilte URLs haben.",
+        confirmText: "Verstanden",
+        cancelText: "Abbrechen",
         onConfirm: () => {
           setUrlShared(false);
         },
@@ -330,11 +382,15 @@ export default function QuizEditorView() {
         <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
           <div className="flex items-center gap-3 mb-4">
             <Lock className="w-8 h-8 text-red-500" />
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Quiz in Bearbeitung</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Quiz in Bearbeitung
+            </h2>
           </div>
-          <p className="text-gray-700 dark:text-gray-300 mb-6">{lockConflict}</p>
+          <p className="text-gray-700 dark:text-gray-300 mb-6">
+            {lockConflict}
+          </p>
           <button
-            onClick={() => navigate('/admin')}
+            onClick={() => navigate("/admin")}
             className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
           >
             Zur\u00fcck zur \u00dcbersicht
@@ -353,7 +409,7 @@ export default function QuizEditorView() {
       {/* DeleteConfirmModal für Frage-Löschung */}
       {deleteModal.open && editedQuiz && (
         <DeleteConfirmModal
-          itemName={`Frage ${deleteModal.index !== null ? deleteModal.index + 1 : ''}`}
+          itemName={`Frage ${deleteModal.index !== null ? deleteModal.index + 1 : ""}`}
           onConfirm={confirmDeleteQuestion}
           onClose={() => setDeleteModal({ open: false, index: null })}
         />
@@ -372,9 +428,12 @@ export default function QuizEditorView() {
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <div className="min-w-0">
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">Quiz bearbeiten</h1>
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">
+                  Quiz bearbeiten
+                </h1>
                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
-                  {quizDocument?.subjectName} • {quizDocument?.className} • {quizDocument?.topicName}
+                  {quizDocument?.subjectName} • {quizDocument?.className} •{" "}
+                  {quizDocument?.topicName}
                 </p>
               </div>
             </div>
@@ -402,8 +461,12 @@ export default function QuizEditorView() {
                   className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center justify-center gap-2"
                 >
                   <Save className="w-4 h-4" />
-                  <span className="hidden sm:inline">{saving ? 'Speichert...' : 'Speichern'}</span>
-                  <span className="sm:hidden">{saving ? 'Speichert...' : 'Speichern'}</span>
+                  <span className="hidden sm:inline">
+                    {saving ? "Speichert..." : "Speichern"}
+                  </span>
+                  <span className="sm:hidden">
+                    {saving ? "Speichert..." : "Speichern"}
+                  </span>
                 </button>
               )}
             </div>
@@ -415,31 +478,47 @@ export default function QuizEditorView() {
         <div className="space-y-6">
           {/* Quiz Details Card */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quiz-Details</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Quiz-Details
+            </h2>
             <div className="space-y-4">
               <div>
-                <label htmlFor="quiz-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="quiz-title"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Quiz-Titel
                 </label>
                 <input
                   id="quiz-title"
                   type="text"
                   value={editedQuiz.title}
-                  onChange={e => setEditedQuiz(q => q ? { ...q, title: e.target.value } : null)}
+                  onChange={(e) =>
+                    setEditedQuiz((q) =>
+                      q ? { ...q, title: e.target.value } : null,
+                    )
+                  }
                   className="w-full px-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   placeholder="Quiz-Titel eingeben"
                   lang="de"
                 />
               </div>
               <div>
-                <label htmlFor="quiz-short-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="quiz-short-title"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Kurztitel (für Admin-Anzeige & URL)
                 </label>
                 <input
                   id="quiz-short-title"
                   type="text"
                   value={editedQuiz.shortTitle}
-                  onChange={e => setEditedQuiz(q => q ? { ...q, shortTitle: e.target.value } : null)}
+                  onChange={(e) =>
+                    setEditedQuiz((q) =>
+                      q ? { ...q, shortTitle: e.target.value } : null,
+                    )
+                  }
                   disabled={urlShared}
                   className="w-full px-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Kurztitel"
@@ -452,14 +531,32 @@ export default function QuizEditorView() {
                     type="checkbox"
                     id="hidden-toggle"
                     checked={!!editedQuiz.hidden}
-                    onChange={e => setEditedQuiz(q => q ? { ...q, hidden: e.target.checked } : null)}
+                    onChange={(e) =>
+                      setEditedQuiz((q) =>
+                        q ? { ...q, hidden: e.target.checked } : null,
+                      )
+                    }
                     className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-700"
-                    disabled={userRole === 'supporter'}
+                    disabled={userRole === "supporter"}
                   />
-                  <label htmlFor="hidden-toggle" className="text-sm text-gray-700 dark:text-gray-300">
-                    Quiz ist <span className={editedQuiz.hidden ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400'}>{editedQuiz.hidden ? 'ausgeblendet' : 'sichtbar'}</span>
-                    {userRole === 'supporter' && (
-                      <span className="ml-2 text-xs text-gray-400">(Du kannst die Sichtbarkeit nicht ändern)</span>
+                  <label
+                    htmlFor="hidden-toggle"
+                    className="text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    Quiz ist{" "}
+                    <span
+                      className={
+                        editedQuiz.hidden
+                          ? "text-red-500 dark:text-red-400"
+                          : "text-green-600 dark:text-green-400"
+                      }
+                    >
+                      {editedQuiz.hidden ? "ausgeblendet" : "sichtbar"}
+                    </span>
+                    {userRole === "supporter" && (
+                      <span className="ml-2 text-xs text-gray-400">
+                        (Du kannst die Sichtbarkeit nicht ändern)
+                      </span>
                     )}
                   </label>
                 </div>
@@ -468,10 +565,13 @@ export default function QuizEditorView() {
                     type="checkbox"
                     id="url-shared-toggle"
                     checked={urlShared}
-                    onChange={e => handleUrlSharedToggle(e.target.checked)}
+                    onChange={(e) => handleUrlSharedToggle(e.target.checked)}
                     className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-700"
                   />
-                  <label htmlFor="url-shared-toggle" className="text-sm text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="url-shared-toggle"
+                    className="text-sm text-gray-700 dark:text-gray-300"
+                  >
                     Kurztitel nicht änderbar (URL wurde geteilt)
                   </label>
                 </div>
@@ -483,7 +583,10 @@ export default function QuizEditorView() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Fragen <span className="text-base font-normal text-gray-500 dark:text-gray-400">({editedQuiz.questions.length})</span>
+                Fragen{" "}
+                <span className="text-base font-normal text-gray-500 dark:text-gray-400">
+                  ({editedQuiz.questions.length})
+                </span>
               </h2>
               <button
                 onClick={() => navigate(`/admin/quiz/edit/${id}/question/new`)}
@@ -497,16 +600,19 @@ export default function QuizEditorView() {
             {editedQuiz.questions.length === 0 ? (
               <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                 <p className="mb-2">Noch keine Fragen vorhanden.</p>
-                <p className="text-sm">Klicke auf "Frage hinzufügen" um zu starten.</p>
+                <p className="text-sm">
+                  Klicke auf "Frage hinzufügen" um zu starten.
+                </p>
               </div>
             ) : (
-              <div
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 space-y-3"
-              >
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 space-y-3">
                 {editedQuiz.questions.map((q: Question, index: number) => {
-                  const isImageQuestion = (q.questionType || 'text') === 'image' && q.questionImage;
+                  const isImageQuestion =
+                    (q.questionType || "text") === "image" && q.questionImage;
                   const hasImageQuestions = editedQuiz.questions.some(
-                    (question) => (question.questionType || 'text') === 'image' && question.questionImage
+                    (question) =>
+                      (question.questionType || "text") === "image" &&
+                      question.questionImage,
                   );
 
                   return (
@@ -519,83 +625,100 @@ export default function QuizEditorView() {
                         <div className="w-full h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
                           <OptimizedImage
                             src={q.questionImage || ""}
-                            alt={q.questionImageAlt || 'Frage'}
+                            alt={q.questionImageAlt || "Frage"}
                             className="w-full h-full"
                             objectFit="cover"
                             width={400}
                             height={256}
                           />
                         </div>
-                      ) : hasImageQuestions && (
-                        // Platzhalter für Nicht-Bild-Fragen
-                        <div className="hidden sm:flex w-full h-40 bg-gray-200 dark:bg-gray-700 items-center justify-center">
-                          <span className="text-gray-500 dark:text-gray-400 text-sm">Kein Bild</span>
-                        </div>
+                      ) : (
+                        hasImageQuestions && (
+                          // Platzhalter für Nicht-Bild-Fragen
+                          <div className="hidden sm:flex w-full h-40 bg-gray-200 dark:bg-gray-700 items-center justify-center">
+                            <span className="text-gray-500 dark:text-gray-400 text-sm">
+                              Kein Bild
+                            </span>
+                          </div>
+                        )
                       )}
 
                       {/* Rest der Frage */}
-                      <div className="flex justify-between items-start mb-2 p-4 pt-3">
-                        <div className="flex-1">
+                      <div className="p-4 pt-3 flex-1 flex flex-col justify-between">
+                        <div>
                           <div className="flex items-start gap-3 mb-2">
                             {/* Audio-Frage: Icon oben links */}
-                            {(q.questionType || 'text') === 'audio' && q.questionAudio && (
-                              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                                <Volume2 className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                              </div>
-                            )}
+                            {(q.questionType || "text") === "audio" &&
+                              q.questionAudio && (
+                                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                                  <Volume2 className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                                </div>
+                              )}
                             <div className="flex-1">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-semibold text-gray-900 dark:text-white">
-                                  {index + 1}. {(q.questionType || 'text') === 'image' 
-                                    ? (q.question || '[Bild-Frage]') 
-                                    : (q.questionType || 'text') === 'audio'
-                                    ? (q.question || '[Audio-Frage]')
-                                    : q.question
-                                }
+                                  {index + 1}.{" "}
+                                  {(q.questionType || "text") === "image"
+                                    ? q.question || "[Bild-Frage]"
+                                    : (q.questionType || "text") === "audio"
+                                      ? q.question || "[Audio-Frage]"
+                                      : q.question}
                                 </span>
-                                {(q.questionType || 'text') === 'image' && (
+                                {(q.questionType || "text") === "image" && (
                                   <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded flex items-center gap-1">
                                     <ImageIcon className="w-3 h-3" />
                                     Bild-Frage
                                   </span>
                                 )}
-                                {(q.questionType || 'text') === 'audio' && (
+                                {(q.questionType || "text") === "audio" && (
                                   <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-1 rounded flex items-center gap-1">
                                     <Volume2 className="w-3 h-3" />
                                     Audio-Frage
                                   </span>
                                 )}
                                 <span className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded">
-                                  {q.answerType === 'text' ? 'Text' : q.answerType === 'image' ? 'Bilder' : 'Audio'}
+                                  {q.answerType === "text"
+                                    ? "Text"
+                                    : q.answerType === "image"
+                                      ? "Bilder"
+                                      : "Audio"}
                                 </span>
                               </div>
                             </div>
                           </div>
                           <div className="space-y-2 text-sm">
                             {q.answers.map((answer: Answer, i: number) => {
-                              const correctIndices = q.correctAnswerIndices || [q.correctAnswerIndex];
+                              const correctIndices = q.correctAnswerIndices || [
+                                q.correctAnswerIndex,
+                              ];
                               const isCorrect = correctIndices.includes(i);
                               return (
-                                <div key={i} className="flex items-center gap-2">
+                                <div
+                                  key={i}
+                                  className="flex items-center gap-2"
+                                >
                                   {isCorrect ? (
                                     <Check className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
                                   ) : (
                                     <X className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                   )}
-                                  {answer.type === 'text' ? (
+                                  {answer.type === "text" ? (
                                     <span
                                       className={
                                         isCorrect
-                                          ? 'text-green-700 dark:text-green-400 font-medium'
-                                          : 'text-gray-600 dark:text-gray-400'
+                                          ? "text-green-700 dark:text-green-400 font-medium"
+                                          : "text-gray-600 dark:text-gray-400"
                                       }
                                     >
                                       {answer.content}
                                     </span>
-                                  ) : answer.type === 'image' ? (
+                                  ) : answer.type === "image" ? (
                                     <div className="flex items-center gap-2">
                                       <img
-                                        src={getThumbnailUrl(answer.content, 64)}
+                                        src={getThumbnailUrl(
+                                          answer.content,
+                                          64,
+                                        )}
                                         alt={answer.alt}
                                         className="w-16 h-16 object-cover rounded"
                                         loading="lazy"
@@ -603,11 +726,11 @@ export default function QuizEditorView() {
                                       <span
                                         className={
                                           isCorrect
-                                            ? 'text-green-700 dark:text-green-400 font-medium'
-                                            : 'text-gray-600 dark:text-gray-400'
+                                            ? "text-green-700 dark:text-green-400 font-medium"
+                                            : "text-gray-600 dark:text-gray-400"
                                         }
                                       >
-                                        {answer.alt || 'Bild'}
+                                        {answer.alt || "Bild"}
                                       </span>
                                     </div>
                                   ) : (
@@ -618,8 +741,8 @@ export default function QuizEditorView() {
                                       <span
                                         className={
                                           isCorrect
-                                            ? 'text-green-700 dark:text-green-400 font-medium'
-                                            : 'text-gray-600 dark:text-gray-400'
+                                            ? "text-green-700 dark:text-green-400 font-medium"
+                                            : "text-gray-600 dark:text-gray-400"
                                         }
                                       >
                                         Audio
@@ -631,9 +754,14 @@ export default function QuizEditorView() {
                             })}
                           </div>
                         </div>
-                        <div className="flex gap-2">
+                        {/* Card Action Row: Buttons unter dem Text */}
+                        <div className="flex gap-2 mt-4 border-t border-gray-200 dark:border-gray-700 pt-3">
                           <button
-                            onClick={() => navigate(`/admin/quiz/edit/${id}/question/${index}`)}
+                            onClick={() =>
+                              navigate(
+                                `/admin/quiz/edit/${id}/question/${index}`,
+                              )
+                            }
                             className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
                             title="Frage bearbeiten"
                             aria-label="Frage bearbeiten"
