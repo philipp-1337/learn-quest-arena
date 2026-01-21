@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, Download, Sparkles, BadgeInfoIcon } from "lucide-react";
-import type { Subject, QuizChallenge } from "../../../../types/quizTypes";
-import useFirestore from "../../../../hooks/useFirestore";
-import { useStatsCalculation } from "../../../../hooks/useStatsCalculation";
+import type { Subject, QuizChallenge } from "quizTypes";
+import useFirestore from "@hooks/useFirestore";
+import { useStatsCalculation } from "@hooks/useStatsCalculation";
 import AdminHeader from "../../components/AdminHeader";
 import AdminStats from "../../components/AdminStats";
 import QRCodeInfo from "../../misc/components/QRCodeInfo";

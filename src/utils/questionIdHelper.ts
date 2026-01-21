@@ -1,4 +1,4 @@
-import type { Question } from '../types/quizTypes';
+import type { Question } from "quizTypes";
 
 /**
  * Generates a consistent ID for a question

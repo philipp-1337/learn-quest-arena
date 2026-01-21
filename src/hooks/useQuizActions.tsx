@@ -1,16 +1,16 @@
 import { toast } from "sonner";
 import { getAuth } from "firebase/auth";
 import { CustomToast } from "../features/misc/CustomToast";
-import type { QuizDocument } from "../types/quizTypes";
+import type { QuizDocument } from "quizTypes";
 import {
   deleteQuizDocument,
   updateQuizDocument,
-} from "../utils/quiz-collection";
-import { slugify } from "../utils/slugify";
+} from "@utils/quiz-collection";
+import { slugify } from "@utils/slugify";
 import {
   canToggleVisibility,
   canDeleteQuiz,
-} from "../utils/quizPermissions";
+} from "@utils/quizPermissions";
 
 export function useQuizActions(
   userRole: string | null,

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { getOptimizedImageUrl } from './cloudinaryTransform';
-import type { Question } from '../types/quizTypes';
+import type { Question } from 'quizTypes';
 
 /**
  * Preload Hook für Quiz-Bilder

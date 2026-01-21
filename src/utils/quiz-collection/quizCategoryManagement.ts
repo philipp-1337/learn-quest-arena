@@ -3,7 +3,7 @@
  */
 
 import { createDeterministicId } from "../slugify";
-import type { QuizDocument } from "../../types/quizTypes";
+import type { QuizDocument } from "quizTypes";
 import { loadQuizDocument, updateQuizDocument } from "./quizCrud";
 import { loadAllQuizDocuments } from "./quizQueries";
 

@@ -1,5 +1,5 @@
 import { Users } from 'lucide-react';
-import type { Class } from '../../types/quizTypes';
+import type { Class } from 'quizTypes';
 
 interface ClassSelectorProps {
   classes: Class[];

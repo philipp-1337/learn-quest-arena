@@ -1,5 +1,5 @@
-import type { Quiz } from "../../../../types/quizTypes";
-import { showConfirmationToast } from "../../../../utils/confirmationToast";
+import type { Quiz } from "quizTypes";
+import { showConfirmationToast } from "@utils/confirmationToast";
 
 interface QuizDetailsFormProps {
   quiz: Quiz;

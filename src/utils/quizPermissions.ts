@@ -1,4 +1,4 @@
-import type { QuizDocument } from "../types/quizTypes";
+import type { QuizDocument } from "quizTypes";
 
 export interface PermissionCheck {
   allowed: boolean;

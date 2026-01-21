@@ -10,8 +10,8 @@ import {
   Lock,
   MoreVertical,
 } from "lucide-react";
-import type { QuizDocument } from "../../types/quizTypes";
-import { canEditQuiz, canReassignQuiz } from "../../utils/quizPermissions";
+import type { QuizDocument } from "quizTypes";
+import { canEditQuiz, canReassignQuiz } from "@utils/quizPermissions";
 import { getAuth } from "firebase/auth";
 
 interface QuizListItemProps {

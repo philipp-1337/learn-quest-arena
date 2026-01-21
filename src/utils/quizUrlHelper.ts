@@ -1,5 +1,5 @@
 import { slugify } from './slugify';
-import type { Subject, Class, Topic, Quiz } from '../types/quizTypes';
+import type { Subject, Class, Topic, Quiz } from "quizTypes";
 
 /**
  * Generiert einen direkten Quiz-Link im Format:

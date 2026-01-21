@@ -1,7 +1,7 @@
 
 import { toast } from "sonner";
 import { CustomToast } from "../../../misc/CustomToast";
-import type { Question } from "../../../../types/quizTypes";
+import type { Question } from "quizTypes";
 
 // Die Datei muss als .tsx gespeichert werden, damit JSX funktioniert.
 // Sonst gibt es Syntaxfehler bei JSX in Funktionen.

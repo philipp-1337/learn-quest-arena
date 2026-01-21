@@ -15,12 +15,12 @@ import {
   // TrendingUp,
   // TrendingDown,
 } from "lucide-react";
-import type { Question } from "../../types/quizTypes";
-import { showCompletedQuizWarning } from "../../utils/showCompletedQuizWarning";
-import { formatTime } from "../../utils/formatTime";
-import { calculateGrade } from "../../utils/gradeCalculation";
-import { useCountUpAnimation } from "../../hooks/useCountUpAnimation";
-import { useStaggeredAnimation } from "../../hooks/useStaggeredAnimation";
+import type { Question } from "quizTypes";
+import { showCompletedQuizWarning } from "@utils/showCompletedQuizWarning";
+import { formatTime } from "@utils/formatTime";
+import { calculateGrade } from "@utils/gradeCalculation";
+import { useCountUpAnimation } from "@hooks/useCountUpAnimation";
+import { useStaggeredAnimation } from "@hooks/useStaggeredAnimation";
 
 interface QuizResultsProps {
   statistics: {

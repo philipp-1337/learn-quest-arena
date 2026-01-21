@@ -1,4 +1,4 @@
-import type { Subject, Class, Topic, Quiz } from '../types/quizTypes';
+import type { Subject, Class, Topic, Quiz } from "quizTypes";
 
 /**
  * Prüft, ob ein Topic mindestens ein sichtbares Quiz enthält.

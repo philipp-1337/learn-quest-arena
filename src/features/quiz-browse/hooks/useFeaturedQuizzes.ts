@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { loadAllQuizDocuments } from '../../../utils/quiz-collection';
-import type { QuizDocument } from '../../../types/quizTypes';
+import { loadAllQuizDocuments } from '@utils/quiz-collection';
+import type { QuizDocument } from "quizTypes";
 
 export function useFeaturedQuizzes(count = 3) {
   const [quizzes, setQuizzes] = useState<QuizDocument[]>([]);

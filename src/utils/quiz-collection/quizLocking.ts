@@ -3,7 +3,7 @@
  */
 
 import { getFirestore, doc, setDoc, runTransaction } from "firebase/firestore";
-import type { QuizDocument, EditLock } from "../../types/quizTypes";
+import type { QuizDocument, EditLock } from "quizTypes";
 import { loadQuizDocument } from "./quizCrud";
 
 const QUIZZES_COLLECTION = "quizzes";

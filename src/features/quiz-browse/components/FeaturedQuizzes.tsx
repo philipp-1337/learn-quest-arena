@@ -1,7 +1,7 @@
 import { Play, Shapes, School, Book, Flame } from 'lucide-react';
 import { useFeaturedQuizzes } from '../hooks/useFeaturedQuizzes';
-import type { Subject, QuizDocument } from '../../../types/quizTypes';
-import type { QuizStartMode } from '../../../hooks/useQuizPlayer';
+import type { Subject, QuizDocument } from "quizTypes";
+import type { QuizStartMode } from '@hooks/useQuizPlayer';
 
 interface FeaturedQuizzesProps {
   subjects: Subject[];
@@ -24,7 +24,7 @@ export default function FeaturedQuizzes({ subjects, onQuizSelect }: FeaturedQuiz
           ? Array.from({ length: 3 }).map((_, i) => (
               <FeaturedQuizSkeleton key={i} />
             ))
-          : quizzes.map((quiz) => (
+          : quizzes.map((quiz: import("quizTypes").QuizDocument) => (
               <FeaturedQuizCard
                 key={quiz.id}
                 quiz={quiz}

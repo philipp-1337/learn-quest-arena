@@ -31,10 +31,9 @@
       "@components/*": ["components/*"],
       "@hooks/*": ["hooks/*"],
       "@data/*": ["data/*"],
-      "@types": ["types/index.ts"],
-      "@types/*": ["types/*"],
+      "quizTypes": ["types/quizTypes"],
+      "userProgress": ["types/userProgress"],
       "@auth/*": ["auth/*"],
-      "@constants": ["constants/index.ts"],
       "@constants/*": ["constants/*"]
     }
   },

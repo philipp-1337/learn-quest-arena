@@ -1,5 +1,5 @@
 import { BookOpen } from 'lucide-react';
-import type { Subject } from '../../types/quizTypes';
+import type { Subject } from 'quizTypes';
 
 interface SubjectSelectorProps {
   subjects: Subject[];

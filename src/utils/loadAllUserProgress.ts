@@ -1,6 +1,6 @@
 import '../firebaseConfig';
 import { getFirestore, collection, getDocs } from "firebase/firestore";
-import type { UserQuizProgress, UserProgress } from "../types/userProgress";
+import type { UserQuizProgress, UserProgress } from "userProgress";
 import { ensureSRSFields } from "./srsHelpers";
 
 // Lädt den Fortschritt eines Users für alle Quizzes (neues Modell bevorzugt)

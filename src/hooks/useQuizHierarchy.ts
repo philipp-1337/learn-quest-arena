@@ -1,6 +1,6 @@
-import type { Subject, Class, Topic, Quiz, QuizDocument } from '../types/quizTypes';
+import type { Subject, Class, Topic, Quiz, QuizDocument } from "quizTypes";
 import { getAuth } from 'firebase/auth';
-import { saveQuizDocument, updateQuizDocument, deleteQuizDocument } from '../utils/quiz-collection';
+import { saveQuizDocument, updateQuizDocument, deleteQuizDocument } from '@utils/quiz-collection';
 
 export function useQuizHierarchy(
   subjects: Subject[],

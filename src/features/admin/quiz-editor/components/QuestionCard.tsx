@@ -1,7 +1,7 @@
 import { Edit2, Trash2, Check, X, Volume2, Image as ImageIcon } from "lucide-react";
-import type { Question, Answer } from "../../../../types/quizTypes";
+import type { Question, Answer } from "quizTypes";
 import OptimizedImage from "../../../shared/OptimizedImage";
-import { getThumbnailUrl } from "../../../../utils/cloudinaryTransform";
+import { getThumbnailUrl } from "@utils/cloudinaryTransform";
 
 interface QuestionCardProps {
   question: Question;

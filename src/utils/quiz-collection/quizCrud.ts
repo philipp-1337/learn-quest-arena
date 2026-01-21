@@ -3,7 +3,7 @@
  */
 
 import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
-import type { QuizDocument, Quiz } from "../../types/quizTypes";
+import type { QuizDocument, Quiz } from "quizTypes";
 import { createDeterministicId } from "../slugify";
 import { removeUndefinedFields } from "./quizHelpers";
 

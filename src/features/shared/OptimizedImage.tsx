@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getOptimizedImageUrl } from '../../utils/cloudinaryTransform';
+import { getOptimizedImageUrl } from '@utils/cloudinaryTransform';
 
 interface OptimizedImageProps {
   src: string;

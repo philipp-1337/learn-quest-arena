@@ -1,5 +1,5 @@
 import { Search, Filter, Plus, ChevronDown } from "lucide-react";
-import type { FilterState } from "../../hooks/useQuizFilters";
+import type { FilterState } from "@hooks/useQuizFilters";
 
 interface QuizListHeaderProps {
   filters: FilterState;

@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Check, X, AlertCircle } from 'lucide-react';
-import type { Answer } from '../../types/quizTypes';
+import type { Answer } from 'quizTypes';
 import OptimizedImage from '../shared/OptimizedImage';
 
 interface AnswerButtonProps {

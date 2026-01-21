@@ -1,6 +1,6 @@
 import { X, Edit3 } from "lucide-react";
 import { getAuth } from "firebase/auth";
-import type { FilterState, FilterOptions } from "../../hooks/useQuizFilters";
+import type { FilterState, FilterOptions } from "@hooks/useQuizFilters";
 
 interface QuizFiltersProps {
   filters: FilterState;

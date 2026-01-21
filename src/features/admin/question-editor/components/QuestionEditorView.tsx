@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import type { Question, Answer } from "../../../../types/quizTypes";
+import type { Question, Answer } from "quizTypes";
 import { toast } from "sonner";
 import { CustomToast } from "../../../misc/CustomToast";
-import { updateQuizDocument } from "../../../../utils/quiz-collection";
+import { updateQuizDocument } from "@utils/quiz-collection";
 import { useQuestionEditor } from "../hooks/useQuestionEditor";
 import { useQuestionValidation } from "../hooks/useQuestionValidation";
 import QuestionEditorHeader from "./QuestionEditorHeader";

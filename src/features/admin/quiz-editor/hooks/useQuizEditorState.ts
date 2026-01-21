@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import type { Quiz, QuizDocument } from "../../../../types/quizTypes";
-import { loadQuizDocument } from "../../../../utils/quiz-collection";
+import type { Quiz, QuizDocument } from "quizTypes";
+import { loadQuizDocument } from "@utils/quiz-collection";
 
 interface UseQuizEditorStateOptions {
   quizId: string;

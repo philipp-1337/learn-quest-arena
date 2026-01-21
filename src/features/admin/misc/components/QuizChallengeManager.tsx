@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
-import type { QuizChallenge, Question } from '../../../../types/quizTypes';
-import useFirestore from '../../../../hooks/useFirestore';
+import type { QuizChallenge, Question } from "quizTypes";
+import useFirestore from '@hooks/useFirestore';
 import { toast } from 'sonner';
 import { CustomToast } from '../../../misc/CustomToast';
-import { PRIZE_LEVELS, formatPrize } from '../../../../utils/quizChallengeConstants';
-import { getQuestionId } from '../../../../utils/questionIdHelper';
-import { loadAllQuizDocuments } from '../../../../utils/quiz-collection';
+import { PRIZE_LEVELS, formatPrize } from '@utils/quizChallengeConstants';
+import { getQuestionId } from '@utils/questionIdHelper';
+import { loadAllQuizDocuments } from '@utils/quiz-collection';
 import OptimizedImage from '../../../shared/OptimizedImage';
 
 interface QuizChallengeManagerProps {

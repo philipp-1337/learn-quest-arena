@@ -22,7 +22,7 @@ import ChallengesSection from './ChallengesSection';
 import QuizPlayer from '../../quiz-player/components/QuizPlayer';
 
 import { useQuizNavigation, useQuizState } from '../../../features/quiz-browse';
-import type { QuizStartMode } from '../../../hooks/useQuizPlayer';
+import type { QuizStartMode } from '@hooks/useQuizPlayer';
 import { useAuth } from '../../auth/hooks/useAuth';
 
 import {
@@ -30,7 +30,7 @@ import {
   filterVisibleClasses,
   filterVisibleTopics,
   filterVisibleQuizzes,
-} from '../../../utils/quizVisibilityHelpers';
+} from '@utils/quizVisibilityHelpers';
 
 import type {
   Subject,
@@ -39,7 +39,7 @@ import type {
   Quiz,
   QuizChallenge,
   QuizDocument,
-} from '../../../types/quizTypes';
+} from "quizTypes";
 
 interface QuizBrowserProps {
   subjects: Subject[];

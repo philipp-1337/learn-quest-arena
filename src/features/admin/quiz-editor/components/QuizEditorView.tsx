@@ -6,7 +6,7 @@ import { CustomToast } from "../../../misc/CustomToast";
 import DeleteConfirmModal from "../../../modals/DeleteConfirmModal";
 import { getAuth } from "firebase/auth";
 import { useQuizEditLock } from "../../../../features/admin/quiz-editor/context/QuizEditLockContext";
-import { updateQuizDocument } from "../../../../utils/quiz-collection";
+import { updateQuizDocument } from "@utils/quiz-collection";
 import { useQuizEditorState } from "../../../../features/admin/quiz-editor/hooks/useQuizEditorState";
 import QuizEditorHeader from "./QuizEditorHeader";
 import QuizDetailsForm from "./QuizDetailsForm";

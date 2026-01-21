@@ -3,7 +3,7 @@
  */
 
 import { getFirestore, collection, getDocs, query, where, orderBy } from "firebase/firestore";
-import type { QuizDocument } from "../../types/quizTypes";
+import type { QuizDocument } from "quizTypes";
 
 const QUIZZES_COLLECTION = "quizzes";
 

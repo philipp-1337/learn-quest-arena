@@ -1,5 +1,5 @@
 import { ChevronRight } from 'lucide-react';
-import type { Subject, Class, Topic } from '../../types/quizTypes';
+import type { Subject, Class, Topic } from 'quizTypes';
 
 interface BreadcrumbProps {
   selectedSubject: Subject | null;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Loader2, Lock, Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "sonner";
 import { CustomToast } from "../../../misc/CustomToast";
-import usePasswordChange, { MIN_PASSWORD_LENGTH } from "../../../../hooks/usePasswordChange";
+import usePasswordChange, { MIN_PASSWORD_LENGTH } from "@hooks/usePasswordChange";
 
 export default function PasswordChangeForm() {
   const [currentPassword, setCurrentPassword] = useState("");

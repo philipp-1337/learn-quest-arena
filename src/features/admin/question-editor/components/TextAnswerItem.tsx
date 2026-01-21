@@ -1,5 +1,5 @@
 import { Trash2 } from "lucide-react";
-import type { Answer } from "../../../../types/quizTypes";
+import type { Answer } from "quizTypes";
 
 interface TextAnswerItemProps {
   answer: Answer;

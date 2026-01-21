@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Trophy, Home, ArrowLeft, Shield } from 'lucide-react';
-import type { QuizChallenge, Question, Answer } from '../../types/quizTypes';
-import type { UserQuizChallengeProgress } from '../../types/userProgress';
+import type { QuizChallenge, Question, Answer } from 'quizTypes';
+import type { UserQuizChallengeProgress } from 'userProgress';
 import QuizQuestion from './QuizQuestion';
-import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
-import { getQuestionId } from '../../utils/questionIdHelper';
-import { loadAllQuizDocuments } from '../../utils/quiz-collection';
-import useFirestore from '../../hooks/useFirestore';
+import { PRIZE_LEVELS, formatPrize } from '@utils/quizChallengeConstants';
+import { getQuestionId } from '@utils/questionIdHelper';
+import { loadAllQuizDocuments } from '@utils/quiz-collection';
+import useFirestore from '@hooks/useFirestore';
 
 export default function QuizChallengePlayer() {
   const { challengeId } = useParams<{ challengeId: string }>();

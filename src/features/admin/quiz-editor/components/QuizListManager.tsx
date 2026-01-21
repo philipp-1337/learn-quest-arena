@@ -9,11 +9,11 @@ import ReassignQuizModal from "../../../modals/ReassignQuizModal";
 import QuizListHeader from "../../../quiz/QuizListHeader";
 import QuizFilters from "../../../quiz/QuizFilters";
 import QuizListItem from "../../../quiz/QuizListItem";
-import { useQuizzes } from "../../../../hooks/useQuizzes";
-import { useQuizFilters } from "../../../../hooks/useQuizFilters";
-import { useQuizActions } from "../../../../hooks/useQuizActions";
-import { useUserRole } from "../../../../hooks/useUserRole";
-import type { QuizDocument } from "../../../../types/quizTypes";
+import { useQuizzes } from "@hooks/useQuizzes";
+import { useQuizFilters } from "@hooks/useQuizFilters";
+import { useQuizActions } from "@hooks/useQuizActions";
+import { useUserRole } from "@hooks/useUserRole";
+import type { QuizDocument } from "quizTypes";
 
 interface QuizListManagerProps {
   onRefetch?: () => Promise<void>;

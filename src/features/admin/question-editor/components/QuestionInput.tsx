@@ -1,8 +1,8 @@
 import OptimizedImage from "../../../shared/OptimizedImage";
-import { uploadWithToast } from "../../../../utils/cloudinaryUpload";
+import { uploadWithToast } from "@utils/cloudinaryUpload";
 import { toast } from "sonner";
 import { CustomToast } from "../../../misc/CustomToast";
-import type { Question } from "../../../../types/quizTypes";
+import type { Question } from "quizTypes";
 
 interface QuestionInputProps {
   question: Question;

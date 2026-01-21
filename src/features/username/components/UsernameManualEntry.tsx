@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import {
   isValidGeneratedUsername,
   usernameExists,
-} from "../../../utils/usernameValidation";
+} from "@utils/usernameValidation";
 
 interface UsernamePickerProps {
   onUsernameSelected: (username: string) => void;

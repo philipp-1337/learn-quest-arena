@@ -1,6 +1,6 @@
 import { Trophy, Sparkles, BadgeInfoIcon } from 'lucide-react';
 import { useChallenges } from '../hooks/useChallenges';
-import type { QuizChallenge } from '../../../types/quizTypes';
+import type { QuizChallenge } from "quizTypes";
 
 interface ChallengesSectionProps {
   isAuthenticated: boolean;
@@ -42,7 +42,7 @@ export default function ChallengesSection({
         {loading ? (
           <div className="animate-pulse">Loading...</div>
         ) : (
-          challenges.map((challenge) => (
+          challenges.map((challenge: import("quizTypes").QuizChallenge) => (
             <button
               key={challenge.id}
               onClick={() => onChallengeSelect(challenge)}
