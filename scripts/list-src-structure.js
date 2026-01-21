@@ -4,17 +4,20 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-function listDir(dir, indent = '') {
+
+function listDir(dir, baseDir) {
   const items = fs.readdirSync(dir, { withFileTypes: true });
   items.forEach(item => {
+    const fullPath = path.join(dir, item.name);
+    const relPath = path.relative(baseDir, fullPath);
     if (item.isDirectory()) {
-      console.log(`${indent}- ${item.name}/`);
-      listDir(path.join(dir, item.name), indent + '  ');
+      console.log(relPath + '/');
+      listDir(fullPath, baseDir);
     } else {
-      console.log(`${indent}- ${item.name}`);
+      console.log(relPath);
     }
   });
 }
 
 const srcPath = path.join(__dirname, '../src');
-listDir(srcPath);
+listDir(srcPath, srcPath);
