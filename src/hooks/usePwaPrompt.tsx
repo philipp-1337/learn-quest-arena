@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { DownloadIcon, ShareIcon, SquarePlusIcon, MoreHorizontal } from 'lucide-react';
-import { CustomToast } from '../components/misc/CustomToast';
+import { CustomToast } from '../features/misc/CustomToast';
 
 // Type definition for beforeinstallprompt event
 interface BeforeInstallPromptEvent extends Event {

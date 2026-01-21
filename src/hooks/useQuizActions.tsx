@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { getAuth } from "firebase/auth";
-import { CustomToast } from "../components/misc/CustomToast";
+import { CustomToast } from "../features/misc/CustomToast";
 import type { QuizDocument } from "../types/quizTypes";
 import {
   deleteQuizDocument,

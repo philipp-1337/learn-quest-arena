@@ -7,13 +7,13 @@ import {
   Component,
 } from 'lucide-react';
 
-import AppHeader, { type MenuItem } from '../../../components/shared/AppHeader';
-import Footer from '../../../components/footer/Footer';
-import Breadcrumb from '../../../components/quiz/Breadcrumb';
-import SubjectSelector from '../../../components/quiz/SubjectSelector';
-import ClassSelector from '../../../components/quiz/ClassSelector';
-import TopicSelector from '../../../components/quiz/TopicSelector';
-import { QuizSelector } from '../../../components/quiz/QuizSelector';
+import AppHeader, { type MenuItem } from '../../shared/AppHeader';
+import Footer from '../../../features/footer/Footer';
+import Breadcrumb from '../../../features/quiz/Breadcrumb';
+import SubjectSelector from '../../../features/quiz/SubjectSelector';
+import ClassSelector from '../../../features/quiz/ClassSelector';
+import TopicSelector from '../../../features/quiz/TopicSelector';
+import { QuizSelector } from '../../../features/quiz/QuizSelector';
 
 import { useUsername } from '../../username';
 import UsernameFlow from '../../username/components/UsernameFlow';

@@ -1,5 +1,5 @@
 import React, { type JSX } from 'react';
-import LoadingScreen from '../components/misc/LoadingScreen';
+import LoadingScreen from '../features/misc/LoadingScreen';
 import { Navigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { CustomToast } from "../../../components/misc/CustomToast";
+import { CustomToast } from "../../misc/CustomToast";
 import { showConfirmationToast } from "../../../utils/confirmationToast";
 import { UserPlus, Briefcase } from "lucide-react";
 import { getFirestore, doc, setDoc } from "firebase/firestore";

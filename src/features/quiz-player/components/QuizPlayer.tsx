@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuizPlayer, type QuizStartMode, type QuizPlayerInitialState } from '../../../hooks/useQuizPlayer';
-import QuizQuestion from '../../../components/quiz/QuizQuestion';
-import QuizResults from '../../../components/quiz/QuizResults';
+import QuizQuestion from '../../../features/quiz/QuizQuestion';
+import QuizResults from '../../../features/quiz/QuizResults';
 import type { Quiz } from '../../../types/quizTypes';
 import { saveUserQuizProgress, loadUserQuizProgress } from '../../../utils/userProgressFirestore';
 import type { UserQuizProgress } from '../../../types/userProgress';

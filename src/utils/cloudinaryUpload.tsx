@@ -1,6 +1,6 @@
 import { CLOUDINARY_UPLOAD_PRESET, getUploadUrl } from '../cloudinaryConfig';
 import { toast } from 'sonner';
-import { CustomToast } from '../components/misc/CustomToast';
+import { CustomToast } from '../features/misc/CustomToast';
 
 export interface CloudinaryUploadResult {
   url: string;

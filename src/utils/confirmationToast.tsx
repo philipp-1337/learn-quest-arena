@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import { CustomToast } from '../components/misc/CustomToast';
+import { CustomToast } from '../features/misc/CustomToast';
 
 interface ConfirmationToastOptions {
   message: string | React.ReactNode;

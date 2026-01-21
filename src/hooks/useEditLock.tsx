@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { CustomToast } from "../components/misc/CustomToast";
+import { CustomToast } from "../features/misc/CustomToast";
 import {
   acquireEditLock,
   releaseEditLock,
