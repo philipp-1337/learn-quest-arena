@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { CustomToast } from "../../../misc/CustomToast";
 import DeleteConfirmModal from "../../../modals/DeleteConfirmModal";
@@ -19,6 +20,7 @@ interface QuizListManagerProps {
 }
 
 export default function QuizListManager({}: QuizListManagerProps) {
+    const navigate = useNavigate();
   const { quizzes, setQuizzes, loading, authorAbbreviations } = useQuizzes();
   const { userRole } = useUserRole();
   const {
@@ -60,7 +62,7 @@ export default function QuizListManager({}: QuizListManagerProps) {
   }, []);
 
   const handleQuizCreated = () => {
-    setShowCreateWizard(false);
+    // Nur die Liste aktualisieren, Wizard bleibt offen
   };
 
   const handleRenameCategory = (
@@ -161,6 +163,10 @@ export default function QuizListManager({}: QuizListManagerProps) {
           existingTopics={filterOptions.topics}
           onClose={() => setShowCreateWizard(false)}
           onQuizCreated={handleQuizCreated}
+          onEditQuiz={(quizId) => {
+            setShowCreateWizard(false);
+            navigate(`/admin/quiz/edit/${quizId}`);
+          }}
         />
       )}
 

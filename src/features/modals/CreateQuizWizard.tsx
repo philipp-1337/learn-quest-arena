@@ -12,6 +12,7 @@ interface CreateQuizWizardProps {
   existingTopics: { id: string; name: string }[];
   onClose: () => void;
   onQuizCreated: () => void;
+  onEditQuiz?: (quizId: string) => void;
 }
 
 type WizardStep = 'subject' | 'class' | 'topic' | 'details';
@@ -35,6 +36,7 @@ export default function CreateQuizWizard({
   existingTopics,
   onClose,
   onQuizCreated,
+  onEditQuiz,
 }: CreateQuizWizardProps) {
   const [step, setStep] = useState<WizardStep>('subject');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,6 +52,7 @@ export default function CreateQuizWizard({
     isNewClass: false,
     isNewTopic: false,
   });
+  const [createdQuizId, setCreatedQuizId] = useState<string | null>(null);
 
   const steps: WizardStep[] = ['subject', 'class', 'topic', 'details'];
   const currentStepIndex = steps.indexOf(step);
@@ -192,7 +195,8 @@ export default function CreateQuizWizard({
             type="success" 
           />
         ));
-        onQuizCreated();
+        setCreatedQuizId(quizId);
+        if (onQuizCreated) onQuizCreated(); // Nur die Liste aktualisieren, nicht schließen
       } else {
         toast.custom(() => (
           <CustomToast 
@@ -247,128 +251,155 @@ export default function CreateQuizWizard({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
-          {step === 'subject' && (
-            <SelectOrCreateStep
-              label="Fach"
-              options={existingSubjects}
-              selectedId={formData.subjectId}
-              newValue={formData.isNewSubject ? formData.subjectName : ""}
-              onSelect={handleSubjectSelect}
-              placeholder="Neues Fach eingeben..."
-            />
-          )}
-
-          {step === 'class' && (
-            <SelectOrCreateStep
-              label="Klasse"
-              options={existingClasses}
-              selectedId={formData.classId}
-              newValue={formData.isNewClass ? formData.className : ""}
-              onSelect={handleClassSelect}
-              placeholder="Neue Klasse eingeben..."
-            />
-          )}
-
-          {step === 'topic' && (
-            <SelectOrCreateStep
-              label="Thema"
-              options={existingTopics}
-              selectedId={formData.topicId}
-              newValue={formData.isNewTopic ? formData.topicName : ""}
-              onSelect={handleTopicSelect}
-              placeholder="Neues Thema eingeben..."
-            />
-          )}
-
-          {step === 'details' && (
-            <div className="space-y-4">
-              {/* Summary */}
-              <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                <h4 className="font-medium text-gray-700 text-sm">Zusammenfassung</h4>
-                <div className="flex flex-wrap gap-2">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-blue-100 text-blue-800">
-                    {formData.subjectName}
-                    {formData.isNewSubject && <Plus className="w-3 h-3 ml-1" />}
-                  </span>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-green-100 text-green-800">
-                    {formData.className}
-                    {formData.isNewClass && <Plus className="w-3 h-3 ml-1" />}
-                  </span>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-purple-100 text-purple-800">
-                    {formData.topicName}
-                    {formData.isNewTopic && <Plus className="w-3 h-3 ml-1" />}
-                  </span>
-                </div>
+          {createdQuizId ? (
+            <div className="flex flex-col items-center justify-center h-full gap-6">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Quiz wurde erfolgreich erstellt!</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">Du kannst jetzt direkt Fragen hinzufügen und weitere Details bearbeiten.</p>
               </div>
-
-              {/* Quiz title */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Quiz-Titel *
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="z.B. Grundlagen der Addition"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  autoFocus
-                />
+              <div className="flex gap-4">
+                <button
+                  className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+                  onClick={() => onEditQuiz && onEditQuiz(createdQuizId)}
+                >
+                  Quiz bearbeiten
+                </button>
+                <button
+                  className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  onClick={onClose}
+                >
+                  Schließen
+                </button>
               </div>
-
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Das Quiz wird zunächst als <span className="font-medium">versteckt</span> erstellt. 
-                Nach dem Hinzufügen von Fragen kannst du es sichtbar machen.
-              </p>
             </div>
+          ) : (
+            <>
+              {step === 'subject' && (
+                <SelectOrCreateStep
+                  label="Fach"
+                  options={existingSubjects}
+                  selectedId={formData.subjectId}
+                  newValue={formData.isNewSubject ? formData.subjectName : ""}
+                  onSelect={handleSubjectSelect}
+                  placeholder="Neues Fach eingeben..."
+                />
+              )}
+
+              {step === 'class' && (
+                <SelectOrCreateStep
+                  label="Klasse"
+                  options={existingClasses}
+                  selectedId={formData.classId}
+                  newValue={formData.isNewClass ? formData.className : ""}
+                  onSelect={handleClassSelect}
+                  placeholder="Neue Klasse eingeben..."
+                />
+              )}
+
+              {step === 'topic' && (
+                <SelectOrCreateStep
+                  label="Thema"
+                  options={existingTopics}
+                  selectedId={formData.topicId}
+                  newValue={formData.isNewTopic ? formData.topicName : ""}
+                  onSelect={handleTopicSelect}
+                  placeholder="Neues Thema eingeben..."
+                />
+              )}
+
+              {step === 'details' && (
+                <div className="space-y-4">
+                  {/* Summary */}
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                    <h4 className="font-medium text-gray-700 text-sm">Zusammenfassung</h4>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-blue-100 text-blue-800">
+                        {formData.subjectName}
+                        {formData.isNewSubject && <Plus className="w-3 h-3 ml-1" />}
+                      </span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-green-100 text-green-800">
+                        {formData.className}
+                        {formData.isNewClass && <Plus className="w-3 h-3 ml-1" />}
+                      </span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-purple-100 text-purple-800">
+                        {formData.topicName}
+                        {formData.isNewTopic && <Plus className="w-3 h-3 ml-1" />}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Quiz title */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Quiz-Titel *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="z.B. Grundlagen der Addition"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      autoFocus
+                    />
+                  </div>
+
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Das Quiz wird zunächst als <span className="font-medium">versteckt</span> erstellt. 
+                    Nach dem Hinzufügen von Fragen kannst du es sichtbar machen.
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 flex justify-between">
-          <button
-            onClick={currentStepIndex === 0 ? onClose : goBack}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-          >
-            {currentStepIndex === 0 ? (
-              <>Abbrechen</>
-            ) : (
-              <>
-                <ChevronLeft className="w-4 h-4" />
-                Zurück
-              </>
-            )}
-          </button>
-
-          {step === 'details' ? (
+        {!createdQuizId && (
+          <div className="px-6 py-4 border-t border-gray-200 flex justify-between">
             <button
-              onClick={handleSubmit}
-              disabled={!canProceed() || isSubmitting}
-              className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              onClick={currentStepIndex === 0 ? onClose : goBack}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
             >
-              {isSubmitting ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Erstelle...
-                </>
+              {currentStepIndex === 0 ? (
+                <>Abbrechen</>
               ) : (
                 <>
-                  <Check className="w-4 h-4" />
-                  Quiz erstellen
+                  <ChevronLeft className="w-4 h-4" />
+                  Zurück
                 </>
               )}
             </button>
-          ) : (
-            <button
-              onClick={goNext}
-              disabled={!canProceed()}
-              className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Weiter
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          )}
-        </div>
+
+            {step === 'details' ? (
+              <button
+                onClick={handleSubmit}
+                disabled={!canProceed() || isSubmitting}
+                className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Erstelle...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Quiz erstellen
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={goNext}
+                disabled={!canProceed()}
+                className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Weiter
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
