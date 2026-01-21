@@ -5,19 +5,30 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 
-function listDir(dir, baseDir) {
+
+function listDirSorted(dir, baseDir) {
+  const folders = [];
+  const files = [];
   const items = fs.readdirSync(dir, { withFileTypes: true });
   items.forEach(item => {
     const fullPath = path.join(dir, item.name);
     const relPath = path.relative(baseDir, fullPath);
     if (item.isDirectory()) {
-      console.log(relPath + '/');
-      listDir(fullPath, baseDir);
+      folders.push(relPath + '/');
     } else {
-      console.log(relPath);
+      files.push(relPath);
     }
+  });
+  // Erst Ordner ausgeben und rekursiv aufrufen
+  folders.forEach(folder => {
+    console.log(folder);
+    listDirSorted(path.join(baseDir, folder), baseDir);
+  });
+  // Dann Dateien ausgeben
+  files.forEach(file => {
+    console.log(file);
   });
 }
 
 const srcPath = path.join(__dirname, '../src');
-listDir(srcPath, srcPath);
+listDirSorted(srcPath, srcPath);
