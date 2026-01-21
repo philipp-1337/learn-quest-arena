@@ -17,7 +17,7 @@ import type { Subject, Quiz } from "../../types/quizTypes";
 import { showConfirmationToast } from "../../utils/confirmationToast";
 import { formatTime } from "../../utils/formatTime";
 import { findQuizOnly, findQuizById } from "../../utils/quizHierarchySearch";
-import { useQuizNavigation } from "../../hooks/useQuizNavigation";
+import { useQuizNavigation } from '../../features/quiz-browse'
 
 interface UserViewProps {
   subjects: Subject[];

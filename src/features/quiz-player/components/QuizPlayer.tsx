@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useQuizPlayer, type QuizStartMode, type QuizPlayerInitialState } from '../../hooks/useQuizPlayer';
-import QuizQuestion from './QuizQuestion';
-import QuizResults from './QuizResults';
-import type { Quiz } from '../../types/quizTypes';
-import { saveUserQuizProgress, loadUserQuizProgress } from '../../utils/userProgressFirestore';
-import type { UserQuizProgress } from '../../types/userProgress';
-import { getQuestionId } from '../../utils/questionIdHelper';
-import { ensureSRSFields } from '../../utils/srsHelpers';
-import { calculateXP } from '../../utils/xpCalculation';
-import { useImagePreload } from '../../utils/useImagePreload';
+import { useQuizPlayer, type QuizStartMode, type QuizPlayerInitialState } from '../../../hooks/useQuizPlayer';
+import QuizQuestion from '../../../components/quiz/QuizQuestion';
+import QuizResults from '../../../components/quiz/QuizResults';
+import type { Quiz } from '../../../types/quizTypes';
+import { saveUserQuizProgress, loadUserQuizProgress } from '../../../utils/userProgressFirestore';
+import type { UserQuizProgress } from '../../../types/userProgress';
+import { getQuestionId } from '../../../utils/questionIdHelper';
+import { ensureSRSFields } from '../../../utils/srsHelpers';
+import { calculateXP } from '../../../utils/xpCalculation';
+import { useImagePreload } from '../../../utils/useImagePreload';
 
 
 
