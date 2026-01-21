@@ -44,9 +44,19 @@ function FeaturedQuizSkeleton() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="text-left flex-1">
+              {/* Titel (mehrzeilig) */}
               <div className="h-7 bg-slate-300 dark:bg-slate-600 rounded w-3/4 mb-2" />
+              <div className="h-6 bg-slate-300 dark:bg-slate-600 rounded w-2/3 mb-1" />
+              {/* Untertitel (mehrzeilig) */}
               <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-1" />
-              <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mt-1" />
+              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mb-1" />
+              {/* Tags (mehrzeilig, flex-wrap) */}
+              <div className="flex flex-wrap gap-2 mt-2">
+                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
+                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/5" />
+                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/6" />
+                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
+              </div>
             </div>
           </div>
         </div>
