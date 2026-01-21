@@ -22,7 +22,21 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    
+    /* --- Aliase hierhin --- */
+    "baseUrl": "src",
+    "paths": {
+      "@utils/*": ["utils/*"],
+      "@components/*": ["components/*"],
+      "@hooks/*": ["hooks/*"],
+      "@data/*": ["data/*"],
+      "@types": ["types/index.ts"],
+      "@types/*": ["types/*"],
+      "@auth/*": ["auth/*"],
+      "@constants": ["constants/index.ts"],
+      "@constants/*": ["constants/*"]
+    }
   },
   "include": ["src"]
 }
