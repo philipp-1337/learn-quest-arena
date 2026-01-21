@@ -36,7 +36,7 @@ import type {
   QuizChallengeLevel,
 } from "../../types/quizTypes";
 import type { QuizDocument } from "../../types/quizTypes";
-import { loadAllQuizDocuments } from "../../utils/quizzesCollection";
+import { loadAllQuizDocuments } from "../../utils/quiz-collection";
 import useFirestore from "../../hooks/useFirestore";
 import {
   filterVisibleSubjects,

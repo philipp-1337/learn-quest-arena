@@ -6,7 +6,7 @@ import type { UserQuizChallengeProgress } from '../../types/userProgress';
 import QuizQuestion from './QuizQuestion';
 import { PRIZE_LEVELS, formatPrize } from '../../utils/quizChallengeConstants';
 import { getQuestionId } from '../../utils/questionIdHelper';
-import { loadAllQuizDocuments } from '../../utils/quizzesCollection';
+import { loadAllQuizDocuments } from '../../utils/quiz-collection';
 import useFirestore from '../../hooks/useFirestore';
 
 export default function QuizChallengePlayer() {

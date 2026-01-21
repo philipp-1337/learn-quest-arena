@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { CustomToast } from '../../misc/CustomToast';
 import { PRIZE_LEVELS, formatPrize } from '../../../utils/quizChallengeConstants';
 import { getQuestionId } from '../../../utils/questionIdHelper';
-import { loadAllQuizDocuments } from '../../../utils/quizzesCollection';
+import { loadAllQuizDocuments } from '../../../utils/quiz-collection';
 import OptimizedImage from '../../shared/OptimizedImage';
 
 interface QuizChallengeManagerProps {

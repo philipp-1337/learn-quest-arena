@@ -5,7 +5,7 @@ import type { QuizDocument } from "../types/quizTypes";
 import {
   deleteQuizDocument,
   updateQuizDocument,
-} from "../utils/quizzesCollection";
+} from "../utils/quiz-collection";
 import { slugify } from "../utils/slugify";
 import {
   canToggleVisibility,

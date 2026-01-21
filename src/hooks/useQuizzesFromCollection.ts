@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { loadAllQuizDocuments, quizDocumentToQuiz } from '../utils/quizzesCollection';
+import { loadAllQuizDocuments, quizDocumentToQuiz } from '../utils/quiz-collection';
 import type { Subject, QuizDocument } from '../types/quizTypes';
 
 interface UseQuizzesFromCollectionResult {

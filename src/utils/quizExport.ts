@@ -1,7 +1,7 @@
 /**
  * Utility functions for exporting quizzes from the collection.
  */
-import { loadAllQuizDocuments } from "./quizzesCollection";
+import { loadAllQuizDocuments } from "./quiz-collection";
 
 interface ExportQuizData {
   subject: string;

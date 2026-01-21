@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { useEditLock } from "../hooks/useEditLock";
-import { releaseEditLock, refreshEditLock } from "../utils/quizzesCollection"; 
+import { releaseEditLock, refreshEditLock } from "../utils/quiz-collection"; 
 
 interface QuizEditLockContextType {
   hasLock: boolean;

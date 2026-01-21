@@ -6,7 +6,7 @@ import {
   releaseEditLock,
   refreshEditLock,
   subscribeToQuiz,
-} from "../utils/quizzesCollection";
+} from "../utils/quiz-collection";
 
 interface UseEditLockOptions {
   quizId: string;

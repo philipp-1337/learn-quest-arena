@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { Question, Answer, QuizDocument } from "../types/quizTypes";
 import { toast } from "sonner";
 import { CustomToast } from "../components/misc/CustomToast";
-import { loadQuizDocument, isQuizLocked } from "../utils/quizzesCollection";
+import { loadQuizDocument, isQuizLocked } from "../utils/quiz-collection";
 
 interface UseQuestionEditorOptions {
   quizId: string;

@@ -3,7 +3,7 @@ import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { CustomToast } from "../components/misc/CustomToast";
 import type { QuizDocument } from "../types/quizTypes";
-import { subscribeToQuizzes } from "../utils/quizzesCollection";
+import { subscribeToQuizzes } from "../utils/quiz-collection";
 
 export function useQuizzes(): {
   quizzes: QuizDocument[];
