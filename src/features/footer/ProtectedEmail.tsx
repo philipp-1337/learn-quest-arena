@@ -5,7 +5,7 @@ import {
   validateCaptcha,
 } from "react-simple-captcha";
 import { useEffect } from "react";
-import Modal from "../modals/GenericModal";
+import Modal from "@modals/GenericModal";
 import { Shield } from "lucide-react";
 
 export default function ProtectedEmail() {

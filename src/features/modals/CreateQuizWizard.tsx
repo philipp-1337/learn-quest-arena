@@ -4,7 +4,7 @@ import { getAuth } from "firebase/auth";
 import { saveQuizDocument } from "@utils/quiz-collection";
 import type { QuizDocument } from "quizTypes";
 import { toast } from "sonner";
-import { CustomToast } from "../../features/misc/CustomToast";
+import { CustomToast } from "@shared/CustomToast";
 
 interface CreateQuizWizardProps {
   existingSubjects: { id: string; name: string }[];

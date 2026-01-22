@@ -28,13 +28,23 @@
     "baseUrl": "src",
     "paths": {
       "@utils/*": ["utils/*"],
-      "@components/*": ["components/*"],
       "@hooks/*": ["hooks/*"],
-      "@data/*": ["data/*"],
+      "@features/*": ["features/*"],
+      "@admin": ["features/admin"],
+      "@admin/*": ["features/admin/*"],
+      "@auth": ["features/auth"],
+      "@auth/*": ["features/auth/*"],
+      "@quiz": ["features/quiz"],
+      "@quiz/*": ["features/quiz/*"],
+      "@modals/*": ["features/modals/*"],
+      "@quiz-browse": ["features/quiz-browse"],
+      "@quiz-browse/*": ["features/quiz-browse/*"],
+      "@quiz-player": ["features/quiz-player"],
+      "@quiz-player/*": ["features/quiz-player/*"],
+      "@shared/*": ["features/shared/*"],
+      "@username/*": ["features/username/*"],
       "quizTypes": ["types/quizTypes"],
       "userProgress": ["types/userProgress"],
-      "@auth/*": ["auth/*"],
-      "@constants/*": ["constants/*"]
     }
   },
   "include": ["src"]

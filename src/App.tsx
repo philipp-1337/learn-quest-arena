@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import LoadingScreen from "./features/misc/LoadingScreen";
-import MaintenanceView from "./features/misc/MaintenanceView";
+import LoadingScreen from "./features/shared/LoadingScreen";
+import MaintenanceView from "./features/shared/MaintenanceView";
 import Toaster from "./utils/ToasterProvider";
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import QuizEditLayout from "./features/admin/quiz-editor/components/QuizEditLayout";

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { toast } from 'sonner';
 import { RefreshCwIcon } from 'lucide-react';
-import { CustomToast } from '../features/misc/CustomToast';
+import { CustomToast } from '@features/shared/CustomToast';
 
 export const usePwaUpdate = () => {
   const updateToastShown = useRef(false);

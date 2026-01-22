@@ -1,7 +1,7 @@
 import AnswerButton from './AnswerButton';
 import type { Question, Answer } from 'quizTypes';
 import { formatTime } from '@utils/formatTime';
-import OptimizedImage from '../shared/OptimizedImage';
+import OptimizedImage from '@shared/OptimizedImage';
 
 interface QuizQuestionProps {
   question: Question;

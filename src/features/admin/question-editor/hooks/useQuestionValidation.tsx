@@ -1,6 +1,6 @@
 
 import { toast } from "sonner";
-import { CustomToast } from "../../../misc/CustomToast";
+import { CustomToast } from "@shared/CustomToast";
 import type { Question } from "quizTypes";
 
 // Die Datei muss als .tsx gespeichert werden, damit JSX funktioniert.

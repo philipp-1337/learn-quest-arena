@@ -16,7 +16,7 @@ interface QuizSelectorProps {
   username?: string;
 }
 
-export function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps) {
+export default function QuizSelector({ quizzes, onSelect, username }: QuizSelectorProps) {
   const [progressMap, setProgressMap] = useState<Record<string, UserQuizProgress>>({});
   const [loading, setLoading] = useState(true);
 

@@ -12,7 +12,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { toast } from "sonner";
-import { CustomToast } from "../../../misc/CustomToast";
+import { CustomToast } from "@shared/CustomToast";
 
 interface AbbreviationFormProps {
   onAbbreviationUpdated?: () => void;

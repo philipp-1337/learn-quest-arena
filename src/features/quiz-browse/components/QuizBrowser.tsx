@@ -7,23 +7,19 @@ import {
   Component,
 } from 'lucide-react';
 
-import AppHeader, { type MenuItem } from '../../shared/AppHeader';
-import Footer from '../../../features/footer/Footer';
-import Breadcrumb from '../../../features/quiz/Breadcrumb';
-import SubjectSelector from '../../../features/quiz/SubjectSelector';
-import ClassSelector from '../../../features/quiz/ClassSelector';
-import TopicSelector from '../../../features/quiz/TopicSelector';
-import { QuizSelector } from '../../../features/quiz/QuizSelector';
+import AppHeader, { type MenuItem } from '@shared/AppHeader';
+import Footer from '@features/footer/Footer';
+import {Breadcrumb, SubjectSelector, ClassSelector, TopicSelector, QuizSelector } from '@quiz';
 
-import { useUsername } from '../../username';
-import UsernameFlow from '../../username/components/UsernameFlow';
+import { useUsername } from '@username/hooks/useUsername';
+import UsernameFlow from '@username/components/UsernameFlow';
 import FeaturedQuizzes from './FeaturedQuizzes';
 import ChallengesSection from './ChallengesSection';
-import QuizPlayer from '../../quiz-player/components/QuizPlayer';
+import QuizPlayer from '@quiz-player/components/QuizPlayer';
 
-import { useQuizNavigation, useQuizState } from '../../../features/quiz-browse';
+import { useQuizNavigation, useQuizState } from '@features/quiz-browse';
 import type { QuizStartMode } from '@hooks/useQuizPlayer';
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '@auth';
 
 import {
   filterVisibleSubjects,

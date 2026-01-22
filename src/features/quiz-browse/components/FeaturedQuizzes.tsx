@@ -1,5 +1,5 @@
 import { Play, Shapes, School, Book, Flame } from 'lucide-react';
-import { useFeaturedQuizzes } from '../hooks/useFeaturedQuizzes';
+import { useFeaturedQuizzes } from '@quiz-browse/hooks/useFeaturedQuizzes';
 import type { Subject, QuizDocument } from "quizTypes";
 import type { QuizStartMode } from '@hooks/useQuizPlayer';
 

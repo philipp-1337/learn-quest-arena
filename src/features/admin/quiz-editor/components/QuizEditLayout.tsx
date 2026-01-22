@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { QuizEditLockProvider } from "../../../../features/admin/quiz-editor/context/QuizEditLockContext";
+import { QuizEditLockProvider } from "@admin";
 
 export default function QuizEditLayout() {
   return (
