@@ -1,6 +1,6 @@
-import React from "react";
-import { toast } from "sonner";
-import { X } from "lucide-react";
+import React from 'react';
+import { toast } from 'sonner';
+import { X } from 'lucide-react';
 
 export function CustomToast({ message, type = "info", toastId, dismissible = false }: { message: React.ReactNode; type?: "info" | "success" | "error"; toastId?: string | number; dismissible?: boolean }) {
   let bg = "bg-indigo-100 dark:bg-indigo-800 border-2 border-indigo-300 dark:border-indigo-600 text-gray-900 dark:text-indigo-100";

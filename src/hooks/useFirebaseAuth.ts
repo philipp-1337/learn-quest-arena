@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { useState } from 'react';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
 // Hilfsfunktion zur Übersetzung von Firebase Auth-Fehlercodes in benutzerfreundliche deutsche Nachrichten
 const getFirebaseErrorMessage = (errorCode: string): string => {

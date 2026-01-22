@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { slugify } from '@utils/slugify';
-import type { Subject, Class, Topic, Quiz } from "quizTypes";
+import type { Subject, Class, Topic, Quiz } from 'quizTypes';
 
 export function useQuizNavigation() {
   const navigate = useNavigate();

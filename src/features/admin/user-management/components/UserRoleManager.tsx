@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   getFirestore,
   collection,
   getDocs,
   updateDoc,
   doc,
-} from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { toast } from "sonner";
-import { CustomToast } from "@shared/CustomToast";
-import { Shield, Loader2, Pencil, Check, X } from "lucide-react";
+} from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { toast } from 'sonner';
+import { CustomToast } from '@shared/CustomToast';
+import { Shield, Loader2, Pencil, Check, X } from 'lucide-react';
 
 interface AuthorUser {
   id: string;

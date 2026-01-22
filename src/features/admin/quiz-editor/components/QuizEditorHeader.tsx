@@ -1,4 +1,4 @@
-import { ArrowLeft, Save, Check as CheckIcon, X as XIcon } from "lucide-react";
+import { ArrowLeft, Save, Check as CheckIcon, X as XIcon } from 'lucide-react';
 
 interface QuizEditorHeaderProps {
   quizDocument: {

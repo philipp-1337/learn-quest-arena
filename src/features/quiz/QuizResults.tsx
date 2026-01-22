@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Trophy,
   PartyPopper,
@@ -14,13 +14,13 @@ import {
   Zap,
   // TrendingUp,
   // TrendingDown,
-} from "lucide-react";
-import type { Question } from "quizTypes";
-import { showCompletedQuizWarning } from "@utils/showCompletedQuizWarning";
-import { formatTime } from "@utils/formatTime";
-import { calculateGrade } from "@utils/gradeCalculation";
-import { useCountUpAnimation } from "@hooks/useCountUpAnimation";
-import { useStaggeredAnimation } from "@hooks/useStaggeredAnimation";
+} from 'lucide-react';
+import type { Question } from 'quizTypes';
+import { showCompletedQuizWarning } from '@utils/showCompletedQuizWarning';
+import { formatTime } from '@utils/formatTime';
+import { calculateGrade } from '@utils/gradeCalculation';
+import { useCountUpAnimation } from '@hooks/useCountUpAnimation';
+import { useStaggeredAnimation } from '@hooks/useStaggeredAnimation';
 
 interface QuizResultsProps {
   statistics: {

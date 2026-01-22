@@ -35,7 +35,7 @@ import type {
   Quiz,
   QuizChallenge,
   QuizDocument,
-} from "quizTypes";
+} from 'quizTypes';
 
 interface QuizBrowserProps {
   subjects: Subject[];

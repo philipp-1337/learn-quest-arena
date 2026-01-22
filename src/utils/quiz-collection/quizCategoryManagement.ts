@@ -2,10 +2,10 @@
  * Category management operations (reassign and rename).
  */
 
-import { createDeterministicId } from "../slugify";
-import type { QuizDocument } from "quizTypes";
-import { loadQuizDocument, updateQuizDocument } from "./quizCrud";
-import { loadAllQuizDocuments } from "./quizQueries";
+import { createDeterministicId } from '@utils/slugify';
+import type { QuizDocument } from 'quizTypes';
+import { loadQuizDocument, updateQuizDocument } from './quizCrud';
+import { loadAllQuizDocuments } from './quizQueries';
 
 /**
  * Reassigns a quiz to different subject, class, or topic.

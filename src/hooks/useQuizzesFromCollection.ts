@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { loadAllQuizDocuments, quizDocumentToQuiz } from '@utils/quiz-collection';
-import type { Subject, QuizDocument } from "quizTypes";
+import type { Subject, QuizDocument } from 'quizTypes';
 
 interface UseQuizzesFromCollectionResult {
   subjects: Subject[];

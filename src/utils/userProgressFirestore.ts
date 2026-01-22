@@ -1,6 +1,6 @@
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import type { UserProgress, UserQuizProgress } from "userProgress";
-import { ensureSRSFields } from "./srsHelpers";
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import type { UserProgress, UserQuizProgress } from 'userProgress';
+import { ensureSRSFields } from './srsHelpers';
 
 // Helper function to remove undefined values from an object (recursively)
 function removeUndefinedFields<T extends Record<string, any>>(obj: T): Partial<T> {

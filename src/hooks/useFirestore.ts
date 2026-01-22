@@ -1,5 +1,5 @@
-import { collection, doc, getFirestore, setDoc, getDocs, deleteDoc } from "firebase/firestore";
-import { useCallback } from "react";
+import { collection, doc, getFirestore, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { useCallback } from 'react';
 
 const useFirestore = () => {
   const db = getFirestore();

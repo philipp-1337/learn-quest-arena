@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   getAuth,
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
-} from "firebase/auth";
+} from 'firebase/auth';
 
 interface PasswordChangeResult {
   success: boolean;

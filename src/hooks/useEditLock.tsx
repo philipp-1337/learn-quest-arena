@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from "react";
-import { toast } from "sonner";
-import { CustomToast } from "@features/shared/CustomToast";
+import { useState, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
+import { CustomToast } from '@features/shared/CustomToast';
 import {
   acquireEditLock,
   releaseEditLock,
   refreshEditLock,
   subscribeToQuiz,
-} from "@utils/quiz-collection";
+} from '@utils/quiz-collection';
 
 interface UseEditLockOptions {
   quizId: string;

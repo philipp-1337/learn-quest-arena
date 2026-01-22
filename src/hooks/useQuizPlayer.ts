@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import type { Quiz, Question, Answer } from "quizTypes";
+import type { Quiz, Question, Answer } from 'quizTypes';
 import type { QuestionSRSData } from 'userProgress';
 import { getQuestionId } from '@utils/questionIdHelper';
 import { calculateNextReviewDate, calculateDifficultyLevel } from '@utils/srsHelpers';

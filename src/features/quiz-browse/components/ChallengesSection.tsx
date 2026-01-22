@@ -1,6 +1,6 @@
 import { Trophy, Sparkles, BadgeInfoIcon } from 'lucide-react';
 import { useChallenges } from '@quiz-browse';
-import type { QuizChallenge } from "quizTypes";
+import type { QuizChallenge } from 'quizTypes';
 
 interface ChallengesSectionProps {
   isAuthenticated: boolean;

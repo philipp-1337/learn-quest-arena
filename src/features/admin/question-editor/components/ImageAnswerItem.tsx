@@ -1,9 +1,9 @@
-import { Trash2 } from "lucide-react";
-import OptimizedImage from "@shared/OptimizedImage";
-import { uploadWithToast } from "@utils/cloudinaryUpload";
-import { toast } from "sonner";
-import { CustomToast } from "@shared/CustomToast";
-import type { Answer } from "quizTypes";
+import { Trash2 } from 'lucide-react';
+import OptimizedImage from '@shared/OptimizedImage';
+import { uploadWithToast } from '@utils/cloudinaryUpload';
+import { toast } from 'sonner';
+import { CustomToast } from '@shared/CustomToast';
+import type { Answer } from 'quizTypes';
 
 interface ImageAnswerItemProps {
   answer: Answer;

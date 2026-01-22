@@ -1,4 +1,4 @@
-import { ArrowLeft, Save, Lock, X as XIcon } from "lucide-react";
+import { ArrowLeft, Save, Lock, X as XIcon } from 'lucide-react';
 
 interface QuestionEditorHeaderProps {
   isEditing: boolean;

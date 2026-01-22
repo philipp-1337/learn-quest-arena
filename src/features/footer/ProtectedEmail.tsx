@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   loadCaptchaEnginge,
   LoadCanvasTemplate,
   validateCaptcha,
-} from "react-simple-captcha";
-import { useEffect } from "react";
-import Modal from "@modals/GenericModal";
-import { Shield } from "lucide-react";
+} from 'react-simple-captcha';
+import { useEffect } from 'react';
+import Modal from '@modals/GenericModal';
+import { Shield } from 'lucide-react';
 
 export default function ProtectedEmail() {
   const [showCaptcha, setShowCaptcha] = useState(false);

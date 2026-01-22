@@ -1,5 +1,5 @@
-import { animalNames, reservedAnimalNames } from "./animalNames";
-import { getFirestore, collection, doc, getDoc } from "firebase/firestore";
+import { animalNames, reservedAnimalNames } from './animalNames';
+import { getFirestore, collection, doc, getDoc } from 'firebase/firestore';
 
 // Hilfsfunktion: Zufällige 6-stellige Buchstaben-/Zahlen-Kombination
 function randomSuffix(length = 6) {

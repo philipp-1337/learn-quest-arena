@@ -1,4 +1,4 @@
-import { CLOUDINARY_UPLOAD_PRESET, getUploadUrl } from '../cloudinaryConfig';
+import { CLOUDINARY_UPLOAD_PRESET, getUploadUrl } from '@config/cloudinaryConfig';
 import { toast } from 'sonner';
 import { CustomToast } from '@features/shared/CustomToast';
 

@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Edit3, X, Loader2, CheckCircle, AlertCircle } from "lucide-react";
-import { renameCategory } from "@utils/quiz-collection";
+import { useState } from 'react';
+import { Edit3, X, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { renameCategory } from '@utils/quiz-collection';
 
 interface RenameCategoryModalProps {
   type: 'subject' | 'class' | 'topic';

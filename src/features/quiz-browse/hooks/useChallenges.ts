@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import useFirestore from '@hooks/useFirestore';
-import type { QuizChallenge, QuizChallengeLevel } from "quizTypes";
+import type { QuizChallenge, QuizChallengeLevel } from 'quizTypes';
 
 export function useChallenges() {
   const { fetchCollection } = useFirestore();

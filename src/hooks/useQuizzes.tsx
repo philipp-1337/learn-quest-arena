@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { toast } from "sonner";
-import { CustomToast } from "@features/shared/CustomToast";
-import type { QuizDocument } from "quizTypes";
-import { subscribeToQuizzes } from "@utils/quiz-collection";
+import { useState, useEffect } from 'react';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { toast } from 'sonner';
+import { CustomToast } from '@features/shared/CustomToast';
+import type { QuizDocument } from 'quizTypes';
+import { subscribeToQuizzes } from '@utils/quiz-collection';
 
 export function useQuizzes(): {
   quizzes: QuizDocument[];

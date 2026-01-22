@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
-import type { QuizChallenge, Question } from "quizTypes";
+import type { QuizChallenge, Question } from 'quizTypes';
 import useFirestore from '@hooks/useFirestore';
 import { toast } from 'sonner';
 import { CustomToast } from '@shared/CustomToast';

@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
-import path from "path";
+import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -61,9 +61,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
-      "@utils": path.resolve(__dirname, "src/utils"),
-      "@hooks": path.resolve(__dirname, "src/hooks"),
+      "@config": path.resolve(__dirname, "src/config"),
       "@features": path.resolve(__dirname, "src/features"),
+      "@hooks": path.resolve(__dirname, "src/hooks"),
+      "@utils": path.resolve(__dirname, "src/utils"),
       "@admin": path.resolve(__dirname, "src/features/admin"),
       "@admin/*": path.resolve(__dirname, "src/features/admin/*"),
       "@auth": path.resolve(__dirname, "src/features/auth"),

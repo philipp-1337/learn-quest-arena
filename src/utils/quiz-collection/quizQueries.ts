@@ -2,8 +2,8 @@
  * Query operations for quiz documents.
  */
 
-import { getFirestore, collection, getDocs, query, where, orderBy } from "firebase/firestore";
-import type { QuizDocument } from "quizTypes";
+import { getFirestore, collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import type { QuizDocument } from 'quizTypes';
 
 const QUIZZES_COLLECTION = "quizzes";
 

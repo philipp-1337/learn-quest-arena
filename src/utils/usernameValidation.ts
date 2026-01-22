@@ -1,5 +1,5 @@
-import { animalNames } from "./animalNames";
-import { getFirestore, collection, doc, getDoc } from "firebase/firestore";
+import { animalNames } from './animalNames';
+import { getFirestore, collection, doc, getDoc } from 'firebase/firestore';
 
 // Prüft, ob ein Username dem Generator-Format entspricht (Tiername + _ + 6 Zeichen)
 export function isValidGeneratedUsername(username: string): boolean {

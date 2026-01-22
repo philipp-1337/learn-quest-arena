@@ -1,8 +1,8 @@
-import { Trash2 } from "lucide-react";
-import { uploadWithToast } from "@utils/cloudinaryUpload";
-import { toast } from "sonner";
-import { CustomToast } from "@shared/CustomToast";
-import type { Answer } from "quizTypes";
+import { Trash2 } from 'lucide-react';
+import { uploadWithToast } from '@utils/cloudinaryUpload';
+import { toast } from 'sonner';
+import { CustomToast } from '@shared/CustomToast';
+import type { Answer } from 'quizTypes';
 
 interface AudioAnswerItemProps {
   answer: Answer;

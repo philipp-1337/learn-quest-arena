@@ -2,10 +2,10 @@
  * CRUD operations for quiz documents.
  */
 
-import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
-import type { QuizDocument, Quiz } from "quizTypes";
-import { createDeterministicId } from "../slugify";
-import { removeUndefinedFields } from "./quizHelpers";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
+import type { QuizDocument, Quiz } from 'quizTypes';
+import { createDeterministicId } from '@utils/slugify';
+import { removeUndefinedFields } from './quizHelpers';
 
 const QUIZZES_COLLECTION = "quizzes";
 

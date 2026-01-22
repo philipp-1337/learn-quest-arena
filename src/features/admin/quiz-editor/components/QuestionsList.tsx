@@ -1,6 +1,6 @@
-import { Plus } from "lucide-react";
-import type { Question } from "quizTypes";
-import QuestionCard from "./QuestionCard";
+import { Plus } from 'lucide-react';
+import type { Question } from 'quizTypes';
+import QuestionCard from './QuestionCard';
 
 interface QuestionsListProps {
   questions: Question[];

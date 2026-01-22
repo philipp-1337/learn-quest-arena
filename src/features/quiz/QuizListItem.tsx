@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Eye,
   EyeOff,
@@ -9,10 +9,10 @@ import {
   ArrowLeftRight,
   Lock,
   MoreVertical,
-} from "lucide-react";
-import type { QuizDocument } from "quizTypes";
-import { canEditQuiz, canReassignQuiz } from "@utils/quizPermissions";
-import { getAuth } from "firebase/auth";
+} from 'lucide-react';
+import type { QuizDocument } from 'quizTypes';
+import { canEditQuiz, canReassignQuiz } from '@utils/quizPermissions';
+import { getAuth } from 'firebase/auth';
 
 interface QuizListItemProps {
   quiz: QuizDocument;

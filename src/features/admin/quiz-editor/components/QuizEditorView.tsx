@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Lock } from "lucide-react";
-import { toast } from "sonner";
-import { CustomToast } from "@shared/CustomToast";
-import DeleteConfirmModal from "@modals/DeleteConfirmModal";
-import { getAuth } from "firebase/auth";
-import { useQuizEditLock, useQuizEditorState } from "@admin";
-import { updateQuizDocument } from "@utils/quiz-collection";
-import QuizEditorHeader from "./QuizEditorHeader";
-import QuizDetailsForm from "./QuizDetailsForm";
-import QuestionsList from "./QuestionsList";
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Lock } from 'lucide-react';
+import { toast } from 'sonner';
+import { CustomToast } from '@shared/CustomToast';
+import DeleteConfirmModal from '@modals/DeleteConfirmModal';
+import { getAuth } from 'firebase/auth';
+import { useQuizEditLock, useQuizEditorState } from '@admin';
+import { updateQuizDocument } from '@utils/quiz-collection';
+import QuizEditorHeader from './QuizEditorHeader';
+import QuizDetailsForm from './QuizDetailsForm';
+import QuestionsList from './QuestionsList';
 
 export default function QuizEditorView() {
   const { id } = useParams<{ id: string }>();

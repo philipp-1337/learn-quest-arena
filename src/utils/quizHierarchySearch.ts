@@ -1,4 +1,4 @@
-import type { Subject, Class, Topic, Quiz } from "quizTypes";
+import type { Subject, Class, Topic, Quiz } from 'quizTypes';
 
 /**
  * Ergebnis einer Quiz-Suche in der Hierarchie.

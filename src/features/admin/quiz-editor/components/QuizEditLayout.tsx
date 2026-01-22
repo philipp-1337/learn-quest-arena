@@ -1,5 +1,5 @@
-import { Outlet } from "react-router-dom";
-import { QuizEditLockProvider } from "@admin";
+import { Outlet } from 'react-router-dom';
+import { QuizEditLockProvider } from '@admin';
 
 export default function QuizEditLayout() {
   return (

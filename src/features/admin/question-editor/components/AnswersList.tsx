@@ -1,8 +1,8 @@
-import { Lightbulb, MessageCircleWarning } from "lucide-react";
-import type { Answer, Question } from "quizTypes";
-import TextAnswerItem from "./TextAnswerItem";
-import ImageAnswerItem from "./ImageAnswerItem";
-import AudioAnswerItem from "./AudioAnswerItem";
+import { Lightbulb, MessageCircleWarning } from 'lucide-react';
+import type { Answer, Question } from 'quizTypes';
+import TextAnswerItem from './TextAnswerItem';
+import ImageAnswerItem from './ImageAnswerItem';
+import AudioAnswerItem from './AudioAnswerItem';
 
 interface AnswersListProps {
   question: Question;

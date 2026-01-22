@@ -1,7 +1,7 @@
-import { Menu, X, Sun, Moon } from "lucide-react";
-import { useState, useRef, useEffect, type ComponentType } from "react";
-import { Link } from "react-router-dom";
-import useDarkMode from "@hooks/useDarkMode";
+import { Menu, X, Sun, Moon } from 'lucide-react';
+import { useState, useRef, useEffect, type ComponentType } from 'react';
+import { Link } from 'react-router-dom';
+import useDarkMode from '@hooks/useDarkMode';
 
 export interface MenuItem {
   icon: ComponentType<{ className?: string }>;

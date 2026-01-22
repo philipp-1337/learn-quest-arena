@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import type { QuizDocument } from "quizTypes";
+import { useState, useMemo } from 'react';
+import type { QuizDocument } from 'quizTypes';
 
 export interface FilterState {
   search: string;

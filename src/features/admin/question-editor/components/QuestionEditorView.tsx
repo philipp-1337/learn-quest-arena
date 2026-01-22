@@ -1,15 +1,15 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import type { Question, Answer } from "quizTypes";
-import { toast } from "sonner";
-import { CustomToast } from "@shared/CustomToast";
-import { updateQuizDocument } from "@utils/quiz-collection";
-import { useQuestionEditor, useQuestionValidation } from "@admin";
-import QuestionEditorHeader from "./QuestionEditorHeader";
-import QuestionTypeSelector from "./QuestionTypeSelector";
-import QuestionInput from "./QuestionInput";
-import AnswerTypeSelector from "./AnswerTypeSelector";
-import AnswersList from "./AnswersList";
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import type { Question, Answer } from 'quizTypes';
+import { toast } from 'sonner';
+import { CustomToast } from '@shared/CustomToast';
+import { updateQuizDocument } from '@utils/quiz-collection';
+import { useQuestionEditor, useQuestionValidation } from '@admin';
+import QuestionEditorHeader from './QuestionEditorHeader';
+import QuestionTypeSelector from './QuestionTypeSelector';
+import QuestionInput from './QuestionInput';
+import AnswerTypeSelector from './AnswerTypeSelector';
+import AnswersList from './AnswersList';
 
 export default function QuestionEditorView() {
   const { id, index } = useParams<{ id: string; index?: string }>();

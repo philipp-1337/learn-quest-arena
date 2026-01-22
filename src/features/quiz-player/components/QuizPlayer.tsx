@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useQuizPlayer, type QuizStartMode, type QuizPlayerInitialState } from '@hooks/useQuizPlayer';
+import { useQuizPlayer } from '@hooks/useQuizPlayer';
+import type { QuizStartMode, QuizPlayerInitialState } from '@hooks/useQuizPlayer';
 import { QuizQuestion, QuizResults } from '@quiz';
 import type { Quiz } from 'quizTypes';
 import { saveUserQuizProgress, loadUserQuizProgress } from '@utils/userProgressFirestore';

@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Loader2, Save, AlertTriangle, Check, Tag } from "lucide-react";
-import { getAuth } from "firebase/auth";
+import { useState, useEffect } from 'react';
+import { Loader2, Save, AlertTriangle, Check, Tag } from 'lucide-react';
+import { getAuth } from 'firebase/auth';
 import {
   getFirestore,
   doc,
@@ -10,9 +10,9 @@ import {
   query,
   where,
   getDocs,
-} from "firebase/firestore";
-import { toast } from "sonner";
-import { CustomToast } from "@shared/CustomToast";
+} from 'firebase/firestore';
+import { toast } from 'sonner';
+import { CustomToast } from '@shared/CustomToast';
 
 interface AbbreviationFormProps {
   onAbbreviationUpdated?: () => void;

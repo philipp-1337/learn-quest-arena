@@ -1,6 +1,6 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Nutze das aktuelle Arbeitsverzeichnis als Basis (Projekt-Root)
 const SRC_DIR = path.join(process.cwd(), "src");

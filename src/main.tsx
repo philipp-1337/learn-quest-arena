@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom';
 import './index.css'
 import App from './App.tsx'
-import firebaseApp from "./firebaseConfig";
+import firebaseApp from '@config/firebaseConfig.ts';
 
 // Example usage of Firebase app
 console.log("Firebase App Initialized:", firebaseApp);

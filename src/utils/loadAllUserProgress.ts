@@ -1,7 +1,7 @@
-import '../firebaseConfig';
-import { getFirestore, collection, getDocs } from "firebase/firestore";
-import type { UserQuizProgress, UserProgress } from "userProgress";
-import { ensureSRSFields } from "./srsHelpers";
+import '@config/firebaseConfig';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import type { UserQuizProgress, UserProgress } from 'userProgress';
+import { ensureSRSFields } from './srsHelpers';
 
 // Lädt den Fortschritt eines Users für alle Quizzes (neues Modell bevorzugt)
 export async function loadAllUserProgress(username: string): Promise<Record<string, UserQuizProgress>> {

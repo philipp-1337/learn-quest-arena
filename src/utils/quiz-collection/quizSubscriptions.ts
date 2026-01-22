@@ -2,8 +2,8 @@
  * Real-time subscriptions for quiz documents.
  */
 
-import { getFirestore, collection, doc, onSnapshot } from "firebase/firestore";
-import type { QuizDocument } from "quizTypes";
+import { getFirestore, collection, doc, onSnapshot } from 'firebase/firestore';
+import type { QuizDocument } from 'quizTypes';
 
 const QUIZZES_COLLECTION = "quizzes";
 

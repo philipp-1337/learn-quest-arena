@@ -1,4 +1,4 @@
-import { cld } from '../cloudinaryConfig';
+import { cld } from '@config/cloudinaryConfig';
 import { fill, fit } from '@cloudinary/url-gen/actions/resize';
 import { autoGravity } from '@cloudinary/url-gen/qualifiers/gravity';
 import { format } from '@cloudinary/url-gen/actions/delivery';

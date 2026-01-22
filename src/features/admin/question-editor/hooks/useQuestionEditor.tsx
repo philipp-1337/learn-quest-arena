@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import type { Question, Answer, QuizDocument } from "quizTypes";
-import { toast } from "sonner";
-import { CustomToast } from "@shared/CustomToast";
-import { loadQuizDocument, isQuizLocked } from "@utils/quiz-collection";
+import { useState, useEffect } from 'react';
+import type { Question, Answer, QuizDocument } from 'quizTypes';
+import { toast } from 'sonner';
+import { CustomToast } from '@shared/CustomToast';
+import { loadQuizDocument, isQuizLocked } from '@utils/quiz-collection';
 
 interface UseQuestionEditorOptions {
   quizId: string;

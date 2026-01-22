@@ -2,9 +2,9 @@
  * Edit lock management for quiz documents.
  */
 
-import { getFirestore, doc, setDoc, runTransaction } from "firebase/firestore";
-import type { QuizDocument, EditLock } from "quizTypes";
-import { loadQuizDocument } from "./quizCrud";
+import { getFirestore, doc, setDoc, runTransaction } from 'firebase/firestore';
+import type { QuizDocument, EditLock } from 'quizTypes';
+import { loadQuizDocument } from './quizCrud';
 
 const QUIZZES_COLLECTION = "quizzes";
 
