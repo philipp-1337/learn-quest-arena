@@ -19,5 +19,17 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+
+    plugins: {
+      local: {
+        rules: {
+          'button-requires-cursor-pointer': buttonCursorRule,
+        },
+      },
+    },
+
+    rules: {
+      'local/button-requires-cursor-pointer': 'warn',
+    },
   },
 ])

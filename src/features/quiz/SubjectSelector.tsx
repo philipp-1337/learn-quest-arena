@@ -13,7 +13,7 @@ export default function SubjectSelector({ subjects, onSelect }: SubjectSelectorP
         <button
           key={subject.id}
           onClick={() => onSelect(subject)}
-          className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+          className="cursor-pointer bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
           title={subject.name}
           aria-label={subject.name}
         >

@@ -13,7 +13,7 @@ export default function ClassSelector({ classes, onSelect }: ClassSelectorProps)
         <button
           key={cls.id}
           onClick={() => onSelect(cls)}
-          className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+          className="cursor-pointer bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
           title={cls.name}
           aria-label={cls.name}
         >

@@ -26,7 +26,7 @@ export default function Breadcrumb({
     <div className="flex items-center gap-2 mt-4 text-sm flex-wrap">
       <button
         onClick={onNavigateHome}
-        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
+        className="cursor-pointer text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
         title="Zur Startseite"
         aria-label="Zur Startseite"
       >
@@ -37,7 +37,7 @@ export default function Breadcrumb({
           <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <button
             onClick={onNavigateToSubject}
-            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
+            className="cursor-pointer text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
             title={selectedSubject.name}
             aria-label={selectedSubject.name}
           >
@@ -50,7 +50,7 @@ export default function Breadcrumb({
           <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500" />
           <button
             onClick={onNavigateToClass}
-            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
+            className="cursor-pointer text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
             title={selectedClass.name}
             aria-label={selectedClass.name}
           >

@@ -128,7 +128,7 @@ export default function QuizSelector({ quizzes, onSelect, username }: QuizSelect
                           console.error('Error selecting quiz:', error);
                         }
                       }}
-                      className="flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                      className="cursor-pointer flex-1 min-w-[140px] bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
                       title="Mit falschen Fragen weitermachen"
                       aria-label="Mit falschen Fragen weitermachen"
                     >
@@ -144,7 +144,7 @@ export default function QuizSelector({ quizzes, onSelect, username }: QuizSelect
                           console.error('Error selecting quiz:', error);
                         }
                       }}
-                      className="flex-1 min-w-[140px] bg-white/20 hover:bg-white/30 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                      className="cursor-pointer flex-1 min-w-[140px] bg-white/20 hover:bg-white/30 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
                       title="Neu starten"
                       aria-label="Neu starten"
                     >
@@ -166,7 +166,7 @@ export default function QuizSelector({ quizzes, onSelect, username }: QuizSelect
                         console.error('Error selecting quiz:', error);
                       }
                     }}
-                    className="w-full bg-white/20 hover:bg-white/30 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                    className="cursor-pointer w-full bg-white/20 hover:bg-white/30 text-white py-3 px-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
                     title={quiz.title}
                     aria-label={quiz.title}
                   >

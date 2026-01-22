@@ -46,6 +46,7 @@ export default function AdminHeader({ onProfileClick }: AdminHeaderProps) {
       onClick: onProfileClick,
       hasNotification: !hasAbbreviation,
       variant: undefined,
+      className: "cursor-pointer",
     },
     ...(isAdmin
       ? [
@@ -54,6 +55,7 @@ export default function AdminHeader({ onProfileClick }: AdminHeaderProps) {
             label: "Rollen verwalten",
             onClick: () => navigate("/admin/roles"),
             variant: 'default' as const,
+            className: "cursor-pointer",
           },
         ]
       : []),
@@ -62,6 +64,7 @@ export default function AdminHeader({ onProfileClick }: AdminHeaderProps) {
       label: "Zum Quiz",
       onClick: () => navigate("/"),
       variant: 'primary' as const,
+      className: "cursor-pointer",
     },
   ];
 

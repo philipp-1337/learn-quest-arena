@@ -13,7 +13,7 @@ export default function TopicSelector({ topics, onSelect }: TopicSelectorProps) 
         <button
           key={topic.id}
           onClick={() => onSelect(topic)}
-          className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+          className="cursor-pointer bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
           title={topic.name}
           aria-label={topic.name}
         >

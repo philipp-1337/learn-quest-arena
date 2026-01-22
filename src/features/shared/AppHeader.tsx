@@ -50,16 +50,16 @@ export default function AppHeader({
     if (isMobile) {
       // Mobile menu item styling
       if (item.variant === 'primary' || item.isActive) {
-        return "w-full flex items-center gap-3 px-4 py-3 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors";
+        return "cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors";
       }
-      return "w-full flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors";
+      return "cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors";
     }
 
     // Desktop button styling
     if (item.variant === 'primary' || item.isActive) {
-      return "relative group p-2 rounded-full text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors";
+      return "cursor-pointer relative group p-2 rounded-full text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors";
     }
-    return "relative group p-2 rounded-full text-gray-700 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors";
+    return "cursor-pointer relative group p-2 rounded-full text-gray-700 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors";
   };
 
   // Filter items for desktop (exclude hideOnDesktop)
@@ -91,7 +91,7 @@ export default function AppHeader({
           {/* Dark Mode Toggle - visible on desktop */}
           <button
             onClick={toggleDarkMode}
-            className="hidden md:block relative group p-2 rounded-full text-gray-700 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="cursor-pointer hidden md:block relative group p-2 rounded-full text-gray-700 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             aria-label={isDarkMode ? "Heller Modus" : "Dunkler Modus"}
             title={isDarkMode ? "Heller Modus" : "Dunkler Modus"}
           >
@@ -131,7 +131,7 @@ export default function AppHeader({
           {/* Mobile Menu Button - visible below md */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-full text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="cursor-pointer md:hidden p-2 rounded-full text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             aria-label="Menü"
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -146,7 +146,7 @@ export default function AppHeader({
                   toggleDarkMode();
                   setIsMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 <span className="font-medium">{isDarkMode ? "Heller Modus" : "Dunkler Modus"}</span>
