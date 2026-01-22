@@ -24,7 +24,9 @@ service cloud.firestore {
       allow create: if isValidUsername(userId);
       
       // Nur der Benutzer selbst darf sein Dokument ändern (falls später authentifiziert)
-      allow update: if request.auth != null && request.auth.uid == userId;
+      // dismissedQuizzes darf wie progress von allen geschrieben werden
+      allow update: if request.auth != null && request.auth.uid == userId ||
+        (isValidUsername(userId) && request.resource.data.keys().hasOnly(['dismissedQuizzes']));
       
       // Löschen nicht erlaubt
       allow delete: if false;
@@ -32,6 +34,11 @@ service cloud.firestore {
       // Progress-Subcollection - Lesen/Schreiben erlaubt (geschützt durch Username-Validierung)
       match /progress/{quizId} {
         allow read, write: if true;
+      }
+
+      // Dismissed-Subcollection - Lesen/Schreiben erlaubt für gültige Usernamen
+      match /dismissed/{quizId} {
+        allow read, write: if isValidUsername(userId);
       }
     }
     
