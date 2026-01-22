@@ -1,0 +1,357 @@
+[
+  {
+    "subject": "Personen Quiz",
+    "class": "Gründer & Unternehmer",
+    "topic": "Team 2026",
+    "quizzes": [
+      {
+        "title": "Ben Erler Quiz",
+        "shortTitle": "ben-erler",
+        "questions": [
+          {
+            "question": "In welcher Stadt hat Ben Erler sein Unternehmen B. Erler Ventures UG gegründet?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Viersen"},
+              {"type": "text", "content": "Darmstadt"},
+              {"type": "text", "content": "München"},
+              {"type": "text", "content": "Berlin"}
+            ],
+            "correctAnswerIndex": 0
+          },
+          {
+            "question": "Welche Position hat Ben Erler im Young Founders Network inne?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Mitglied"},
+              {"type": "text", "content": "Chairman"},
+              {"type": "text", "content": "Gründer"},
+              {"type": "text", "content": "Mentor"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "In welcher Stadt lebt Ben Erler aktuell?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Viersen"},
+              {"type": "text", "content": "München"},
+              {"type": "text", "content": "Darmstadt"},
+              {"type": "text", "content": "Frankfurt"}
+            ],
+            "correctAnswerIndex": 2
+          },
+          {
+            "question": "Bei welcher Initiative ist Ben Erler aktiv beteiligt?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Startup in School"},
+              {"type": "text", "content": "Startup Bootcamp"},
+              {"type": "text", "content": "Tech Academy"},
+              {"type": "text", "content": "Innovation Hub"}
+            ],
+            "correctAnswerIndex": 0
+          },
+          {
+            "question": "Welches Unternehmen hat Ben Erler als TechTailor gegründet?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Ein E-Commerce Unternehmen"},
+              {"type": "text", "content": "Ein Tech-Startup"},
+              {"type": "text", "content": "Eine Beratungsfirma"},
+              {"type": "text", "content": "Ein Softwareunternehmen"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "In welcher Startup-Szene ist Ben besonders aktiv?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Berlin"},
+              {"type": "text", "content": "Hamburg"},
+              {"type": "text", "content": "München"},
+              {"type": "text", "content": "Köln"}
+            ],
+            "correctAnswerIndex": 2
+          },
+          {
+            "question": "Bei welcher Organisation ist Ben Erler als EUpreneur Mitglied?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Einer europäischen Gründer-Organisation"},
+              {"type": "text", "content": "Einer deutschen Handelskammer"},
+              {"type": "text", "content": "Einem Technologie-Verband"},
+              {"type": "text", "content": "Einer Investoren-Gruppe"}
+            ],
+            "correctAnswerIndex": 0
+          },
+          {
+            "question": "Was beschreibt Ben Erlers Haupttätigkeit am besten?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Investor"},
+              {"type": "text", "content": "Deutscher Unternehmer"},
+              {"type": "text", "content": "Berater"},
+              {"type": "text", "content": "Professor"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Wie viele Städte werden mit Ben Erlers unternehmerischen Aktivitäten in Verbindung gebracht?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Zwei"},
+              {"type": "text", "content": "Drei"},
+              {"type": "text", "content": "Vier"},
+              {"type": "text", "content": "Fünf"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Welche Art von Ventures betreibt Ben mit B. Erler Ventures UG?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Venture Capital"},
+              {"type": "text", "content": "Unternehmensberatung"},
+              {"type": "text", "content": "Startup-Entwicklung"},
+              {"type": "text", "content": "Business Development"}
+            ],
+            "correctAnswerIndex": 2
+          }
+        ]
+      },
+      {
+        "title": "Philipp Schmechel Quiz",
+        "shortTitle": "philipp-schmechel",
+        "questions": [
+          {
+            "question": "Aus welcher Stadt stammt Philipp Schmechel ursprünglich?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Krefeld"},
+              {"type": "text", "content": "Kiel"},
+              {"type": "text", "content": "Darmstadt"},
+              {"type": "text", "content": "Hamburg"}
+            ],
+            "correctAnswerIndex": 0
+          },
+          {
+            "question": "Welches Logistik-Tech-Startup hat Philipp Schmechel mitgegründet?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "LogiTech"},
+              {"type": "text", "content": "Trimlog"},
+              {"type": "text", "content": "FastLog"},
+              {"type": "text", "content": "SmartShip"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Mit welchem nachhaltigen Recycling-Unternehmen ist Philipp assoziiert?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "GreenTech Recycling"},
+              {"type": "text", "content": "QiTech Recycling"},
+              {"type": "text", "content": "EcoPlast"},
+              {"type": "text", "content": "PlasticLoop"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Welches Gymnasium hat Philipp Schmechel besucht?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Gymnasium Krefeld"},
+              {"type": "text", "content": "Stadtpark Gymnasium"},
+              {"type": "text", "content": "Gymnasium am Stadtpark Krefeld"},
+              {"type": "text", "content": "Krefelder Stadtgymnasium"}
+            ],
+            "correctAnswerIndex": 2
+          },
+          {
+            "question": "In welchen Sportarten ist Philipp Schmechel aktiv?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Schwimmen und Laufen"},
+              {"type": "text", "content": "Segeln und Triathlons"},
+              {"type": "text", "content": "Radfahren und Schwimmen"},
+              {"type": "text", "content": "Tennis und Golf"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Bei welcher Organisation ist Philipp Schmechel involviert, die junge Unternehmer fördert?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Young Entrepreneurs"},
+              {"type": "text", "content": "Startup Teens"},
+              {"type": "text", "content": "Junior Achievement"},
+              {"type": "text", "content": "Youth Business"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Auf welchen Bereich fokussiert sich QiTech Recycling?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Papier-Recycling"},
+              {"type": "text", "content": "Metall-Recycling"},
+              {"type": "text", "content": "Nachhaltiges Plastik-Recycling"},
+              {"type": "text", "content": "Glas-Recycling"}
+            ],
+            "correctAnswerIndex": 2
+          },
+          {
+            "question": "In welchen drei Städten hat Philipp Schmechel gelebt/gewohnt?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Berlin, Hamburg, München"},
+              {"type": "text", "content": "Krefeld, Kiel, Darmstadt"},
+              {"type": "text", "content": "Köln, Düsseldorf, Frankfurt"},
+              {"type": "text", "content": "Stuttgart, Mannheim, Karlsruhe"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Was beschreibt Trimlog am besten?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Ein E-Commerce-Unternehmen"},
+              {"type": "text", "content": "Ein Logistics-Tech Startup"},
+              {"type": "text", "content": "Eine Beratungsfirma"},
+              {"type": "text", "content": "Ein Transport-Unternehmen"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Welche Eigenschaften vereint Philipp Schmechel in seinem unternehmerischen Profil?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Technologie und Sport"},
+              {"type": "text", "content": "Logistik-Tech und Nachhaltigkeit"},
+              {"type": "text", "content": "Marketing und Vertrieb"},
+              {"type": "text", "content": "Finanzen und Immobilien"}
+            ],
+            "correctAnswerIndex": 1
+          }
+        ]
+      },
+      {
+        "title": "Katharina Zieße Suari Quiz",
+        "shortTitle": "katharina-ziesse-suari",
+        "questions": [
+          {
+            "question": "Aus welcher Stadt in der Nähe von Frankfurt stammt Katharina Zieße Suari?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Oberursel"},
+              {"type": "text", "content": "Kronberg"},
+              {"type": "text", "content": "Bad Homburg"},
+              {"type": "text", "content": "Königstein"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "In welcher Stadt lebt Katharina aktuell?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Frankfurt"},
+              {"type": "text", "content": "Berlin"},
+              {"type": "text", "content": "München"},
+              {"type": "text", "content": "Hamburg"}
+            ],
+            "correctAnswerIndex": 2
+          },
+          {
+            "question": "An welcher Universität studiert Katharina?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "TU München"},
+              {"type": "text", "content": "LMU München"},
+              {"type": "text", "content": "Universität Frankfurt"},
+              {"type": "text", "content": "Hochschule München"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Wie viele Etsy-Shops hat Katharina betrieben?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Einen"},
+              {"type": "text", "content": "Zwei"},
+              {"type": "text", "content": "Drei"},
+              {"type": "text", "content": "Vier"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Was verkaufte Katharina in einem ihrer Etsy-Shops?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Keramik und Töpferwaren"},
+              {"type": "text", "content": "Draht-Kristall-Schmuck"},
+              {"type": "text", "content": "Gemälde und Prints"},
+              {"type": "text", "content": "Vintage-Kleidung"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "An welcher Akademie hat Katharina teilgenommen?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Business Leadership Academy"},
+              {"type": "text", "content": "Startup Academy"},
+              {"type": "text", "content": "Entrepreneurship Talent Akademie"},
+              {"type": "text", "content": "Innovation Academy"}
+            ],
+            "correctAnswerIndex": 2
+          },
+          {
+            "question": "Bei welcher Organisation ist Katharina in München Mitglied?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Munich Startup Network"},
+              {"type": "text", "content": "Young Founders Network Munich"},
+              {"type": "text", "content": "Munich Business Club"},
+              {"type": "text", "content": "Entrepreneurs Munich"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Welche Bereiche interessieren Katharina besonders?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Finanzen und Controlling"},
+              {"type": "text", "content": "IT und Programmierung"},
+              {"type": "text", "content": "Marketing, Branding und Videografie"},
+              {"type": "text", "content": "HR und Recruiting"}
+            ],
+            "correctAnswerIndex": 2
+          },
+          {
+            "question": "Was verkaufte Katharina zusätzlich zum Schmuck in ihren Etsy-Shops?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Kleidung"},
+              {"type": "text", "content": "Taschen"},
+              {"type": "text", "content": "Schuhe"},
+              {"type": "text", "content": "Accessoires"}
+            ],
+            "correctAnswerIndex": 1
+          },
+          {
+            "question": "Welche kreative Fähigkeit kombiniert Katharina mit ihrem unternehmerischen Interesse?",
+            "answerType": "text",
+            "answers": [
+              {"type": "text", "content": "Fotografie"},
+              {"type": "text", "content": "Grafikdesign"},
+              {"type": "text", "content": "Videografie"},
+              {"type": "text", "content": "Webdesign"}
+            ],
+            "correctAnswerIndex": 2
+          }
+        ]
+      }
+    ]
+  }
+]

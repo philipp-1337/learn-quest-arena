@@ -5,6 +5,7 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import QuizEditLayout from './features/admin/quiz-editor/components/QuizEditLayout';
 import LoginView from './features/login/LoginView';
 import { QuizBrowser } from './features/quiz-browse';
+import { PersonQuizSelector } from './features/quiz-browse/PersonQuizSelector';
 import AdminView from './features/admin/dashboard/components/AdminView';
 import AdminProfileView from './features/admin/dashboard/components/AdminProfileView';
 import QuizEditorView from './features/admin/quiz-editor/components/QuizEditorView';
@@ -146,6 +147,8 @@ export default function FlashcardQuizApp() {
             <QuizBrowser subjects={subjects} onAdminClick={handleAdminClick} />
           }
         />
+        {/* Person Quiz Selection Screen */}
+        <Route path="/personen-quiz" element={<PersonQuizSelector />} />
         <Route
           path="/admin"
           element={
