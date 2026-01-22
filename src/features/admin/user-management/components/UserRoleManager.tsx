@@ -259,7 +259,7 @@ export const UserRoleManager: React.FC = () => {
                             />
                             <div className="flex gap-2">
                               <button
-                                className="flex-1 px-4 py-2.5 rounded bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800 transition flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 px-4 py-2.5 rounded bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800 transition flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                 onClick={() => handleNameSave(user.id)}
                                 disabled={isUpdating || nameInput.trim() === ""}
                                 title="Speichern"
@@ -267,7 +267,7 @@ export const UserRoleManager: React.FC = () => {
                                 <Check className="w-5 h-5" />
                               </button>
                               <button
-                                className="flex-1 px-4 py-2.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 px-4 py-2.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                 onClick={() => setEditingNameUserId(null)}
                                 disabled={isUpdating}
                                 title="Abbrechen"
@@ -283,7 +283,7 @@ export const UserRoleManager: React.FC = () => {
                                 {user.displayName || user.name || "Unbekannt"}
                               </h3>
                               <button
-                                className="p-2.5 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center shrink-0"
+                                className="p-2.5 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center shrink-0 cursor-pointer"
                                 onClick={() =>
                                   handleNameEdit(user.id, user.name || "")
                                 }
@@ -309,6 +309,13 @@ export const UserRoleManager: React.FC = () => {
                                   Du
                                 </span>
                               )}
+                                {/* Current Role Badge (moved here) */}
+                                <span
+                                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getRoleBadgeClasses(user.role)}`}
+                                >
+                                  {ROLE_OPTIONS.find((opt) => opt.value === user.role)
+                                    ?.label || user.role}
+                                </span>
                             </div>
                           </>
                         )}
@@ -316,43 +323,35 @@ export const UserRoleManager: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Role Selection */}
-                  <div className="flex items-center gap-3 sm:shrink-0">
-                    {/* Current Role Badge (Desktop only) */}
-                    <span
-                      className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getRoleBadgeClasses(user.role)}`}
-                    >
-                      {ROLE_OPTIONS.find((opt) => opt.value === user.role)
-                        ?.label || user.role}
-                    </span>
-
-                    {/* Role Selector */}
-                    <div className="relative w-full sm:w-auto">
-                      <select
-                        value={user.role}
-                        onChange={(e) =>
-                          handleRoleChange(user.id, e.target.value)
-                        }
-                        disabled={isCurrentUser || isUpdating}
-                        className={`w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-                          isCurrentUser
-                            ? "border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed"
-                            : "border-gray-300 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-700"
-                        }`}
-                        title={
-                          isCurrentUser
-                            ? "Du kannst deine eigene Rolle nicht ändern"
-                            : "Rolle ändern"
-                        }
-                      >
-                        {ROLE_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
+                    {/* Role Selection */}
+                    <div className="flex items-center gap-3 sm:shrink-0">
+                      {/* Role Selector */}
+                      <div className="relative w-full sm:w-auto">
+                        <select
+                          value={user.role}
+                          onChange={(e) =>
+                            handleRoleChange(user.id, e.target.value)
+                          }
+                          disabled={isCurrentUser || isUpdating}
+                          className={`w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
+                            isCurrentUser
+                              ? "border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed"
+                              : "border-gray-300 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-700"
+                          }`}
+                          title={
+                            isCurrentUser
+                              ? "Du kannst deine eigene Rolle nicht ändern"
+                              : "Rolle ändern"
+                          }
+                        >
+                          {ROLE_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                  </div>
                 </div>
 
                 {/* Self-edit warning */}
