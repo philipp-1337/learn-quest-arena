@@ -125,7 +125,7 @@ export default function QuizEditorView() {
           </div>
           <div className="flex gap-2 w-full">
             <button
-              className="flex-1 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm font-medium border border-gray-300 dark:border-gray-600 transition-colors"
+              className="flex-1 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm font-medium border border-gray-300 dark:border-gray-600 transition-colors cursor-pointer"
               onClick={() => {
                 if (quizDocument) {
                   setEditedQuiz({
@@ -147,7 +147,7 @@ export default function QuizEditorView() {
               Änderungen verwerfen
             </button>
             <button
-              className="flex-1 px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium border border-indigo-700 transition-colors"
+              className="flex-1 px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium border border-indigo-700 transition-colors cursor-pointer"
               onClick={() => {
                 handleSaveQuiz();
                 toast.dismiss(t);
@@ -213,7 +213,7 @@ export default function QuizEditorView() {
           </p>
           <button
             onClick={() => navigate("/admin")}
-            className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+            className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors cursor-pointer"
           >
             Zurück zur Übersicht
           </button>

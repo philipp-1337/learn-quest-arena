@@ -46,7 +46,7 @@ export default function ChallengesSection({
             <button
               key={challenge.id}
               onClick={() => onChallengeSelect(challenge)}
-              className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition-shadow border-2 border-yellow-200 dark:border-yellow-700 hover:border-yellow-400 dark:hover:border-yellow-500"
+              className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition-shadow border-2 border-yellow-200 dark:border-yellow-700 hover:border-yellow-400 dark:hover:border-yellow-500 cursor-pointer"
             >
               <div className="flex items-center justify-between">
                 <div className="text-left">

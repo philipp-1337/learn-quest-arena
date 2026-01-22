@@ -69,7 +69,7 @@ export default function UsernameManualEntry({
       <div className="flex gap-2 w-full justify-center">
         <button
           type="button"
-          className="px-4 py-2 rounded bg-white border border-indigo-600 text-indigo-600 font-semibold shadow hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition"
+          className="px-4 py-2 rounded bg-white border border-indigo-600 text-indigo-600 font-semibold shadow hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition cursor-pointer"
           onClick={onBack}
           title="Zurück zur vorherigen Ansicht"
           aria-label="Zurück zur vorherigen Ansicht"
@@ -78,7 +78,7 @@ export default function UsernameManualEntry({
         </button>
         <button
           type="submit"
-          className="px-4 py-2 rounded bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition flex items-center justify-center min-w-[120px]"
+          className="px-4 py-2 rounded bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition flex items-center justify-center min-w-[120px] cursor-pointer"
           title="Mit diesem Namen fortfahren"
           aria-label="Mit diesem Namen fortfahren"
           disabled={loading}

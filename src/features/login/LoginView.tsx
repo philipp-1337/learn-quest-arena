@@ -51,7 +51,7 @@ export default function LoginView({ onLogin, onBack }: LoginViewProps) {
         <button
           type="button"
           onClick={onBack}
-          className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors flex items-center gap-2 group"
+          className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors flex items-center gap-2 group cursor-pointer"
           aria-label="Zurück zur Startseite"
           title="Zurück zur Startseite"
         >
@@ -113,7 +113,7 @@ export default function LoginView({ onLogin, onBack }: LoginViewProps) {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer"
                 aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
                 title={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
                 disabled={loading}
@@ -142,7 +142,7 @@ export default function LoginView({ onLogin, onBack }: LoginViewProps) {
           <button
             type="submit"
             disabled={loading || !isFormValid}
-            className="w-full bg-indigo-600 dark:bg-indigo-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] shadow-sm hover:shadow-md"
+            className="w-full bg-indigo-600 dark:bg-indigo-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] shadow-sm hover:shadow-md cursor-pointer"
             title={loading ? 'Anmelden läuft' : 'Anmelden'}
             aria-label={loading ? 'Anmelden läuft' : 'Anmelden'}
           >

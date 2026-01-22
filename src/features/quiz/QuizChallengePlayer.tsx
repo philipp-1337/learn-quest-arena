@@ -304,20 +304,20 @@ export default function QuizChallengePlayer() {
               <div className="flex gap-4 justify-center">
                 <button
                   onClick={handleRestart}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium cursor-pointer"
                 >
                   Nochmal spielen
                 </button>
                 <button
                   onClick={handleBack}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium flex items-center gap-2"
+                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium flex items-center gap-2 cursor-pointer"
                 >
                   <ArrowLeft className="w-5 h-5" />
                   Zurück
                 </button>
                 <button
                   onClick={handleHome}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium flex items-center gap-2"
+                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium flex items-center gap-2 cursor-pointer"
                 >
                   <Home className="w-5 h-5" />
                   Startseite

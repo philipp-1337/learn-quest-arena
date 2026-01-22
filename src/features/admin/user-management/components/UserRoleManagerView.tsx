@@ -13,7 +13,7 @@ export default function UserRoleManagerView({ onBack }: UserRoleManagerViewProps
           <button
             type="button"
             onClick={onBack}
-            className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2 group"
+            className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2 group cursor-pointer"
             aria-label="Zurück"
             title="Zurück"
           >

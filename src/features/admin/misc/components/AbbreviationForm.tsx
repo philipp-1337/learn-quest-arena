@@ -231,7 +231,7 @@ export default function AbbreviationForm({
         <button
           onClick={handleSave}
           disabled={!hasChanges || saving}
-          className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-colors ${
+          className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-colors cursor-pointer ${
             hasChanges && !saving
               ? "bg-indigo-600 text-white hover:bg-indigo-700"
               : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"

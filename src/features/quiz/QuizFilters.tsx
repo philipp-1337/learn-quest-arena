@@ -33,7 +33,7 @@ export default function QuizFilters({
         {hasActiveFilters && (
           <button
             onClick={onClearFilters}
-            className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center gap-1"
+            className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
           >
             <X className="w-3 h-3" />
             Zurücksetzen
@@ -57,7 +57,7 @@ export default function QuizFilters({
                   onFilterChange({ author: auth.currentUser?.uid || "" });
                 }
               }}
-              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors
+              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors cursor-pointer
                 ${filters.author === getAuth().currentUser?.uid
                   ? "bg-indigo-100 dark:bg-indigo-900/50 border-indigo-400 dark:border-indigo-700 text-indigo-900 dark:text-indigo-200"
                   : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-700"}
@@ -74,7 +74,7 @@ export default function QuizFilters({
                   onFilterChange({ showHidden: false });
                 }
               }}
-              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors
+              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors cursor-pointer
                 ${filters.showHidden === false
                   ? "bg-indigo-100 dark:bg-indigo-900/50 border-indigo-400 dark:border-indigo-700 text-indigo-900 dark:text-indigo-200"
                   : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-700"}
@@ -91,7 +91,7 @@ export default function QuizFilters({
                   onFilterChange({ sortBy: "createdAt-desc", limit: 10 });
                 }
               }}
-              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors
+              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors cursor-pointer
                 ${(filters.sortBy === "createdAt-desc" && filters.limit === 10)
                   ? "bg-indigo-100 dark:bg-indigo-900/50 border-indigo-400 dark:border-indigo-700 text-indigo-900 dark:text-indigo-200"
                   : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-700"}
@@ -108,7 +108,7 @@ export default function QuizFilters({
                   onFilterChange({ search: "__noQuestions__" });
                 }
               }}
-              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors
+              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors cursor-pointer
                 ${filters.search === "__noQuestions__"
                   ? "bg-indigo-100 dark:bg-indigo-900/50 border-indigo-400 dark:border-indigo-700 text-indigo-900 dark:text-indigo-200"
                   : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-700"}
@@ -177,7 +177,7 @@ export default function QuizFilters({
                   );
                   if (subject) onRenameCategory("subject", subject.id, subject.name);
                 }}
-                className="text-xs text-gray-400 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+                className="text-xs text-gray-400 hover:text-indigo-600 flex items-center gap-1 transition-colors cursor-pointer"
                 title="Fach umbenennen"
               >
                 <Edit3 className="w-3 h-3" />
@@ -213,7 +213,7 @@ export default function QuizFilters({
                   );
                   if (classItem) onRenameCategory("class", classItem.id, classItem.name);
                 }}
-                className="text-xs text-gray-400 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+                className="text-xs text-gray-400 hover:text-indigo-600 flex items-center gap-1 transition-colors cursor-pointer"
                 title="Klasse umbenennen"
               >
                 <Edit3 className="w-3 h-3" />
@@ -249,7 +249,7 @@ export default function QuizFilters({
                   );
                   if (topic) onRenameCategory("topic", topic.id, topic.name);
                 }}
-                className="text-xs text-gray-400 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+                className="text-xs text-gray-400 hover:text-indigo-600 flex items-center gap-1 transition-colors cursor-pointer"
                 title="Thema umbenennen"
               >
                 <Edit3 className="w-3 h-3" />

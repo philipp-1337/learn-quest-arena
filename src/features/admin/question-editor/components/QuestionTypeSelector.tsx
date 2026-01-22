@@ -17,7 +17,7 @@ export default function QuestionTypeSelector({
           <button
             key={type}
             onClick={() => onChange(type)}
-            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors ${
+            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors cursor-pointer ${
               selectedType === type
                 ? "bg-indigo-600 text-white"
                 : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"

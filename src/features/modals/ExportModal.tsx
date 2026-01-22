@@ -51,7 +51,7 @@ export default function ExportModal({ onClose }: ExportModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer"
             aria-label="Schließen"
           >
             <X className="w-6 h-6" />
@@ -79,7 +79,7 @@ export default function ExportModal({ onClose }: ExportModalProps) {
             <button
               onClick={() => handleExport('json')}
               disabled={isExporting}
-              className="w-full flex items-center gap-4 p-4 border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center gap-4 p-4 border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <div className="flex-shrink-0">
                 <FileJson className="w-8 h-8 text-blue-600" />
@@ -99,7 +99,7 @@ export default function ExportModal({ onClose }: ExportModalProps) {
             <button
               onClick={() => handleExport('csv')}
               disabled={isExporting}
-              className="w-full flex items-center gap-4 p-4 border-2 border-gray-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center gap-4 p-4 border-2 border-gray-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <div className="flex-shrink-0">
                 <FileSpreadsheet className="w-8 h-8 text-green-600 dark:text-green-300" />
@@ -152,7 +152,7 @@ export default function ExportModal({ onClose }: ExportModalProps) {
         <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+            className="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors cursor-pointer"
           >
             Schließen
           </button>

@@ -110,7 +110,7 @@ export const usePwaPrompt = () => {
                           installPrompt.prompt();
                         }
                       }}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition cursor-pointer"
                       type="button"
                     >
                       <DownloadIcon size={16} />
@@ -122,7 +122,7 @@ export const usePwaPrompt = () => {
                         installToastShown.current = false;
                         setShowInstallPrompt(false);
                       }}
-                      className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors"
+                      className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors cursor-pointer"
                       type="button"
                     >
                       Später

@@ -229,7 +229,7 @@ export default function CreateQuizWizard({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+            className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -259,13 +259,13 @@ export default function CreateQuizWizard({
               </div>
               <div className="flex gap-4">
                 <button
-                  className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+                  className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors cursor-pointer"
                   onClick={() => onEditQuiz && onEditQuiz(createdQuizId)}
                 >
                   Quiz bearbeiten
                 </button>
                 <button
-                  className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors cursor-pointer"
                   onClick={onClose}
                 >
                   Schließen
@@ -358,7 +358,7 @@ export default function CreateQuizWizard({
           <div className="px-6 py-4 border-t border-gray-200 flex justify-between">
             <button
               onClick={currentStepIndex === 0 ? onClose : goBack}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors cursor-pointer"
             >
               {currentStepIndex === 0 ? (
                 <>Abbrechen</>
@@ -374,7 +374,7 @@ export default function CreateQuizWizard({
               <button
                 onClick={handleSubmit}
                 disabled={!canProceed() || isSubmitting}
-                className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
@@ -392,7 +392,7 @@ export default function CreateQuizWizard({
               <button
                 onClick={goNext}
                 disabled={!canProceed()}
-                className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
                 Weiter
                 <ChevronRight className="w-4 h-4" />
@@ -571,7 +571,7 @@ function SelectOrCreateStep({
                   </p>
                   <button
                     onClick={handleUseSimilar}
-                    className="mt-2 text-sm font-medium text-yellow-800 hover:text-yellow-900 underline"
+                    className="mt-2 text-sm font-medium text-yellow-800 hover:text-yellow-900 underline cursor-pointer"
                   >
                     Stattdessen verwenden
                   </button>
@@ -583,7 +583,7 @@ function SelectOrCreateStep({
       ) : (
         <button
           onClick={handleNewClick}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-indigo-400 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-indigo-400 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Neues {label} erstellen

@@ -165,7 +165,7 @@ export default function QuizChallengeManager({
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Quiz-Challenge</h2>
           <button
             onClick={handleCreateChallenge}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-5 h-5" />
             Neue Challenge
@@ -201,7 +201,7 @@ export default function QuizChallengeManager({
                     e.stopPropagation();
                     handleDeleteChallenge(challenge.id);
                   }}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -255,7 +255,7 @@ export default function QuizChallengeManager({
                 </h4>
                 <button
                   onClick={() => setShowQuestionSelector(true)}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <Plus className="w-5 h-5" />
                   Fragen auswählen
@@ -271,7 +271,7 @@ export default function QuizChallengeManager({
                     </h5>
                     <button
                       onClick={() => setShowQuestionSelector(false)}
-                      className="p-2 text-gray-600 hover:bg-gray-200 rounded-lg"
+                      className="p-2 text-gray-600 hover:bg-gray-200 rounded-lg cursor-pointer"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -329,13 +329,13 @@ export default function QuizChallengeManager({
                   <div className="flex gap-2">
                     <button
                       onClick={handleSaveQuestionSelection}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
                     >
                       Auswahl speichern ({selectedQuestions.size} Fragen)
                     </button>
                     <button
                       onClick={() => setShowQuestionSelector(false)}
-                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
                     >
                       Abbrechen
                     </button>
@@ -396,7 +396,7 @@ export default function QuizChallengeManager({
                           </div>
                           <button
                             onClick={() => handleRemoveQuestion(questionId)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

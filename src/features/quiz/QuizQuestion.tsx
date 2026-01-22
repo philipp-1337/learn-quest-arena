@@ -170,7 +170,7 @@ export default function QuizQuestion({
         {selectedAnswers.length > 0 && !isAnswerSubmitted && (
           <button
             onClick={onSubmitAnswer}
-            className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors mb-4"
+            className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors mb-4 cursor-pointer"
             title="Antwort prüfen"
             aria-label="Antwort prüfen"
           >
@@ -182,7 +182,7 @@ export default function QuizQuestion({
         {isAnswerSubmitted && (
           <button
             onClick={onNext}
-            className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+            className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors cursor-pointer"
             title={currentQuestion < totalQuestions - 1 ? 'Nächste Frage' : 'Ergebnis anzeigen'}
             aria-label={currentQuestion < totalQuestions - 1 ? 'Nächste Frage' : 'Ergebnis anzeigen'}
           >
@@ -192,7 +192,7 @@ export default function QuizQuestion({
 
         <button
           onClick={onBack || onHome}
-          className="w-full mt-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          className="w-full mt-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer"
           title={cancelButtonTitle}
           aria-label={cancelButtonTitle}
         >

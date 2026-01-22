@@ -57,7 +57,7 @@ export default function UsernamePicker({
                 <div className="mb-2">Fehler beim Generieren der Usernamen. Bitte versuche es erneut.</div>
                 <div className="flex gap-2 justify-end mt-2">
                   <button
-                    className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+                    className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 cursor-pointer"
                     onClick={() => {
                       toast.dismiss(t);
                       window.location.reload();
@@ -139,7 +139,7 @@ export default function UsernamePicker({
       <div className="flex flex-row gap-2 w-full justify-center">
         <button
           type="button"
-          className="flex items-center gap-1 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-700"
+          className="flex items-center gap-1 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-700 cursor-pointer"
           onClick={() => onUsernameSelected("skip")}
           title="Als Gast fortfahren"
           aria-label="Als Gast fortfahren"
@@ -169,7 +169,7 @@ export default function UsernamePicker({
             <button
               key={name}
               onClick={() => handleSelectName(name)}
-              className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded border hover:bg-indigo-100 w-full sm:w-auto mb-2 sm:mb-0 dark:hover:bg-indigo-900/30 text-gray-900 dark:text-gray-200 hover:text-indigo-900"
+              className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded border hover:bg-indigo-100 w-full sm:w-auto mb-2 sm:mb-0 dark:hover:bg-indigo-900/30 text-gray-900 dark:text-gray-200 hover:text-indigo-900 cursor-pointer"
             >
               {name}
             </button>
@@ -182,7 +182,7 @@ export default function UsernamePicker({
         onClick={onManualEntryRequested}
         title="Vorhandenen Namen eingeben"
         aria-label="Vorhandenen Namen eingeben"
-        className="text-xs text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 hover:underline mt-1"
+        className="text-xs text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 hover:underline mt-1 cursor-pointer"
       >
         Vorhandenen Namen eingeben
       </button>

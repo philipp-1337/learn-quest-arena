@@ -13,7 +13,7 @@ export default function Imprint() {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 transition-colors flex items-center gap-2 group"
+            className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 transition-colors flex items-center gap-2 group cursor-pointer"
             aria-label="Zurück zur Startseite"
             title="Zurück zur Startseite"
           >

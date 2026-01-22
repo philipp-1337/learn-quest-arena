@@ -56,7 +56,7 @@ export default function DeleteConfirmModal({
           </button>
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors cursor-pointer"
             title="Abbrechen"
             aria-label="Abbrechen"
           >

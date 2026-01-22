@@ -137,7 +137,7 @@ export default function ProtectedEmail() {
         />
         <button
           onClick={handleSubmit}
-          className="w-full py-3 px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+          className="w-full py-3 px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition-colors cursor-pointer"
         >
           Überprüfen
         </button>

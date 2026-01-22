@@ -34,7 +34,7 @@ export default function QuestionEditorHeader({
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <button
               onClick={onBack}
-              className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+              className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0 cursor-pointer"
               title="Zurück zum Quiz"
               aria-label="Zurück zum Quiz"
             >
@@ -52,7 +52,7 @@ export default function QuestionEditorHeader({
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={onBack}
-              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-gray-100 dark:bg-gray-900/40 border border-gray-300 dark:border-gray-700 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-900/50 font-medium transition-colors flex items-center justify-center gap-2"
+              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-gray-100 dark:bg-gray-900/40 border border-gray-300 dark:border-gray-700 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-900/50 font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
               aria-label="Abbrechen"
             >
               <XIcon className="w-4 h-4 sm:hidden" />
@@ -61,7 +61,7 @@ export default function QuestionEditorHeader({
             <button
               onClick={onSave}
               disabled={saving}
-              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:bg-indigo-400 transition-colors flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer"
               aria-label={saving ? "Speichert..." : isEditing ? "Aktualisieren" : "Hinzufügen"}
             >
               <Save className="w-4 h-4" />

@@ -76,7 +76,7 @@ export default function QuizListItem({
             <button
               onClick={onToggleHidden}
               disabled={!canToggle}
-              className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:dark:hover:text-gray-500 disabled:hover:bg-transparent"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:dark:hover:text-gray-500 disabled:hover:bg-transparent cursor-pointer"
               title={quiz.hidden ? "Sichtbar machen" : "Verstecken"}
             >
               {quiz.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
@@ -84,7 +84,7 @@ export default function QuizListItem({
 
             <button
               onClick={onCopyLink}
-              className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors cursor-pointer"
               title="Link kopieren"
             >
               <QrCode className="w-4 h-4" />
@@ -93,7 +93,7 @@ export default function QuizListItem({
             <button
               onClick={onReassign}
               disabled={!reassignPermission.allowed}
-              className="p-2 text-gray-400 dark:text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:dark:hover:text-gray-500 disabled:hover:bg-transparent"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:dark:hover:text-gray-500 disabled:hover:bg-transparent cursor-pointer"
               title="Fach/Klasse/Thema ändern"
             >
               <ArrowLeftRight className="w-4 h-4" />
@@ -102,7 +102,7 @@ export default function QuizListItem({
             <button
               onClick={() => navigate(`/admin/quiz/edit/${quiz.id}`)}
               disabled={!editPermission.allowed}
-              className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:dark:hover:text-gray-500 disabled:hover:bg-transparent"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:dark:hover:text-gray-500 disabled:hover:bg-transparent cursor-pointer"
               title={editPermission.reason || "Bearbeiten"}
             >
               <Pencil className="w-4 h-4" />
@@ -115,7 +115,7 @@ export default function QuizListItem({
                 quiz.authorId !== undefined &&
                 quiz.authorId !== auth.currentUser?.uid
               }
-              className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:dark:hover:text-gray-500 disabled:hover:bg-transparent"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:dark:hover:text-gray-500 disabled:hover:bg-transparent cursor-pointer"
               title="Löschen"
             >
               <Trash2 className="w-4 h-4" />
@@ -125,7 +125,7 @@ export default function QuizListItem({
           {/* Actions Mobile - Button only */}
           <div className="sm:hidden shrink-0">
             <button
-              className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg cursor-pointer"
               title="Aktionen"
               onClick={(e) => {
                 e.stopPropagation();
@@ -195,7 +195,7 @@ export default function QuizListItem({
               setOpenMobileMenu(false);
             }}
             disabled={!canToggle}
-            className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent cursor-pointer"
           >
             {quiz.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
             {quiz.hidden ? "Sichtbar machen" : "Verstecken"}
@@ -206,7 +206,7 @@ export default function QuizListItem({
               onCopyLink();
               setOpenMobileMenu(false);
             }}
-            className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+            className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 cursor-pointer"
           >
             <QrCode className="w-4 h-4" />
             Link kopieren
@@ -218,7 +218,7 @@ export default function QuizListItem({
               setOpenMobileMenu(false);
             }}
             disabled={!reassignPermission.allowed}
-            className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent cursor-pointer"
           >
             <ArrowLeftRight className="w-4 h-4" />
             Neu zuordnen
@@ -230,7 +230,7 @@ export default function QuizListItem({
               setOpenMobileMenu(false);
             }}
             disabled={!editPermission.allowed}
-            className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent cursor-pointer"
           >
             {quiz.editLock ? <Lock className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
             {quiz.editLock ? "Bearbeitung läuft" : "Bearbeiten"}
@@ -246,7 +246,7 @@ export default function QuizListItem({
               quiz.authorId !== undefined &&
               quiz.authorId !== auth.currentUser?.uid
             }
-            className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent cursor-pointer"
           >
             <Trash2 className="w-4 h-4" />
             Löschen

@@ -324,7 +324,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white force-break" lang="de">Quiz Import</h3>
           <button
             onClick={onClose}
-            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer"
             title="Schließen"
             aria-label="Schließen"
           >
@@ -351,7 +351,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => downloadTemplate('json')}
-              className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+              className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
               title="JSON Vorlage herunterladen"
               aria-label="JSON Vorlage herunterladen"
             >
@@ -360,7 +360,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             </button>
             <button
               onClick={() => downloadTemplate('csv')}
-              className="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors"
+              className="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
               title="CSV Vorlage herunterladen"
               aria-label="CSV Vorlage herunterladen"
             >
@@ -488,7 +488,7 @@ Mathematik,Klasse 3,Multiplikation,Einmaleins,Was ist 5 × 2?,10,12,8,1`}
         <div className="mt-6 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors cursor-pointer"
           >
             Schließen
           </button>

@@ -13,7 +13,7 @@ export function CustomToast({ message, type = "info", toastId, dismissible = fal
       {dismissible && (
         <button
           onClick={() => toast.dismiss(toastId)}
-          className="flex-shrink-0 p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+          className="flex-shrink-0 p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 transition-colors cursor-pointer"
           aria-label="Schließen"
         >
           <X className="w-4 h-4" />

@@ -155,7 +155,7 @@ export default function QuestionCard({
         <div className="flex gap-2 mt-4 border-t border-gray-200 dark:border-gray-700 pt-3">
           <button
             onClick={() => onEdit(index)}
-            className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
+            className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors cursor-pointer"
             title="Frage bearbeiten"
             aria-label="Frage bearbeiten"
           >
@@ -163,7 +163,7 @@ export default function QuestionCard({
           </button>
           <button
             onClick={() => onDelete(index)}
-            className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
+            className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors cursor-pointer"
             title="Frage löschen"
             aria-label="Frage löschen"
           >

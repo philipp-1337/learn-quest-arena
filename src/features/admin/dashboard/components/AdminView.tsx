@@ -90,7 +90,7 @@ export default function AdminView({
               <div className="flex gap-4 min-w-max">
                 <button
                   onClick={() => setActiveTab('quiz')}
-                  className={`pb-3 px-4 font-semibold transition-colors whitespace-nowrap ${
+                  className={`pb-3 px-4 font-semibold transition-colors whitespace-nowrap cursor-pointer ${
                     activeTab === 'quiz'
                       ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
                       : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 border-b-2 border-transparent'
@@ -100,7 +100,7 @@ export default function AdminView({
                 </button>
                 <button
                   onClick={() => setActiveTab('challenge')}
-                  className={`relative pb-3 px-4 font-semibold transition-colors whitespace-nowrap ${
+                  className={`relative pb-3 px-4 font-semibold transition-colors whitespace-nowrap cursor-pointer ${
                     activeTab === 'challenge'
                       ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
                       : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 border-b-2 border-transparent'
@@ -121,7 +121,7 @@ export default function AdminView({
                   <div className="flex gap-3">
                     <button
                       onClick={() => setShowExportModal(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/40 border border-blue-300 dark:border-blue-700 rounded-md text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50"
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/40 border border-blue-300 dark:border-blue-700 rounded-md text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 cursor-pointer"
                       title="Quiz exportieren"
                       aria-label="Quiz exportieren"
                     >
@@ -130,7 +130,7 @@ export default function AdminView({
                     </button>
                     <button
                       onClick={() => setShowImportModal(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-green-700 rounded-md text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50"
+                      className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/40 border border-green-300 dark:border-green-700 rounded-md text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50 cursor-pointer"
                       title="Quiz importieren"
                       aria-label="Quiz importieren"
                     >

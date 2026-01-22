@@ -37,7 +37,7 @@ export default function AdminProfileView({
         <button
           type="button"
           onClick={handleBack}
-          className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2 group"
+          className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2 group cursor-pointer"
           aria-label="Zurück"
           title="Zurück"
         >
@@ -87,7 +87,7 @@ export default function AdminProfileView({
           <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800 transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800 transition-colors cursor-pointer"
             >
               <LogOut className="w-5 h-5" />
               Abmelden

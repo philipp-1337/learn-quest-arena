@@ -39,7 +39,7 @@ export default function TextAnswerItem({
       <button
         onClick={() => onRemove(index)}
         disabled={!canRemove}
-        className="px-3 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+        className="px-3 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed transition-colors flex-shrink-0 cursor-pointer"
       >
         <Trash2 className="w-5 h-5" />
       </button>

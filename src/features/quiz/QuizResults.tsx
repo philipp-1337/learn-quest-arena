@@ -246,7 +246,7 @@ export default function QuizResults({
           >
             <button
               onClick={() => setWrongQuestionsExpanded(!wrongQuestionsExpanded)}
-              className="w-full flex items-center justify-center p-4 bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors"
+              className="w-full flex items-center justify-center p-4 bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
@@ -285,7 +285,7 @@ export default function QuizResults({
                 {wrongQuestions.length > 0 && (
                   <button
                     onClick={onRepeatWrong}
-                    className="w-full bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:scale-[0.98] active:scale-[1]"
+                    className="w-full bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:scale-[0.98] active:scale-[1] cursor-pointer"
                     title="Falsche Fragen wiederholen"
                     aria-label="Falsche Fragen wiederholen"
                   >
@@ -316,7 +316,7 @@ export default function QuizResults({
                   onRestart();
                 }
               }}
-              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[0.98] active:scale-[1]"
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[0.98] active:scale-[1] cursor-pointer"
               title="Neu starten"
               aria-label="Neu starten"
             >
@@ -326,7 +326,7 @@ export default function QuizResults({
 
             <button
               onClick={onBack}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white py-4 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[0.98] active:scale-[1]"
+              className="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white py-4 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[0.98] active:scale-[1] cursor-pointer"
               title="Zurück"
               aria-label="Zurück"
             >
@@ -337,7 +337,7 @@ export default function QuizResults({
 
           <button
             onClick={onHome}
-            className="w-full text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white py-2 transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[0.98] active:scale-[1]"
+            className="w-full text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white py-2 transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[0.98] active:scale-[1] cursor-pointer"
             title="Zum Start"
             aria-label="Zum Start"
           >

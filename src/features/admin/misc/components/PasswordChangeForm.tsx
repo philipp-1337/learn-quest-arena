@@ -102,7 +102,7 @@ export default function PasswordChangeForm() {
             <button
               type="button"
               onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
               aria-label={showCurrentPassword ? "Passwort verbergen" : "Passwort anzeigen"}
             >
               {showCurrentPassword ? (
@@ -132,7 +132,7 @@ export default function PasswordChangeForm() {
             <button
               type="button"
               onClick={() => setShowNewPassword(!showNewPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
               aria-label={showNewPassword ? "Passwort verbergen" : "Passwort anzeigen"}
             >
               {showNewPassword ? (
@@ -167,7 +167,7 @@ export default function PasswordChangeForm() {
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
               aria-label={showConfirmPassword ? "Passwort verbergen" : "Passwort anzeigen"}
             >
               {showConfirmPassword ? (
@@ -195,7 +195,7 @@ export default function PasswordChangeForm() {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-colors ${
+          className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-colors cursor-pointer ${
             loading
               ? "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
               : "bg-indigo-600 text-white hover:bg-indigo-700"

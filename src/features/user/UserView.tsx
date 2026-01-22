@@ -331,7 +331,7 @@ const ProgressAccordionItem: React.FC<{
                       : "continue";
                 onNavigateToQuiz(mode);
               }}
-              className="w-full px-3 py-2 border border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+              className="w-full px-3 py-2 border border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
               <Play className="w-4 h-4" />
               {dueForReview > 0
@@ -541,7 +541,7 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
         <button
           type="button"
           onClick={handleClose}
-          className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2 group"
+          className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-2 group cursor-pointer"
           aria-label="Zurück zur Startseite"
           title="Zurück zur Startseite"
         >
@@ -594,7 +594,7 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
                 handleChooseName();
               }
             }}
-            className="ml-2 p-2 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors relative"
+            className="ml-2 p-2 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors relative cursor-pointer"
             title="Anderen Namen wählen"
             aria-label="Anderen Namen wählen"
             type="button"
@@ -623,7 +623,7 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
               <button
                 type="button"
                 onClick={() => setSuggestAccordionOpen((open) => !open)}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-indigo-200 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-semibold text-lg transition-colors hover:bg-indigo-100 dark:hover:bg-indigo-900"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-indigo-200 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-semibold text-lg transition-colors hover:bg-indigo-100 dark:hover:bg-indigo-900 cursor-pointer"
                 aria-expanded={suggestAccordionOpen}
               >
                 <span className="flex items-center gap-2">
@@ -703,7 +703,7 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
                           </div>
                           <div className="flex items-center gap-2">
                             <button
-                              className="px-3 py-1 rounded-lg bg-indigo-600 text-white dark:bg-indigo-500 dark:text-white font-medium text-sm hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors flex items-center gap-2"
+                              className="px-3 py-1 rounded-lg bg-indigo-600 text-white dark:bg-indigo-500 dark:text-white font-medium text-sm hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors flex items-center gap-2 cursor-pointer"
                               onClick={() => handleNavigateToQuiz(quiz.id, "fresh")}
                             >
                               <span className="inline sm:hidden">
@@ -712,7 +712,7 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
                               <span className="hidden sm:inline">Starten</span>
                             </button>
                             <button
-                              className="px-2 py-1 rounded-lg bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors flex items-center"
+                              className="px-2 py-1 rounded-lg bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors flex items-center cursor-pointer"
                               title="Nicht mehr vorschlagen"
                               disabled={fadingQuizIds.has(quiz.id)}
                               onClick={() => {
