@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import LoadingScreen from './features/shared/LoadingScreen';
 import MaintenanceView from './features/shared/MaintenanceView';
-import Toaster from './utils/ToasterProvider';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import QuizEditLayout from './features/admin/quiz-editor/components/QuizEditLayout';
 import LoginView from './features/login/LoginView';
@@ -24,6 +23,9 @@ import { useQuizzesFromCollection } from './hooks/useQuizzesFromCollection';
 import { usePwaPrompt } from './hooks/usePwaPrompt';
 import { usePwaUpdate } from './hooks/usePwaUpdate';
 import { AlertTriangle } from 'lucide-react';
+import { ensureToastPortal } from './utils/ensureToastPortal';
+import { CustomToastPortal } from './utils/CustomToastPortal';
+import Toaster from './utils/ToasterProvider';
 
 // ============================================
 // MAIN APP COMPONENT
@@ -61,6 +63,11 @@ export default function FlashcardQuizApp() {
       }
     }
   }, [quizSubjects, quizzesLoading, quizzesError]);
+
+  // Toast-Portal-Container im Body anlegen
+  useEffect(() => {
+    ensureToastPortal();
+  }, []);
 
   const handleAdminClick = () => {
     const auth = getAuth();
@@ -104,14 +111,16 @@ export default function FlashcardQuizApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
-      <Toaster
-        position="bottom-left"
-        richColors
-        closeButton
-        toastOptions={{
-          style: { pointerEvents: "auto" },
-        }}
-      />
+      <CustomToastPortal position="bottom">
+        <Toaster
+          position="bottom-center"
+          richColors
+          closeButton
+          toastOptions={{
+            style: { pointerEvents: "auto" },
+          }}
+        />
+      </CustomToastPortal>
       {/* Error Banner */}
       {error && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800 px-4 py-3">
