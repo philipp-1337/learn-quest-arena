@@ -573,7 +573,7 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
         <div className="mb-6 flex items-center justify-between text-2xl text-gray-800 dark:text-gray-200 font-mono break-all select-all border border-gray-200 dark:border-gray-700 rounded-lg py-4 px-4 bg-gray-50 dark:bg-gray-900">
           <span className="truncate">{username}</span>
           <button
-            onClick={async () => {
+            onClick={async (_) => {
               // Fortschritt laden
               let hasProgress = false;
               try {
@@ -593,6 +593,11 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
               } else {
                 handleChooseName();
               }
+            }}
+            onMouseDown={(e) => {
+              // Prevent selection of the username span when clicking the button
+              e.preventDefault();
+              e.stopPropagation();
             }}
             className="ml-2 p-2 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors relative cursor-pointer"
             title="Anderen Namen wählen"
