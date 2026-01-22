@@ -40,7 +40,7 @@ export default function FeaturedQuizzes({ subjects, onQuizSelect }: FeaturedQuiz
 function FeaturedQuizSkeleton() {
   return (
     <div className="relative flex flex-col h-full animate-pulse">
-      <div className="w-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-700 flex flex-col h-full justify-between">
+      <div className="w-full bg-gradient-to-br from-indigo-200 via-indigo-100 to-pink-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-6 rounded-2xl shadow-xl dark:shadow-none border border-indigo-200 dark:border-slate-800 flex flex-col h-full justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="text-left flex-1">
@@ -96,7 +96,7 @@ function FeaturedQuizCard({ quiz, subjects, onSelect }: FeaturedQuizCardProps) {
       className="relative flex flex-col h-full cursor-pointer group"
       aria-label={`Quiz starten: ${quiz.title}`}
     >
-      <div className="w-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 text-slate-700 dark:text-slate-100 p-6 rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-700 flex flex-col h-full justify-between transition-all group-hover:shadow-md dark:group-hover:shadow-slate-900/20 group-hover:scale-[1.01] group-focus:ring-2 group-focus:ring-slate-400 dark:group-focus:ring-slate-500 group-focus:outline-none">
+      <div className="w-full bg-gradient-to-br from-indigo-200 via-indigo-100 to-pink-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 text-slate-700 dark:text-slate-100 p-6 rounded-2xl shadow-xl dark:shadow-none border border-indigo-200 dark:border-slate-800 flex flex-col h-full justify-between transition-all group-hover:shadow-2xl dark:group-hover:shadow-slate-900/20 group-hover:scale-[1.03] group-focus:ring-2 group-focus:ring-indigo-300 dark:group-focus:ring-slate-700 group-focus:outline-none">
         <div>
           <div className="flex items-center justify-between mb-2">
             <div className="text-left flex-1">
