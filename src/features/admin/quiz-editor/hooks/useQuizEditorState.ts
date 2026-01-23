@@ -10,8 +10,6 @@ interface UseQuizEditorStateReturn {
   editedQuiz: Quiz | null;
   setEditedQuiz: React.Dispatch<React.SetStateAction<Quiz | null>>;
   quizDocument: QuizDocument | null;
-  urlShared: boolean;
-  setUrlShared: React.Dispatch<React.SetStateAction<boolean>>;
   allChangesSaved: boolean;
   isLoading: boolean;
 }
@@ -21,7 +19,6 @@ export function useQuizEditorState({
 }: UseQuizEditorStateOptions): UseQuizEditorStateReturn {
   const [editedQuiz, setEditedQuiz] = useState<Quiz | null>(null);
   const [quizDocument, setQuizDocument] = useState<QuizDocument | null>(null);
-  const [urlShared, setUrlShared] = useState(false);
   const [allChangesSaved, setAllChangesSaved] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -43,10 +40,10 @@ export function useQuizEditorState({
           uuid: quiz.id,
           title: quiz.title,
           shortTitle: quiz.shortTitle || quiz.title,
+          url: quiz.url,
           questions: quiz.questions || [],
           hidden: quiz.hidden === undefined ? true : quiz.hidden,
         });
-        setUrlShared(quiz.urlShared || false);
         setIsLoading(false);
       } catch (error) {
         console.error("Error loading quiz:", error);
@@ -64,18 +61,16 @@ export function useQuizEditorState({
     const changed =
       editedQuiz.title !== quizDocument.title ||
       editedQuiz.shortTitle !== (quizDocument.shortTitle || quizDocument.title) ||
-      editedQuiz.hidden !== (quizDocument.hidden === undefined ? true : quizDocument.hidden) ||
-      urlShared !== (quizDocument.urlShared || false);
+      editedQuiz.url !== quizDocument.url ||
+      editedQuiz.hidden !== (quizDocument.hidden === undefined ? true : quizDocument.hidden);
 
     setAllChangesSaved(!changed);
-  }, [editedQuiz, quizDocument, urlShared]);
+  }, [editedQuiz, quizDocument]);
 
   return {
     editedQuiz,
     setEditedQuiz,
     quizDocument,
-    urlShared,
-    setUrlShared,
     allChangesSaved,
     isLoading,
   };

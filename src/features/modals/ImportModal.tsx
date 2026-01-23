@@ -272,6 +272,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             uuid: quizId,
             title: quiz.title,
             shortTitle: quiz.title.substring(0, 20),
+            url: quiz.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
             questions: quiz.questions,
             hidden: true, // Start hidden
             createdAt: now,

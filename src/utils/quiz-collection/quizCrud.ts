@@ -157,6 +157,7 @@ export function quizDocumentToQuiz(doc: QuizDocument): Quiz {
     uuid: doc.id,
     title: doc.title,
     shortTitle: doc.shortTitle,
+    url: doc.url,
     questions: doc.questions,
     hidden: doc.hidden,
   };

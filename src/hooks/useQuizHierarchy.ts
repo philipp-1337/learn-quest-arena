@@ -110,6 +110,7 @@ export function useQuizHierarchy(
       uuid: quizUuid,
       title,
       shortTitle: title,
+      url: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
       questions: [],
       hidden,
     };

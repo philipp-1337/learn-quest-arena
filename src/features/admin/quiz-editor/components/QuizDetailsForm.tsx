@@ -1,35 +1,13 @@
 import type { Quiz } from 'quizTypes';
-import { showConfirmationToast } from '@utils/confirmationToast';
 
 interface QuizDetailsFormProps {
   quiz: Quiz;
-  urlShared: boolean;
   userRole: string | null;
   onQuizChange: (updates: Partial<Quiz>) => void;
-  onUrlSharedChange: (value: boolean) => void;
 }
 
-export default function QuizDetailsForm({
-  quiz,
-  urlShared,
-  userRole,
-  onQuizChange,
-  onUrlSharedChange,
-}: QuizDetailsFormProps) {
-  const handleUrlSharedToggle = (checked: boolean) => {
-    if (!checked) {
-      showConfirmationToast({
-        message:
-          "Achtung: Eine Änderung am Kurztitel ändert auch die URL. Dies kann Auswirkungen auf bereits geteilte URLs haben.",
-        confirmText: "Verstanden",
-        cancelText: "Abbrechen",
-        onConfirm: () => onUrlSharedChange(false),
-        onCancel: () => {},
-      });
-    } else {
-      onUrlSharedChange(true);
-    }
-  };
+
+export default function QuizDetailsForm({ quiz, userRole, onQuizChange }: QuizDetailsFormProps) {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -59,16 +37,32 @@ export default function QuizDetailsForm({
             htmlFor="quiz-short-title"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            Kurztitel (für Admin-Anzeige & URL)
+            Kurztitel (optional, für Anzeige)
           </label>
           <input
             id="quiz-short-title"
             type="text"
-            value={quiz.shortTitle}
+            value={quiz.shortTitle || ""}
             onChange={(e) => onQuizChange({ shortTitle: e.target.value })}
-            disabled={urlShared}
-            className="w-full px-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder="Kurztitel"
+            className="w-full px-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            placeholder="Kurztitel (optional)"
+            lang="de"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="quiz-url"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Quiz-URL (fest, nicht änderbar)
+          </label>
+          <input
+            id="quiz-url"
+            type="text"
+            value={quiz.url}
+            readOnly
+            className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 focus:outline-none"
+            placeholder="Quiz-URL"
             lang="de"
           />
         </div>
@@ -101,21 +95,6 @@ export default function QuizDetailsForm({
                   (Du kannst die Sichtbarkeit nicht ändern)
                 </span>
               )}
-            </label>
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="url-shared-toggle"
-              checked={urlShared}
-              onChange={(e) => handleUrlSharedToggle(e.target.checked)}
-              className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-700"
-            />
-            <label
-              htmlFor="url-shared-toggle"
-              className="text-sm text-gray-700 dark:text-gray-300"
-            >
-              Kurztitel nicht änderbar (URL wurde geteilt)
             </label>
           </div>
         </div>

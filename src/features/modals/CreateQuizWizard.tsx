@@ -25,6 +25,7 @@ interface QuizFormData {
   topicId: string;
   topicName: string;
   title: string;
+  url: string;
   isNewSubject: boolean;
   isNewClass: boolean;
   isNewTopic: boolean;
@@ -48,10 +49,14 @@ export default function CreateQuizWizard({
     topicId: "",
     topicName: "",
     title: "",
+    url: "",
     isNewSubject: false,
     isNewClass: false,
     isNewTopic: false,
   });
+
+  // Merkt, ob das URL-Feld manuell verändert wurde
+  const [urlManuallyChanged, setUrlManuallyChanged] = useState(false);
   const [createdQuizId, setCreatedQuizId] = useState<string | null>(null);
 
   const steps: WizardStep[] = ['subject', 'class', 'topic', 'details'];
@@ -73,7 +78,7 @@ export default function CreateQuizWizard({
       case 'topic':
         return formData.topicName.trim().length > 0;
       case 'details':
-        return formData.title.trim().length > 0;
+        return formData.title.trim().length > 0 && formData.url.trim().length > 0 && /^[a-z0-9-]+$/.test(formData.url);
       default:
         return false;
     }
@@ -164,14 +169,38 @@ export default function CreateQuizWizard({
     setIsSubmitting(true);
 
     try {
+      // Prüfe, ob die Kombination aus subjectName, className, topicName und url bereits existiert
+      const { getFirestore, collection, query, where, getDocs } = await import('firebase/firestore');
+      const db = getFirestore();
+      const quizzesRef = collection(db, 'quizzes');
+      const q = query(
+        quizzesRef,
+        where('url', '==', formData.url.trim()),
+        where('subjectName', '==', formData.subjectName.trim()),
+        where('className', '==', formData.className.trim()),
+        where('topicName', '==', formData.topicName.trim())
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        toast.custom(() => (
+          <CustomToast 
+            message="Diese URL ist in dieser Kombination bereits vergeben. Bitte wähle eine andere." 
+            type="error" 
+          />
+        ));
+        setIsSubmitting(false);
+        return;
+      }
+
       const now = Date.now();
       const quizId = crypto.randomUUID();
-
+      // shortTitle ist optional, kann leer sein
       const quizDoc: QuizDocument = {
         id: quizId,
         uuid: quizId,
         title: formData.title.trim(),
-        shortTitle: formData.title.trim().substring(0, 20),
+        shortTitle: formData.title.trim().length > 0 ? formData.title.trim().substring(0, 20) : undefined,
+        url: formData.url.trim(),
         questions: [],
         hidden: true, // New quizzes start hidden
         createdAt: now,
@@ -336,11 +365,48 @@ export default function CreateQuizWizard({
                     <input
                       type="text"
                       value={formData.title}
-                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      onChange={(e) => {
+                        const newTitle = e.target.value;
+                        setFormData(prev => {
+                          // Nur synchronisieren, wenn URL nicht manuell geändert wurde
+                          if (!urlManuallyChanged) {
+                            const slug = newTitle
+                              .toLowerCase()
+                              .replace(/[^a-z0-9]+/g, '-')
+                              .replace(/^-+|-+$/g, '');
+                            return { ...prev, title: newTitle, url: slug };
+                          }
+                          return { ...prev, title: newTitle };
+                        });
+                      }}
                       placeholder="z.B. Grundlagen der Addition"
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       autoFocus
                     />
+                  </div>
+                  {/* Quiz URL */}
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Quiz-URL (einmalig, nur Kleinbuchstaben, Zahlen und Bindestriche)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.url}
+                      onChange={(e) => {
+                        setUrlManuallyChanged(true);
+                        // Automatisch slugify anwenden
+                        const raw = e.target.value;
+                        const slug = raw
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, '-')
+                          .replace(/^-+|-+$/g, '');
+                        setFormData(prev => ({ ...prev, url: slug }));
+                      }}
+                      placeholder="z.B. grundlagen-der-addition"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      maxLength={40}
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Die URL kann nach dem Erstellen nicht mehr geändert werden und muss eindeutig sein.</p>
                   </div>
 
                   <p className="text-sm text-gray-500 dark:text-gray-400">

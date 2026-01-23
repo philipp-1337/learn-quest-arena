@@ -72,14 +72,6 @@ export function useQuizActions(
     const url = `${baseUrl}/quiz/${slugify(quiz.subjectName || "")}/${slugify(quiz.className || "")}/${slugify(quiz.topicName || "")}/${slugify(quiz.title)}`;
     navigator.clipboard.writeText(url);
 
-    if (!quiz.urlShared) {
-      const result = await updateQuizDocument(quiz.id, { urlShared: true });
-      if (result.success) {
-        setQuizzes((prev) =>
-          prev.map((q) => (q.id === quiz.id ? { ...q, urlShared: true } : q))
-        );
-      }
-    }
 
     toast.custom(() => (
       <CustomToast message="Link in Zwischenablage kopiert!" type="success" />

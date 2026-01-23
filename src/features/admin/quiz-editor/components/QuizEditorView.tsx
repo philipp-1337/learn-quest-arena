@@ -29,8 +29,6 @@ export default function QuizEditorView() {
     editedQuiz,
     setEditedQuiz,
     quizDocument,
-    urlShared,
-    setUrlShared,
     allChangesSaved,
     isLoading: quizLoading,
   } = useQuizEditorState({ quizId: id || "" });
@@ -92,9 +90,9 @@ export default function QuizEditorView() {
       await updateQuizDocument(quizDocument.id, {
         title: editedQuiz.title,
         shortTitle: editedQuiz.shortTitle,
+        url: editedQuiz.url,
         questions: editedQuiz.questions,
         hidden: editedQuiz.hidden,
-        urlShared: urlShared,
       });
 
       toast.custom(() => (
@@ -133,13 +131,13 @@ export default function QuizEditorView() {
                     uuid: quizDocument.id,
                     title: quizDocument.title,
                     shortTitle: quizDocument.shortTitle || quizDocument.title,
+                    url: quizDocument.url,
                     questions: quizDocument.questions || [],
                     hidden:
                       quizDocument.hidden === undefined
                         ? true
                         : quizDocument.hidden,
                   });
-                  setUrlShared(quizDocument.urlShared || false);
                 }
                 toast.dismiss(t);
               }}
@@ -251,12 +249,10 @@ export default function QuizEditorView() {
           {/* Quiz Details Form */}
           <QuizDetailsForm
             quiz={editedQuiz}
-            urlShared={urlShared}
             userRole={userRole}
             onQuizChange={(updates) =>
               setEditedQuiz((q) => (q ? { ...q, ...updates } : null))
             }
-            onUrlSharedChange={setUrlShared}
           />
 
           {/* Questions List */}

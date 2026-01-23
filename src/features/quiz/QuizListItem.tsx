@@ -62,7 +62,7 @@ export default function QuizListItem({
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <h3 className="font-semibold text-gray-900 dark:text-white truncate">
-              {quiz.shortTitle || quiz.title}
+              {quiz.shortTitle ?? quiz.title}
             </h3>
             {quiz.hidden && (
               <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded shrink-0">
