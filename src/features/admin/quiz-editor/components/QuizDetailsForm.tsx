@@ -1,4 +1,4 @@
-import type { Quiz } from 'quizTypes';
+import type { Quiz } from "quizTypes";
 
 interface QuizDetailsFormProps {
   quiz: Quiz;
@@ -6,9 +6,11 @@ interface QuizDetailsFormProps {
   onQuizChange: (updates: Partial<Quiz>) => void;
 }
 
-
-export default function QuizDetailsForm({ quiz, userRole, onQuizChange }: QuizDetailsFormProps) {
-
+export default function QuizDetailsForm({
+  quiz,
+  userRole,
+  onQuizChange,
+}: QuizDetailsFormProps) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -37,7 +39,10 @@ export default function QuizDetailsForm({ quiz, userRole, onQuizChange }: QuizDe
             htmlFor="quiz-short-title"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            Kurztitel (optional, für Anzeige)
+            Kurztitel
+            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+              (optional, für Anzeige in Listen)
+            </span>
           </label>
           <input
             id="quiz-short-title"
@@ -54,7 +59,10 @@ export default function QuizDetailsForm({ quiz, userRole, onQuizChange }: QuizDe
             htmlFor="quiz-url"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            Quiz-URL (fest, nicht änderbar)
+              Quiz-URL 
+            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+              (fest, nicht änderbar)
+            </span>
           </label>
           <input
             id="quiz-url"
