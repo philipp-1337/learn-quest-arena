@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FadeDismissQuiz } from './components/FadeDismissQuiz';
+import React, { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { FadeDismissQuiz } from "./components/FadeDismissQuiz";
 import {
   Pencil,
   ArrowLeft,
@@ -16,15 +16,19 @@ import {
   Book,
   Boxes,
   BotOff,
-} from 'lucide-react';
-import { loadAllUserProgress } from '@utils/loadAllUserProgress';
-import type { UserQuizProgress } from 'userProgress';
-import type { Subject, Quiz } from 'quizTypes';
-import { showConfirmationToast } from '@utils/confirmationToast';
-import { addDismissedQuiz } from '@utils/dismissedQuizzesFirestore';
-import { formatTime } from '@utils/formatTime';
-import { findQuizOnly, findQuizById } from '@utils/quizHierarchySearch';
-import { useQuizNavigation } from '@features/quiz-browse'
+  RefreshCcw,
+  GraduationCap,
+  Eraser,
+} from "lucide-react";
+import { loadAllUserProgress } from "@utils/loadAllUserProgress";
+import type { UserQuizProgress } from "userProgress";
+import type { Subject, Quiz } from "quizTypes";
+import { showConfirmationToast } from "@utils/confirmationToast";
+import { addDismissedQuiz } from "@utils/dismissedQuizzesFirestore";
+import { formatTime } from "@utils/formatTime";
+import { findQuizOnly, findQuizById } from "@utils/quizHierarchySearch";
+import { useQuizNavigation } from "@features/quiz-browse";
+import { deleteUserQuizProgress } from "@utils/deleteUserQuizProgress";
 
 interface UserViewProps {
   subjects: Subject[];
@@ -48,7 +52,8 @@ const ProgressAccordionItem: React.FC<{
   isOpen: boolean;
   onToggle: () => void;
   onNavigateToQuiz: (mode: "fresh" | "continue" | "review") => void;
-}> = ({ progress, isOpen, onToggle, onNavigateToQuiz }) => {
+  onRemoveProgress?: (quizId: string) => void;
+}> = ({ progress, isOpen, onToggle, onNavigateToQuiz, onRemoveProgress }) => {
   const quiz = progress.quiz;
   const isDeletedQuiz = !quiz;
   const displayTitle = isDeletedQuiz
@@ -317,31 +322,83 @@ const ProgressAccordionItem: React.FC<{
             </p>
           </div>
 
-          {/* Button zum Quiz starten */}
-          {/* Button zum Quiz starten nur für nicht gelöschte Quizzes */}
+          {/* Button zum Quiz starten & Löschen, gemeinsam unten rechts */}
           {!isDeletedQuiz && (
-            <button
-              onClick={() => {
-                // Bestimme den Modus basierend auf SRS-Daten
-                const mode =
-                  dueForReview > 0
-                    ? "review"
-                    : isCompleted
-                      ? "fresh"
-                      : "continue";
-                onNavigateToQuiz(mode);
-              }}
-              className="w-full px-3 py-2 border border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
-            >
-              <Play className="w-4 h-4" />
-              {dueForReview > 0
-                ? `${dueForReview} ${
-                    dueForReview === 1 ? "Frage" : "Fragen"
-                  } wiederholen`
-                : isCompleted
-                  ? "Quiz wiederholen"
-                  : "Quiz fortsetzen"}
-            </button>
+            <div className="flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center gap-2 mt-4">
+              {/* Für unvollständige Quizze: Auswahl aller Modi */}
+              {!isCompleted && (
+                <>
+                  <button
+                    onClick={() => onNavigateToQuiz("continue")}
+                    className="px-3 py-2 border border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Play className="w-4 h-4" />
+                    Quiz fortsetzen
+                  </button>
+                  <button
+                    onClick={() => onNavigateToQuiz("fresh")}
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/40 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <RefreshCcw className="w-4 h-4" />
+                    Neu starten
+                  </button>
+                  {dueForReview > 0 && (
+                    <button
+                      onClick={() => onNavigateToQuiz("review")}
+                      className="px-3 py-2 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <GraduationCap className="w-4 h-4" />
+                      {dueForReview} {dueForReview === 1 ? "Frage" : "Fragen"}{" "}
+                      wiederholen
+                    </button>
+                  )}
+                </>
+              )}
+              {/* Für abgeschlossene Quizze: SRS-Review und Wiederholen */}
+              {isCompleted && (
+                <div className="flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center gap-2 w-full">
+                  {/* SRS-Review-Button, falls fällige Fragen vorhanden */}
+                  {dueForReview > 0 && (
+                    <button
+                      onClick={() => onNavigateToQuiz("review")}
+                      className="px-3 py-2 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <GraduationCap className="w-4 h-4" />
+                      {dueForReview} {dueForReview === 1 ? "Frage" : "Fragen"} wiederholen
+                    </button>
+                  )}
+                  {/* Normaler Wiederholen-Button */}
+                  <button
+                    onClick={() => onNavigateToQuiz("fresh")}
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/40 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <RefreshCcw className="w-4 h-4" />
+                    Neu starten
+                  </button>
+                </div>
+              )}
+              {/* Löschen-Button nur für nicht abgeschlossene und nicht gelöschte Quizzes */}
+              {!isCompleted && onRemoveProgress && (
+                <button
+                  type="button"
+                  title="Fortschritt für dieses Quiz entfernen"
+                  className="px-3 py-2 rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer flex items-center justify-center gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    showConfirmationToast({
+                      message:
+                        "Willst du den Fortschritt für dieses Quiz wirklich löschen? Dein Fortschritt und alle XP für dieses Quiz gehen verloren.",
+                      confirmText: "Fortschritt löschen",
+                      cancelText: "Abbrechen",
+                      onConfirm: () => onRemoveProgress(progress.quizId),
+                    });
+                  }}
+                >
+                  <Eraser className="w-4 h-4" />
+                  <span className="sm:hidden inline">Fortschritt löschen</span>
+                </button>
+              )}
+            </div>
           )}
         </div>
       )}
@@ -358,6 +415,16 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const [loading, setLoading] = useState(true);
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
   const [totalXP, setTotalXP] = useState(0);
+  // Fortschritt für ein Quiz entfernen
+  const handleRemoveProgress = async (quizId: string) => {
+    await deleteUserQuizProgress(username, quizId);
+    setProgressList((list) => list.filter((p) => p.quizId !== quizId));
+    // XP neu berechnen
+    setTotalXP((list) => {
+      const removed = progressList.find((p) => p.quizId === quizId);
+      return removed && removed.xp ? list - removed.xp : list;
+    });
+  };
 
   useEffect(() => {
     async function fetchProgress() {
@@ -460,6 +527,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
               onNavigateToQuiz={(mode) =>
                 onNavigateToQuiz(progress.quizId, mode)
               }
+              onRemoveProgress={handleRemoveProgress}
             />
           ))}
         </div>
@@ -477,16 +545,16 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
   });
 
   const handleClose = () => {
-    navigate('/');
+    navigate("/");
   };
 
   const handleChooseName = () => {
-    navigate('/?chooseName=true');
+    navigate("/?chooseName=true");
   };
 
   const handleNavigateToQuiz = (
     quizId: string,
-    mode: "fresh" | "continue" | "review"
+    mode: "fresh" | "continue" | "review",
   ) => {
     const result = findQuizById(subjects, quizId);
     if (result) {
@@ -508,21 +576,26 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
         const progressObj = await loadAllUserProgress(username);
         const doneQuizIds = new Set(Object.keys(progressObj));
         // Lade dismissedQuizzes
-        const dismissedQuizIds = new Set(await import("@utils/dismissedQuizzesFirestore").then(m => m.getDismissedQuizzes(username)));
+        const dismissedQuizIds = new Set(
+          await import("@utils/dismissedQuizzesFirestore").then((m) =>
+            m.getDismissedQuizzes(username),
+          ),
+        );
         // Finde alle Quizze, die noch nicht begonnen und nicht dismissed wurden
-        const allQuizzes: Quiz[] = subjects.flatMap((subject) =>
-          subject.classes?.flatMap((classItem) =>
-            classItem.topics?.flatMap((topic) =>
-              topic.quizzes || []
-            ) || []
-          ) || []
+        const allQuizzes: Quiz[] = subjects.flatMap(
+          (subject) =>
+            subject.classes?.flatMap(
+              (classItem) =>
+                classItem.topics?.flatMap((topic) => topic.quizzes || []) || [],
+            ) || [],
         );
         const notStartedQuizzes = allQuizzes.filter(
           (quiz) =>
             !doneQuizIds.has(quiz.id) &&
             !dismissedQuizIds.has(quiz.id) &&
             quiz.hidden !== true &&
-            Array.isArray(quiz.questions) && quiz.questions.length >= 4
+            Array.isArray(quiz.questions) &&
+            quiz.questions.length >= 4,
         );
         // Shuffle array for random order
         const shuffled = [...notStartedQuizzes].sort(() => Math.random() - 0.5);
@@ -550,7 +623,10 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
         </button>
 
         {/* Main Heading */}
-        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-4 force-break" lang="de">
+        <h1
+          className="text-3xl font-extrabold text-gray-900 dark:text-white mb-4 force-break"
+          lang="de"
+        >
           Profil
         </h1>
 
@@ -622,7 +698,10 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
               >
                 Noch offen
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 force-break mb-4" lang="de">
+              <p
+                className="text-gray-600 dark:text-gray-400 force-break mb-4"
+                lang="de"
+              >
                 Diese Quizze hast du bisher nicht gestartet.
               </p>
               <button
@@ -642,14 +721,18 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
               {suggestAccordionOpen && (
                 <div className="mt-2 px-4 py-3 bg-white dark:bg-gray-900 border border-indigo-100 dark:border-indigo-800 rounded-lg space-y-3">
                   {suggestedQuizzes.length === 0 ? (
-                    <div className="text-gray-500 dark:text-gray-400 text-sm">Keine neuen Quizze gefunden!</div>
+                    <div className="text-gray-500 dark:text-gray-400 text-sm">
+                      Keine neuen Quizze gefunden!
+                    </div>
                   ) : (
                     suggestedQuizzes.map((quiz) => (
                       <FadeDismissQuiz
                         key={quiz.id}
                         duration={600}
                         onFadeOut={async () => {
-                          setSuggestedQuizzes((prev) => prev.filter(q => q.id !== quiz.id));
+                          setSuggestedQuizzes((prev) =>
+                            prev.filter((q) => q.id !== quiz.id),
+                          );
                           setFadingQuizIds((prev) => {
                             const next = new Set(prev);
                             next.delete(quiz.id);
@@ -657,86 +740,104 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
                           });
                           await addDismissedQuiz(username, quiz.id);
                         }}
-                      >{(triggerFade) => (
-                        <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-b-0">
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-gray-900 dark:text-white">{quiz.shortTitle || quiz.title}</span>
-                            {/* Tags: Topic, Class, Subject */}
-                            {(() => {
-                              let subject, classItem, topic;
-                              for (const s of subjects) {
-                                if (s.classes) {
-                                  for (const c of s.classes) {
-                                    if (c.topics) {
-                                      for (const t of c.topics) {
-                                        if (t.quizzes?.some(q => q.id === quiz.id)) {
-                                          subject = s;
-                                          classItem = c;
-                                          topic = t;
+                      >
+                        {(triggerFade) => (
+                          <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-b-0">
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-gray-900 dark:text-white">
+                                {quiz.shortTitle || quiz.title}
+                              </span>
+                              {/* Tags: Topic, Class, Subject */}
+                              {(() => {
+                                let subject, classItem, topic;
+                                for (const s of subjects) {
+                                  if (s.classes) {
+                                    for (const c of s.classes) {
+                                      if (c.topics) {
+                                        for (const t of c.topics) {
+                                          if (
+                                            t.quizzes?.some(
+                                              (q) => q.id === quiz.id,
+                                            )
+                                          ) {
+                                            subject = s;
+                                            classItem = c;
+                                            topic = t;
+                                          }
                                         }
                                       }
                                     }
                                   }
                                 }
-                              }
-                              if (topic?.name || classItem?.name || subject?.name) {
-                                return (
-                                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs mt-2">
-                                    {topic?.name && (
-                                      <span className="flex items-center gap-1 text-purple-600 dark:text-purple-400 whitespace-nowrap">
-                                        <Boxes   className="w-3.5 h-3.5" />
-                                        {topic.name}
-                                      </span>
-                                    )}
-                                    {classItem?.name && (
-                                      <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 whitespace-nowrap">
-                                        <School className="w-3.5 h-3.5" />
-                                        {classItem.name}
-                                      </span>
-                                    )}
-                                    {subject?.name && (
-                                      <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                                        <Book className="w-3.5 h-3.5" />
-                                        {subject.name}
-                                      </span>
-                                    )}
-                                  </div>
-                                );
-                              }
-                              return null;
-                            })()}
+                                if (
+                                  topic?.name ||
+                                  classItem?.name ||
+                                  subject?.name
+                                ) {
+                                  return (
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs mt-2">
+                                      {topic?.name && (
+                                        <span className="flex items-center gap-1 text-purple-600 dark:text-purple-400 whitespace-nowrap">
+                                          <Boxes className="w-3.5 h-3.5" />
+                                          {topic.name}
+                                        </span>
+                                      )}
+                                      {classItem?.name && (
+                                        <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 whitespace-nowrap">
+                                          <School className="w-3.5 h-3.5" />
+                                          {classItem.name}
+                                        </span>
+                                      )}
+                                      {subject?.name && (
+                                        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                                          <Book className="w-3.5 h-3.5" />
+                                          {subject.name}
+                                        </span>
+                                      )}
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })()}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                className="px-3 py-1 rounded-lg bg-indigo-600 text-white dark:bg-indigo-500 dark:text-white font-medium text-sm hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors flex items-center gap-2 cursor-pointer"
+                                onClick={() =>
+                                  handleNavigateToQuiz(quiz.id, "fresh")
+                                }
+                              >
+                                <span className="inline sm:hidden">
+                                  <Play className="w-5 h-5" />
+                                </span>
+                                <span className="hidden sm:inline">
+                                  Starten
+                                </span>
+                              </button>
+                              <button
+                                className="px-2 py-1 rounded-lg bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors flex items-center cursor-pointer"
+                                title="Nicht mehr vorschlagen"
+                                disabled={fadingQuizIds.has(quiz.id)}
+                                onClick={() => {
+                                  showConfirmationToast({
+                                    message: `Dieses Quiz nicht mehr vorschlagen?`,
+                                    confirmText: "Nicht mehr vorschlagen",
+                                    cancelText: "Abbrechen",
+                                    onConfirm: () => {
+                                      setFadingQuizIds((prev) =>
+                                        new Set(prev).add(quiz.id),
+                                      );
+                                      triggerFade();
+                                    },
+                                  });
+                                }}
+                              >
+                                <BotOff className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              className="px-3 py-1 rounded-lg bg-indigo-600 text-white dark:bg-indigo-500 dark:text-white font-medium text-sm hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors flex items-center gap-2 cursor-pointer"
-                              onClick={() => handleNavigateToQuiz(quiz.id, "fresh")}
-                            >
-                              <span className="inline sm:hidden">
-                                <Play className="w-5 h-5" />
-                              </span>
-                              <span className="hidden sm:inline">Starten</span>
-                            </button>
-                            <button
-                              className="px-2 py-1 rounded-lg bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors flex items-center cursor-pointer"
-                              title="Nicht mehr vorschlagen"
-                              disabled={fadingQuizIds.has(quiz.id)}
-                              onClick={() => {
-                                showConfirmationToast({
-                                  message: `Dieses Quiz nicht mehr vorschlagen?`,
-                                  confirmText: "Nicht mehr vorschlagen",
-                                  cancelText: "Abbrechen",
-                                  onConfirm: () => {
-                                    setFadingQuizIds((prev) => new Set(prev).add(quiz.id));
-                                    triggerFade();
-                                  },
-                                });
-                              }}
-                            >
-                              <BotOff className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      )}</FadeDismissQuiz>
+                        )}
+                      </FadeDismissQuiz>
                     ))
                   )}
                 </div>
