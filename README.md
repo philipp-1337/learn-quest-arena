@@ -7,6 +7,7 @@ Eine moderne Quiz-Lern-Anwendung für Schulen, gebaut mit React, TypeScript und 
 ## ✨ Features im Überblick
 
 ### 📚 Für Schüler
+
 - **Adaptives Lernsystem**: Intelligentes Spaced Repetition (SRS) mit 6 Schwierigkeitsstufen
 - **XP & Fortschritt**: Verdiene Erfahrungspunkte und verfolge deinen Lernfortschritt
 - **Anonymer Zugang**: Keine Registrierung nötig – starte mit einem zufälligen Tiernamen
@@ -15,6 +16,7 @@ Eine moderne Quiz-Lern-Anwendung für Schulen, gebaut mit React, TypeScript und 
 - **Offline-Fähig**: Als PWA installierbar, funktioniert auch ohne Internet
 
 ### 👨‍🏫 Für Lehrkräfte
+
 - **Quiz-Verwaltung**: Erstellen, Bearbeiten und Organisieren von Quizzen
 - **Hierarchische Struktur**: Fächer → Klassen → Themen → Quizze
 - **Multiple Choice**: Text- und Bildfragen mit bis zu 6 Antwortmöglichkeiten
@@ -23,6 +25,7 @@ Eine moderne Quiz-Lern-Anwendung für Schulen, gebaut mit React, TypeScript und 
 - **Sichtbarkeits-Kontrolle**: Quizze ausblenden/veröffentlichen
 
 ### 🛠️ Technische Features
+
 - **Progressive Web App (PWA)**: Installierbar, Update-Benachrichtigungen
 - **Responsive Design**: Optimiert für Desktop, Tablet und Smartphone
 - **Deep Linking**: Direkte Links zu spezifischen Quizzen teilbar
@@ -55,7 +58,7 @@ Eine moderne Quiz-Lern-Anwendung für Schulen, gebaut mit React, TypeScript und 
 ### Für Lehrkräfte
 
 1. **Login**: Klicke auf das Admin-Icon und melde dich mit deinem Firebase-Account an
-2. **Quiz erstellen**: 
+2. **Quiz erstellen**:
    - Manuell über den Quiz-Wizard
    - Import via JSON/CSV
    - Bestehende Quizze duplizieren und anpassen
@@ -120,47 +123,85 @@ users/{username}
 
 ### Migration
 
-Die Anwendung unterstützt sowohl die alte eingebettete Struktur als auch die neue eigenständige Quiz-Collection. Neue Quizze werden automatisch in beide Strukturen geschrieben (Dual-Write).
-
 Um bestehende Quizze zu migrieren:
 
-1. Im Admin-Bereich einloggen
-2. Zum Tab "Migration" wechseln
-3. "Migration starten" klicken
-
-## 🛠️ Installation & Entwicklung
-
-### Voraussetzungen
-- Node.js 18+ und npm
+- Node.js 18+ und Bun ([bun.sh](https://bun.sh/))
 - Firebase-Projekt (kostenloser Spark-Plan ausreichend)
 - Git
 
-### Schritt 1: Repository klonen
-
-### Schritt 1: Repository klonen
-
-```bash
-git clone <repository-url>
-cd learn-quest-arena
-```
+1. Im Admin-Bereich einloggen
 
 ### Schritt 2: Abhängigkeiten installieren
 
 ```bash
-npm install
-```
+bun install
+3. "Migration starten" klicken
+
+
+### Schritt 7: Entwicklungsserver starten
+
+```bash
+# Entwicklungsserver mit Hot Reload
+bun run dev
+
+# App ist verfügbar unter http://localhost:5173
+- Node.js 18+ und npm
+- Firebase-Projekt (kostenloser Spark-Plan ausreichend)
+
+### Weitere Commands
+
+```bash
+# Produktions-Build erstellen
+bun run build
+
+# Build lokal testen
+bun run preview
+
+# Linting
+bun run lint
+```bash
+git clone <repository-url>
+
+1. **Firebase CLI installieren** (falls noch nicht geschehen)
+
+```bash
+# Du kannst weiterhin npm global für Tools wie firebase-tools verwenden:
+
+firebase login
+### Schritt 2: Abhängigkeiten installieren
+
+
+3. **Build erstellen**
+
+```bash
+bun run build
+
+**Hinweis zur Bun-Umstellung:**
+- Die bun.lockb ist jetzt maßgeblich.
+- node_modules wird von Bun verwaltet, du brauchst keine package-lock.json oder yarn.lock mehr.
 
 ### Schritt 3: Firebase konfigurieren
 
-1. **Firebase-Projekt erstellen**: Gehe zu [Firebase Console](https://console.firebase.google.com/)
-2. **Web-App hinzufügen**: Registriere eine neue Web-App in deinem Projekt
+### Andere Hosting-Optionen
+
+Die App ist eine statische SPA und kann auf jedem Static-Hosting-Provider deployed werden:
+- **Vercel**: `vercel --prod`
+- **Netlify**: Drag & Drop des `dist` Ordners
+- **GitHub Pages**: Via GitHub Actions
+
+⚠️ **Wichtig**: Bei SPA-Hosting müssen alle Routes auf `index.html` umgeleitet werden (für Client-Side-Routing)
+
+---
+
+**ℹ️ Bun-Umstellung:**
+Alle npm-Befehle wurden durch Bun ersetzt. Für globale Tools wie firebase-tools kannst du weiterhin npm verwenden. Bei Problemen mit Abhängigkeiten prüfe die Bun-Kompatibilität unter https://bun.sh/docs/compatibility.
 3. **Umgebungsvariablen setzen**: Kopiere `.env.example` zu `.env.local`
 
 ```bash
 cp .env.example .env.local
 ```
 
-4. **Firebase-Credentials eintragen**: Fülle `.env.local` mit deinen Firebase-Daten aus
+1. **Firebase-Credentials eintragen**: Fülle `.env.local` mit deinen Firebase-Daten aus
 
 ```env
 VITE_FIREBASE_API_KEY=your_api_key
@@ -227,20 +268,20 @@ npm install -g firebase-tools
 firebase login
 ```
 
-2. **Projekt initialisieren**
+1. **Projekt initialisieren**
 
 ```bash
 firebase init
 # Wähle: Hosting, Firestore, (optional) Storage
 ```
 
-3. **Build erstellen**
+1. **Build erstellen**
 
 ```bash
 npm run build
 ```
 
-4. **Deployen**
+1. **Deployen**
 
 ```bash
 # Alles deployen
@@ -256,6 +297,7 @@ firebase deploy --only firestore
 ### Andere Hosting-Optionen
 
 Die App ist eine statische SPA und kann auf jedem Static-Hosting-Provider deployed werden:
+
 - **Vercel**: `vercel --prod`
 - **Netlify**: Drag & Drop des `dist` Ordners
 - **GitHub Pages**: Via GitHub Actions
@@ -267,11 +309,13 @@ Die App ist eine statische SPA und kann auf jedem Static-Hosting-Provider deploy
 ### Firestore Security Rules
 
 Die `firestore.rules` Datei enthält strenge Sicherheitsregeln:
+
 - **Quizzes**: Nur authentifizierte Admins können schreiben
 - **User Progress**: Nur validierte Usernamen erlaubt, schreibgeschützt pro User
 - **Input-Validierung**: Schutz vor Injections und Manipulationen
 
 ### Empfohlene Maßnahmen
+
 - ✅ `.env.local` niemals committen (ist in `.gitignore`)
 - ✅ Firebase API-Keys in Environment Variables
 - ✅ Admin-Accounts mit starken Passwörtern
@@ -283,6 +327,7 @@ Siehe [SECURITY_SUMMARY.md](SECURITY_SUMMARY.md) für Details.
 ## 📊 Performance
 
 Die App ist auf Performance optimiert:
+
 - React.memo für teure Komponenten
 - useMemo für schwere Berechnungen
 - Lazy Loading für Bilder
@@ -294,6 +339,7 @@ Siehe [PERFORMANCE_REVIEW.md](PERFORMANCE_REVIEW.md) und [IMPLEMENTATION_SUMMARY
 ## 🎨 Animationen
 
 Subtile Animationen für bessere UX:
+
 - Count-up Animationen für Scores/XP
 - Staggered entrance animations
 - Smooth transitions
@@ -306,7 +352,7 @@ Interessiert an möglichen Features? Check [FEATURE_IDEAS.md](FEATURE_IDEAS.md) 
 
 ## 📁 Projektstruktur
 
-```
+```bash
 learn-quest-arena/
 ├── src/
 │   ├── components/        # React-Komponenten
@@ -333,6 +379,7 @@ learn-quest-arena/
 Dieses Projekt ist für Bildungseinrichtungen konzipiert. Verbesserungsvorschläge und Bug-Reports sind willkommen!
 
 ### Development Guidelines
+
 - TypeScript strict mode aktiviert
 - ESLint-Regeln beachten
 - Komponenten dokumentieren
@@ -348,7 +395,3 @@ Dieses Projekt ist für Bildungseinrichtungen konzipiert. Verbesserungsvorschlä
 - React Team für das Framework
 - Tailwind CSS für das Styling
 - Lucide für die Icons
-
----
-
-**Viel Erfolg beim Lernen! 🎓**

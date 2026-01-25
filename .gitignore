@@ -11,11 +11,13 @@ lerna-debug.log*
 .env
 .env.local
 
+# Miscellaneous
 .firebase
 node_modules
 dist
 dist-ssr
 *.local
+bun.lockb
 
 # Editor directories and files
 .vscode/*
