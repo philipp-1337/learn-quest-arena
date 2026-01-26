@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Eye,
@@ -36,6 +36,23 @@ export default function QuizListItem({
   const navigate = useNavigate();
   const auth = getAuth();
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!openMobileMenu) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setOpenMobileMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openMobileMenu]);
 
   const editPermission = canEditQuiz(userRole, quiz, auth.currentUser?.uid);
   const reassignPermission = canReassignQuiz(
@@ -188,7 +205,10 @@ export default function QuizListItem({
 
       {/* Mobile Menu */}
       {openMobileMenu && (
-        <div className="sm:hidden absolute right-4 top-16 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 mobile-menu-container">
+        <div
+          ref={mobileMenuRef}
+          className="sm:hidden absolute right-4 top-16 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 mobile-menu-container"
+        >
           <button
             onClick={() => {
               onToggleHidden();
