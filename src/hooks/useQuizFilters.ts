@@ -8,7 +8,7 @@ export interface FilterState {
   topic: string;
   showHidden: boolean;
   author: string;
-  sortBy: "title" | "createdAt-desc" | "createdAt-asc";
+  sortBy: "title" | "createdAt-desc" | "createdAt-asc" | "updatedAt-desc" | "updatedAt-asc";
   limit: number | null;
 }
 
@@ -23,7 +23,8 @@ export function useQuizFilters(
   quizzes: QuizDocument[],
   authorAbbreviations: Map<string, string>
 ) {
-  const [filters, setFilters] = useState<FilterState>({
+  // Hilfsfunktion: Default-Filter
+  const defaultFilters: FilterState = {
     search: "",
     subject: "",
     class: "",
@@ -32,7 +33,31 @@ export function useQuizFilters(
     author: "",
     sortBy: "title",
     limit: null,
-  });
+  };
+
+  // Initialisiere Filter aus sessionStorage
+  const getInitialFilters = (): FilterState => {
+    try {
+      const stored = sessionStorage.getItem("quizFilters");
+      if (stored) {
+        return { ...defaultFilters, ...JSON.parse(stored) };
+      }
+    } catch {}
+    return defaultFilters;
+  };
+
+  const [filters, setFiltersRaw] = useState<FilterState>(getInitialFilters());
+
+  // setFilters: Speichere immer in sessionStorage
+  const setFilters = (update: FilterState | ((prev: FilterState) => FilterState)) => {
+    setFiltersRaw((prev) => {
+      const next = typeof update === "function" ? update(prev) : update;
+      try {
+        sessionStorage.setItem("quizFilters", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
 
   const filterOptions = useMemo((): FilterOptions => {
     const subjects = new Map<string, string>();
@@ -110,6 +135,10 @@ export function useQuizFilters(
       result.sort((a, b) => b.createdAt - a.createdAt);
     } else if (filters.sortBy === "createdAt-asc") {
       result.sort((a, b) => a.createdAt - b.createdAt);
+    } else if (filters.sortBy === "updatedAt-desc") {
+      result.sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+    } else if (filters.sortBy === "updatedAt-asc") {
+      result.sort((a, b) => (a.updatedAt ?? 0) - (b.updatedAt ?? 0));
     }
 
     if (filters.limit) {
@@ -120,16 +149,10 @@ export function useQuizFilters(
   }, [quizzes, filters]);
 
   const clearFilters = () => {
-    setFilters({
-      search: "",
-      subject: "",
-      class: "",
-      topic: "",
-      showHidden: true,
-      author: "",
-      sortBy: "title",
-      limit: null,
-    });
+    try {
+      sessionStorage.removeItem("quizFilters");
+    } catch {}
+    setFiltersRaw(defaultFilters);
   };
 
   const hasActiveFilters =

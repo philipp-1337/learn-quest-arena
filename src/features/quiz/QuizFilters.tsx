@@ -99,6 +99,23 @@ export default function QuizFilters({
             >
               Neuste 10
             </button>
+            {/* Zuletzt aktualisierte 5 Schnellfilter */}
+            <button
+              onClick={() => {
+                if (filters.sortBy === "updatedAt-desc" && filters.limit === 5) {
+                  onFilterChange({ sortBy: "title", limit: null });
+                } else {
+                  onFilterChange({ sortBy: "updatedAt-desc", limit: 5 });
+                }
+              }}
+              className={`px-3 py-1.5 text-xs border rounded-lg transition-colors cursor-pointer
+                ${(filters.sortBy === "updatedAt-desc" && filters.limit === 5)
+                  ? "bg-indigo-100 dark:bg-indigo-900/50 border-indigo-400 dark:border-indigo-700 text-indigo-900 dark:text-indigo-200"
+                  : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-700"}
+              `}
+            >
+              Zuletzt aktualisierte 5
+            </button>
             {/* Quiz ohne Fragen Schnellfilter */}
             <button
               onClick={() => {
@@ -134,9 +151,11 @@ export default function QuizFilters({
             }
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
           >
-            <option value="title">Alphabetisch (A-Z)</option>
-            <option value="createdAt-desc">Neueste zuerst</option>
-            <option value="createdAt-asc">Älteste zuerst</option>
+            <option value="title">Alphabetisch</option>
+            <option value="createdAt-desc">Neueste</option>
+            <option value="createdAt-asc">Älteste</option>
+            <option value="updatedAt-desc">Zuletzt aktualisiert</option>
+            {/* <option value="updatedAt-asc">Älteste Aktualisierung</option> */}
           </select>
         </div>
         <div>
