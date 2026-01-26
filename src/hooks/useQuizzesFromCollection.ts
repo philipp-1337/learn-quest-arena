@@ -146,7 +146,7 @@ export function useQuizzesFromCollection(): UseQuizzesFromCollectionResult {
  * Finds a quiz document by its ID.
  */
 export function findQuizDocumentById(docs: QuizDocument[], quizId: string): QuizDocument | undefined {
-  return docs.find(doc => doc.id === quizId || doc.legacyQuizId === quizId);
+  return docs.find(doc => doc.id === quizId);
 }
 
 /**

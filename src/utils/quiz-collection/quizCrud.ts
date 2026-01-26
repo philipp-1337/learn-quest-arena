@@ -15,11 +15,8 @@ const QUIZZES_COLLECTION = "quizzes";
  */
 export function createQuizDocument(
   quiz: Quiz,
-  subjectId: string,
   subjectName: string,
-  classId: string,
   className: string,
-  topicId: string,
   topicName: string,
   authorId: string,
   authorEmail?: string
@@ -45,11 +42,6 @@ export function createQuizDocument(
     className,
     topicId: normalizedTopicId,
     topicName,
-    legacyQuizId: quiz.id,
-    legacySubjectId: subjectId,
-    legacyClassId: classId,
-    legacyTopicId: topicId,
-    migratedFrom: `subjects/${subjectId}/classes/${classId}/topics/${topicId}/quizzes/${quiz.id}`,
   };
 }
 

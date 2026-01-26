@@ -120,40 +120,28 @@ export default function QuizBrowser({
     console.log('Selected quiz:', quiz, 'mode:', mode);
     setQuizStartMode(mode || 'fresh');
 
-    // Support QuizDocument (from featuredQuizzes) and legacy Quiz
-    let subject: Subject | undefined;
-    let classItem: Class | undefined;
-    let topic: Topic | undefined;
+    // Ergänze IDs aus der aktuellen Auswahl, falls sie im Quiz fehlen
+    const quizWithIds = {
+      ...quiz,
+      subjectId: (quiz as any).subjectId || selectedSubject?.id,
+      classId: (quiz as any).classId || selectedClass?.id,
+      topicId: (quiz as any).topicId || selectedTopic?.id,
+    };
 
-    // If quiz has subjectId/classId/topicId, use those for lookup
-    const hasIds =
-      (quiz as any).subjectId && (quiz as any).classId && (quiz as any).topicId;
-    
-    if (hasIds) {
-      subject = subjects.find((s) => s.id === (quiz as any).subjectId);
-      classItem = subject?.classes.find((c) => c.id === (quiz as any).classId);
-      topic = classItem?.topics.find((t) => t.id === (quiz as any).topicId);
-    } else {
-      // Fallback: legacy lookup
-      subject = subjects.find((s) =>
-        s.classes.some((c) => c.topics.some((t) => t.quizzes.includes(quiz as Quiz))),
-      );
-      classItem = subject?.classes.find((c) =>
-        c.topics.some((t) => t.quizzes.includes(quiz as Quiz)),
-      );
-      topic = classItem?.topics.find((t) => t.quizzes.includes(quiz as Quiz));
-    }
+    const subject = subjects.find((s) => s.id === quizWithIds.subjectId);
+    const classItem = subject?.classes.find((c) => c.id === quizWithIds.classId);
+    const topic = classItem?.topics.find((t) => t.id === quizWithIds.topicId);
 
     if (!subject) {
-      console.error('Subject not found for quiz:', quiz);
+      console.error('Subject not found for quiz:', quizWithIds);
       return;
     }
     if (!classItem) {
-      console.error('Class not found for quiz:', quiz);
+      console.error('Class not found for quiz:', quizWithIds);
       return;
     }
     if (!topic) {
-      console.error('Topic not found for quiz:', quiz);
+      console.error('Topic not found for quiz:', quizWithIds);
       return;
     }
 
@@ -163,8 +151,8 @@ export default function QuizBrowser({
       classItem,
       topic,
     );
-    selectQuiz(quiz);
-    navigateToQuiz(subject, classItem, topic, quiz);
+    selectQuiz(quizWithIds);
+    navigateToQuiz(subject, classItem, topic, quizWithIds);
   };
 
   const handleBackFromQuiz = () => {

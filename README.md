@@ -70,26 +70,7 @@ Eine moderne Quiz-Lern-Anwendung für Schulen, gebaut mit React, TypeScript und 
 
 ### Firestore Collections
 
-#### subjects (Legacy - eingebettete Struktur)
-
-```bash
-subjects/{subjectId}
-  ├── name: string
-  ├── order: number
-  └── classes: [
-        {
-          id, name, level,
-          topics: [
-            {
-              id, name,
-              quizzes: [{ id, uuid, title, shortTitle, questions, hidden }]
-            }
-          ]
-        }
-      ]
-```
-
-#### quizzes (Neu - eigenständige Collection)
+#### quizzes
 
 ```bash
 quizzes/{quizId}
@@ -120,16 +101,6 @@ users/{username}
         ├── completed: boolean
         └── lastUpdated: timestamp
 ```
-
-### Migration
-
-Um bestehende Quizze zu migrieren:
-
-- Node.js 18+ und Bun ([bun.sh](https://bun.sh/))
-- Firebase-Projekt (kostenloser Spark-Plan ausreichend)
-- Git
-
-1. Im Admin-Bereich einloggen
 
 ### Schritt 2: Abhängigkeiten installieren
 

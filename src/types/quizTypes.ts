@@ -64,12 +64,6 @@ export interface QuizDocument extends Omit<Quiz, 'id'> {
   topicId?: string;         // Normalized topic ID (e.g., "topic-das-universum")
   topicName?: string;       // Denormalized topic name for display
   
-  // Migration tracking
-  migratedFrom?: string;    // Original path if migrated from embedded structure
-  legacyQuizId?: string;    // Original quiz ID from embedded structure
-  legacySubjectId?: string; // Original subject ID before normalization
-  legacyClassId?: string;   // Original class ID before normalization
-  legacyTopicId?: string;   // Original topic ID before normalization
 }
 
 export interface Question {
