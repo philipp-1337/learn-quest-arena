@@ -1,4 +1,6 @@
 import { ArrowLeft, LogOut } from 'lucide-react';
+import { useUserRole } from '@hooks/useUserRole';
+import { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { AbbreviationForm, PasswordChangeForm } from '@admin';
@@ -12,9 +14,24 @@ export default function AdminProfileView({
   onLogout,
   onAbbreviationUpdated,
 }: AdminProfileViewProps) {
+  // Developer mode state
+  const [devMode, setDevMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('devMode') === 'true';
+    }
+    return false;
+  });
+  const { userRole } = useUserRole();
   const auth = getAuth();
   const navigate = useNavigate();
   const userEmail = auth.currentUser?.email;
+
+  // Update localStorage when devMode changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('devMode', devMode ? 'true' : 'false');
+    }
+  }, [devMode]);
 
   const handleBack = () => {
     navigate('/admin');
@@ -44,6 +61,22 @@ export default function AdminProfileView({
           <ArrowLeft className="group-hover:-translate-x-1 transition-transform w-4 h-4" />
           Zurück
         </button>
+
+        {/* Subtle Developer Mode Toggle (only for admins) */}
+        {userRole === 'admin' && (
+          <div className="absolute top-4 right-6 opacity-60 hover:opacity-100 transition-opacity">
+            <label className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={devMode}
+                onChange={e => setDevMode(e.target.checked)}
+                className="accent-indigo-500"
+                aria-label="Developer Mode"
+              />
+              Dev Mode
+            </label>
+          </div>
+        )}
 
         {/* Header */}
         <div className="mb-4">

@@ -14,7 +14,6 @@ import UserView from './features/user/UserView';
 import QuizChallengePlayer from './features/quiz/QuizChallengePlayer';
 import Dataprotection from './features/footer/Dataprotection';
 import Imprint from './features/footer/Imprint';
-import type { Subject } from './types/quizTypes';
 import useMaintenanceMode from './hooks/useMaintenanceMode';
 import ProtectedRoute from './utils/ProtectedRoute';
 import useScrollToTop from './hooks/useScrollToTop';
@@ -26,6 +25,7 @@ import { AlertTriangle } from 'lucide-react';
 import { ensureToastPortal } from './utils/ensureToastPortal';
 import { CustomToastPortal } from './utils/CustomToastPortal';
 import Toaster from './utils/ToasterProvider';
+import DevToolsView from './features/admin/dashboard/components/DevToolsView';
 
 // ============================================
 // MAIN APP COMPONENT
@@ -40,7 +40,7 @@ export default function FlashcardQuizApp() {
   } = useQuizzesFromCollection();
   const { isMaintenanceMode, isLoading: maintenanceLoading } =
     useMaintenanceMode();
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+  // Use quizSubjects directly, no local subjects state
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -52,17 +52,15 @@ export default function FlashcardQuizApp() {
   usePwaPrompt();
   usePwaUpdate();
 
-  // Update subjects when quizzes are loaded from collection
+  // Update loading and error state when quizzes are loaded from collection
   useEffect(() => {
     if (!quizzesLoading) {
-      console.log("Quizzes loaded from collection, subjects:", quizSubjects);
-      setSubjects(quizSubjects);
       setIsLoading(false);
       if (quizzesError) {
         setError(quizzesError);
       }
     }
-  }, [quizSubjects, quizzesLoading, quizzesError]);
+  }, [quizzesLoading, quizzesError]);
 
   // Toast-Portal-Container im Body anlegen
   useEffect(() => {
@@ -78,12 +76,8 @@ export default function FlashcardQuizApp() {
     }
   };
 
-  const handleSubjectsChange = (updatedSubjects: Subject[]) => {
-    if (JSON.stringify(subjects) !== JSON.stringify(updatedSubjects)) {
-      console.log("Subjects updated:", updatedSubjects);
-      setSubjects(updatedSubjects);
-    }
-  };
+  // No-op: subjects are managed by backend, not locally
+  const handleSubjectsChange = () => {};
 
   const handleRefetchQuizzes = async () => {
     await refetch();
@@ -143,7 +137,7 @@ export default function FlashcardQuizApp() {
         <Route
           path="/"
           element={
-            <QuizBrowser subjects={subjects} onAdminClick={handleAdminClick} />
+            <QuizBrowser subjects={quizSubjects} onAdminClick={handleAdminClick} />
           }
         />
         <Route
@@ -151,7 +145,7 @@ export default function FlashcardQuizApp() {
           element={
             <ProtectedRoute>
               <AdminView
-                subjects={subjects}
+                subjects={quizSubjects}
                 onSubjectsChange={handleSubjectsChange}
                 onRefetch={handleRefetchQuizzes}
               />
@@ -164,7 +158,7 @@ export default function FlashcardQuizApp() {
             <LoginView onLogin={handleLogin} onBack={() => navigate("/")} />
           }
         />
-        <Route path="/user" element={<UserView subjects={subjects} />} />
+        <Route path="/user" element={<UserView subjects={quizSubjects} />} />
         <Route
           path="/challenge/:challengeId"
           element={<QuizChallengePlayer />}
@@ -186,6 +180,14 @@ export default function FlashcardQuizApp() {
           }
         />
         <Route
+          path="/admin/dev-tools"
+          element={
+            <ProtectedRoute>
+              <DevToolsView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/quiz/edit/:id"
           element={
             <ProtectedRoute>
@@ -202,25 +204,25 @@ export default function FlashcardQuizApp() {
         <Route
           path="/quiz/:subjectSlug"
           element={
-            <QuizBrowser subjects={subjects} onAdminClick={handleAdminClick} />
+            <QuizBrowser subjects={quizSubjects} onAdminClick={handleAdminClick} />
           }
         />
         <Route
           path="/quiz/:subjectSlug/:classSlug"
           element={
-            <QuizBrowser subjects={subjects} onAdminClick={handleAdminClick} />
+            <QuizBrowser subjects={quizSubjects} onAdminClick={handleAdminClick} />
           }
         />
         <Route
           path="/quiz/:subjectSlug/:classSlug/:topicSlug"
           element={
-            <QuizBrowser subjects={subjects} onAdminClick={handleAdminClick} />
+            <QuizBrowser subjects={quizSubjects} onAdminClick={handleAdminClick} />
           }
         />
         <Route
           path="/quiz/:subjectSlug/:classSlug/:topicSlug/:quizSlug"
           element={
-            <QuizBrowser subjects={subjects} onAdminClick={handleAdminClick} />
+            <QuizBrowser subjects={quizSubjects} onAdminClick={handleAdminClick} />
           }
         />
         <Route path="/datenschutz" element={<Dataprotection />} />

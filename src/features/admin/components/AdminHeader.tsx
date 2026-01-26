@@ -1,4 +1,4 @@
-import { Sword, UserRoundCheck, UserRoundX, Users } from 'lucide-react';
+import { Sword, UserRoundCheck, UserRoundX, Users, Gpu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
@@ -13,6 +13,12 @@ export default function AdminHeader({ onProfileClick }: AdminHeaderProps) {
   const navigate = useNavigate();
   const [hasAbbreviation, setHasAbbreviation] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [devMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('devMode') === 'true';
+    }
+    return false;
+  });
   const auth = getAuth();
   const userId = auth.currentUser?.uid;
 
@@ -56,6 +62,18 @@ export default function AdminHeader({ onProfileClick }: AdminHeaderProps) {
             onClick: () => navigate("/admin/roles"),
             variant: 'default' as const,
             className: "cursor-pointer",
+          },
+        ]
+      : []),
+    // DevMode menu item
+    ...(devMode
+      ? [
+          {
+            icon: Gpu,
+            label: "Dev Tools",
+            onClick: () => navigate("/admin/dev-tools"),
+            variant: 'default' as const,
+            className: "cursor-pointer text-indigo-500",
           },
         ]
       : []),
