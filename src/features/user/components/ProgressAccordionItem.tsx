@@ -9,6 +9,7 @@ import {
   Swords,
   Eraser,
   StepForward,
+  RefreshCcw,
 } from "lucide-react";
 import { QuizActionButton } from "./QuizActionButton";
 import { showConfirmationToast } from "@utils/confirmationToast";
@@ -231,9 +232,10 @@ export const ProgressAccordionItem: React.FC<ProgressAccordionItemProps> = ({
                 <div className="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <p className="text-xs text-indigo-700 dark:text-indigo-300 uppercase tracking-wide font-semibold truncate block">
+                      <Swords className="w-4 h-4 inline mr-1" />
                       Lernfortschritt
                     </p>
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 truncate">
                       <Sparkles className="w-3 h-3" />
                       BETA
                     </span>
@@ -306,7 +308,7 @@ export const ProgressAccordionItem: React.FC<ProgressAccordionItemProps> = ({
                   />
                   <QuizActionButton
                     onClick={() => onNavigateToQuiz("fresh")}
-                    icon={<Clock className="w-4 h-4" />}
+                    icon={<RefreshCcw className="w-4 h-4" />}
                     label="Neu starten"
                     variant="secondary"
                   />
