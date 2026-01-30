@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserDashboard } from "./components/UserDashboard";
 import { QuizSuggestions } from "./components/QuizSuggestions";
+import { WrongQuestionsPool } from "./WrongQuestionsPool";
 import {
   Pencil,
   ArrowLeft,
@@ -156,6 +157,12 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
             />
           </button>
         </div>
+
+        {/* Wrong Questions Pool */}
+        <WrongQuestionsPool
+          username={username}
+          allQuizzes={allQuizzes}
+        />
 
         {/* Quiz-Vorschläge Section */}
         <QuizSuggestions
