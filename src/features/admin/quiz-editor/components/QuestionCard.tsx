@@ -1,4 +1,4 @@
-import { Edit2, Trash2, Check, X, Volume2, Image as ImageIcon } from 'lucide-react';
+import { Edit2, Trash2, Check, X, Volume2, Image as ImageIcon, ArrowLeftRight } from 'lucide-react';
 import type { Question, Answer } from 'quizTypes';
 import OptimizedImage from '@shared/OptimizedImage';
 import { getThumbnailUrl } from '@utils/cloudinaryTransform';
@@ -9,6 +9,7 @@ interface QuestionCardProps {
   hasImageQuestions: boolean;
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
+  onMove: (index: number) => void;
 }
 
 export default function QuestionCard({
@@ -17,6 +18,7 @@ export default function QuestionCard({
   hasImageQuestions,
   onEdit,
   onDelete,
+  onMove,
 }: QuestionCardProps) {
   const isImageQuestion = (question.questionType || "text") === "image" && question.questionImage;
   const isAudioQuestion = (question.questionType || "text") === "audio" && question.questionAudio;
@@ -168,6 +170,14 @@ export default function QuestionCard({
             aria-label="Frage löschen"
           >
             <Trash2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onMove(index)}
+            className="p-2 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded transition-colors cursor-pointer"
+            title="Frage verschieben"
+            aria-label="Frage verschieben"
+          >
+            <ArrowLeftRight className="w-4 h-4" />
           </button>
         </div>
       </div>

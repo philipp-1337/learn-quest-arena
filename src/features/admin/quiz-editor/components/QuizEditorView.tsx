@@ -4,6 +4,7 @@ import { Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { CustomToast } from '@shared/CustomToast';
 import DeleteConfirmModal from '@modals/DeleteConfirmModal';
+import MoveQuestionModal from '@modals/MoveQuestionModal';
 import { getAuth } from 'firebase/auth';
 import { useQuizEditLock, useQuizEditorState } from '@admin';
 import { updateQuizDocument } from '@utils/quiz-collection';
@@ -17,6 +18,10 @@ export default function QuizEditorView() {
   const [saving, setSaving] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [deleteModal, setDeleteModal] = useState<{
+    open: boolean;
+    index: number | null;
+  }>({ open: false, index: null });
+  const [moveModal, setMoveModal] = useState<{
     open: boolean;
     index: number | null;
   }>({ open: false, index: null });
@@ -186,6 +191,22 @@ export default function QuizEditorView() {
     }
   };
 
+  const handleMoveQuestion = (index: number) => {
+    setMoveModal({ open: true, index });
+  };
+
+  const handleMoveSuccess = () => {
+    // Reload the quiz data to reflect the moved question
+    if (quizDocument) {
+      // Since the question was moved to another quiz, we need to remove it from the current editedQuiz
+      if (moveModal.index !== null && editedQuiz) {
+        const newQuestions = editedQuiz.questions.filter((_, i) => i !== moveModal.index);
+        setEditedQuiz({ ...editedQuiz, questions: newQuestions });
+      }
+    }
+    setMoveModal({ open: false, index: null });
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -235,6 +256,17 @@ export default function QuizEditorView() {
         />
       )}
 
+      {/* Move Question Modal */}
+      {moveModal.open && moveModal.index !== null && quizDocument && (
+        <MoveQuestionModal
+          sourceQuiz={quizDocument}
+          questionIndex={moveModal.index}
+          userRole={userRole}
+          onClose={() => setMoveModal({ open: false, index: null })}
+          onSuccess={handleMoveSuccess}
+        />
+      )}
+
       {/* Header */}
       <QuizEditorHeader
         quizDocument={quizDocument}
@@ -265,6 +297,7 @@ export default function QuizEditorView() {
               navigate(`/admin/quiz/edit/${id}/question/${index}`)
             }
             onDeleteQuestion={(index) => setDeleteModal({ open: true, index })}
+            onMoveQuestion={handleMoveQuestion}
           />
         </div>
       </div>
