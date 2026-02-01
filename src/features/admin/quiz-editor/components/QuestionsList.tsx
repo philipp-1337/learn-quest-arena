@@ -8,6 +8,7 @@ interface QuestionsListProps {
   onAddQuestion: () => void;
   onEditQuestion: (index: number) => void;
   onDeleteQuestion: (index: number) => void;
+  onMoveQuestion: (index: number) => void;
 }
 
 export default function QuestionsList({
@@ -16,6 +17,7 @@ export default function QuestionsList({
   onAddQuestion,
   onEditQuestion,
   onDeleteQuestion,
+  onMoveQuestion,
 }: QuestionsListProps) {
   const hasImageQuestions = questions.some(
     (q) => (q.questionType || "text") === "image" && q.questionImage
@@ -56,6 +58,7 @@ export default function QuestionsList({
               hasImageQuestions={hasImageQuestions}
               onEdit={onEditQuestion}
               onDelete={onDeleteQuestion}
+              onMove={onMoveQuestion}
             />
           ))}
         </div>

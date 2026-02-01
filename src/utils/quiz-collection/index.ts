@@ -39,6 +39,11 @@ export {
   renameCategory,
 } from './quizCategoryManagement';
 
+// Question management
+export {
+  moveQuestionToQuiz,
+} from './questionManagement';
+
 // Subscriptions
 export {
   subscribeToQuizzes,

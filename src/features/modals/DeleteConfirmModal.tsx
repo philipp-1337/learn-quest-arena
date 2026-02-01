@@ -22,7 +22,7 @@ export default function DeleteConfirmModal({
         </h3>
 
         <p className="text-gray-700 dark:text-gray-300 mb-4">
-          Möchtest du "{itemName}" wirklich löschen? Diese Aktion kann nicht
+          Möchtest du "{itemName}" inkl. aller Fragen wirklich löschen? Diese Aktion kann nicht
           rückgängig gemacht werden.
         </p>
 
