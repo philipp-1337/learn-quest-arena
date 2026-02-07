@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import type { UserQuizProgress, QuestionSRSData } from "userProgress";
 import { loadAllUserProgress } from "@utils/loadAllUserProgress";
-import { AlertTriangle, RefreshCcw } from "lucide-react";
+import { AlertTriangle, RefreshCcw, CheckCircle } from "lucide-react";
 import type { Quiz, Question } from "quizTypes";
 import type { QuizPlayerInitialState } from "@hooks/useQuizPlayer";
 import { ensureSRSFields } from "@utils/srsHelpers";
@@ -115,7 +115,7 @@ export const WrongQuestionsPool: React.FC<WrongQuestionsPoolProps> = ({
         {error}
       </div>
     );
-  if (wrongQuestions.length === 0 || wrongQuestionsResolved.length === 0) return null;
+  const isEmpty = wrongQuestions.length === 0 || wrongQuestionsResolved.length === 0;
 
   const handleStartReview = () => {
     if (!onStartWrongPool) return;
@@ -151,30 +151,60 @@ export const WrongQuestionsPool: React.FC<WrongQuestionsPoolProps> = ({
     onStartWrongPool(reviewQuiz, initialState, userProgress);
   };
 
-  return (
-    <div className="mb-6 p-5 rounded-2xl shadow-lg bg-gradient-to-br from-yellow-50 via-white to-yellow-100 dark:from-yellow-900/30 dark:via-gray-900 dark:to-yellow-900/10 border border-yellow-200 dark:border-yellow-700">
-      <div className="flex items-center gap-2 mb-2">
-        <AlertTriangle className="w-6 h-6 text-yellow-700 dark:text-yellow-200" />
-        <h2 className="text-xl font-extrabold text-yellow-800 dark:text-yellow-200 tracking-tight">Fehler-Pool</h2>
-      </div>
-      <p className="text-sm text-gray-700 dark:text-gray-200">
-        Du hast <span className="font-semibold">{wrongQuestionsResolved.length}</span>{" "}
-        {wrongQuestionsResolved.length === 1 ? "offenen Fehler" : "offene Fehler"}.
-      </p>
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <p className="text-xs text-gray-600 dark:text-gray-300">
-          Starte ein Review-Quiz mit allen zuletzt falsch beantworteten Fragen.
+  if (isEmpty) {
+    return (
+      <>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 force-break">
+          Falsche Fragen
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400 force-break mb-4">
+          Wiederhole gezielt die Fragen, die zuletzt falsch waren.
         </p>
-        <button
-          type="button"
-          onClick={handleStartReview}
-          className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold shadow-sm transition-colors"
-          aria-label="Review-Quiz starten"
-          title="Review-Quiz starten"
-        >
-          Review starten
-        </button>
+        <div className="mb-6 p-5 rounded-2xl shadow-lg bg-gradient-to-br from-green-50 via-white to-green-100 dark:from-green-900/30 dark:via-gray-900 dark:to-green-900/10 border border-green-200 dark:border-green-700">
+          <div className="flex items-center gap-2 mb-2">
+            <CheckCircle className="w-6 h-6 text-green-700 dark:text-green-200" />
+            <h2 className="text-xl font-extrabold text-green-800 dark:text-green-200 tracking-tight">Fehler-Pool</h2>
+          </div>
+          <p className="text-sm text-gray-700 dark:text-gray-200">
+            Keine falschen Fragen offen. Weiter so!
+          </p>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 force-break">
+        Falsche Fragen
+      </h2>
+      <p className="text-gray-600 dark:text-gray-400 force-break mb-4">
+        Wiederhole gezielt die Fragen, die zuletzt falsch waren.
+      </p>
+      <div className="mb-6 p-5 rounded-2xl shadow-lg bg-gradient-to-br from-yellow-50 via-white to-yellow-100 dark:from-yellow-900/30 dark:via-gray-900 dark:to-yellow-900/10 border border-yellow-200 dark:border-yellow-700">
+        <div className="flex items-center gap-2 mb-2">
+          <AlertTriangle className="w-6 h-6 text-yellow-700 dark:text-yellow-200" />
+          <h2 className="text-xl font-extrabold text-yellow-800 dark:text-yellow-200 tracking-tight">Fehler-Pool</h2>
+        </div>
+        <p className="text-sm text-gray-700 dark:text-gray-200">
+          Du hast <span className="font-semibold">{wrongQuestionsResolved.length}</span>{" "}
+          {wrongQuestionsResolved.length === 1 ? "offenen Fehler" : "offene Fehler"}.
+        </p>
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="text-xs text-gray-600 dark:text-gray-300">
+            Starte ein Review-Quiz mit allen zuletzt falsch beantworteten Fragen.
+          </p>
+          <button
+            type="button"
+            onClick={handleStartReview}
+            className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold shadow-sm transition-colors"
+            aria-label="Review-Quiz starten"
+            title="Review-Quiz starten"
+          >
+            Review starten
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

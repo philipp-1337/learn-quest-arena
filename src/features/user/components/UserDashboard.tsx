@@ -102,6 +102,9 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 force-break">
         Dein Fortschritt
       </h2>
+      <p className="text-gray-600 dark:text-gray-400 force-break mb-4">
+        Dein Lernfortschritt über alle Quizze hinweg.
+      </p>
 
       {/* Total XP Display */}
       {totalXP > 0 && (

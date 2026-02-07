@@ -158,7 +158,7 @@ export default function FlashcardQuizApp() {
             <LoginView onLogin={handleLogin} onBack={() => navigate("/")} />
           }
         />
-        <Route path="/user" element={<UserView subjects={quizSubjects} />} />
+        <Route path="/user" element={<Navigate to="/user/name" replace />} />
         <Route path="/user/:tab" element={<UserView subjects={quizSubjects} />} />
         <Route
           path="/challenge/:challengeId"

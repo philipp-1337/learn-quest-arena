@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { UserDashboard } from "./components/UserDashboard";
 import { QuizSuggestions } from "./components/QuizSuggestions";
@@ -35,12 +35,15 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
     initialState: QuizPlayerInitialState;
     originProgressByQuizId: Record<string, UserQuizProgress>;
   } | null>(null);
+  const [totalXP, setTotalXP] = useState(0);
+  const [tabFadeLeft, setTabFadeLeft] = useState(false);
+  const [tabFadeRight, setTabFadeRight] = useState(false);
   const [username] = useState<string>(() => {
     const stored = localStorage.getItem("lqa_username");
     return stored && stored !== "" ? stored : "Gast";
   });
 
-  const activeTab = tab ?? "name";
+  const activeTab = username === "Gast" ? "name" : tab ?? "name";
 
   const tabs = [
     { id: "name", label: "Nutzername" },
@@ -48,6 +51,47 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
     { id: "suggestions", label: "Vorschläge" },
     { id: "wrong-questions", label: "Falsche Fragen" },
   ];
+
+  useEffect(() => {
+    let mounted = true;
+    async function fetchTotalXP() {
+      if (username === "Gast") {
+        if (mounted) setTotalXP(0);
+        return;
+      }
+      try {
+        const progressObj = await loadAllUserProgress(username);
+        const allProgress = Object.values(progressObj);
+        const calculatedTotalXP = allProgress.reduce(
+          (sum, progress) => sum + (progress.xp || 0),
+          0,
+        );
+        if (mounted) setTotalXP(calculatedTotalXP);
+      } catch {
+        if (mounted) setTotalXP(0);
+      }
+    }
+    fetchTotalXP();
+    return () => {
+      mounted = false;
+    };
+  }, [username]);
+
+  useEffect(() => {
+    const updateTabFade = () => {
+      const nav = document.getElementById("user-tabs-scroll");
+      if (!nav) return;
+      const maxScrollLeft = nav.scrollWidth - nav.clientWidth;
+      setTabFadeLeft(nav.scrollLeft > 0);
+      setTabFadeRight(nav.scrollLeft < maxScrollLeft - 1);
+    };
+
+    updateTabFade();
+    window.addEventListener("resize", updateTabFade);
+    return () => {
+      window.removeEventListener("resize", updateTabFade);
+    };
+  }, []);
 
   // Quiz-Metadaten-Map für effiziente Lookup - nur einmal berechnen
   const quizMetadataMap = useMemo(() => {
@@ -112,8 +156,13 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 backdrop-blur-sm z-50">
+    <div className="min-h-screen flex items-start justify-center p-4 pt-8 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 backdrop-blur-sm z-50">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-2xl border border-gray-100 dark:border-gray-700 relative">
+        {totalXP > 0 && (
+          <div className="absolute top-4 right-4 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-700 rounded-full px-3 py-1">
+            {totalXP} XP
+          </div>
+        )}
         {/* Back Button */}
         <button
           type="button"
@@ -135,29 +184,50 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
         </h1>
 
         {/* Tabs */}
-        <nav className="mb-6 flex flex-wrap gap-2">
-          {tabs.map((item) => (
-            <NavLink
-              key={item.id}
-              to={`/user/${item.id}`}
-              className={({ isActive }) =>
-                [
-                  "px-3 py-2 rounded-lg text-sm font-semibold transition-colors border",
-                  isActive
-                    ? "bg-indigo-600 text-white border-indigo-600"
-                    : "bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:border-indigo-300 hover:text-indigo-700 dark:hover:text-indigo-300",
-                ].join(" ")
-              }
+        {username !== "Gast" && (
+          <div className="mb-6 relative">
+            <nav
+              id="user-tabs-scroll"
+              className="flex flex-nowrap gap-2 overflow-x-auto pr-6"
+              onScroll={() => {
+                const nav = document.getElementById("user-tabs-scroll");
+                if (!nav) return;
+                const maxScrollLeft = nav.scrollWidth - nav.clientWidth;
+                setTabFadeLeft(nav.scrollLeft > 0);
+                setTabFadeRight(nav.scrollLeft < maxScrollLeft - 1);
+              }}
             >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+              {tabs.map((item) => (
+                <NavLink
+                  key={item.id}
+                  to={`/user/${item.id}`}
+                  className={({ isActive }) =>
+                    [
+                      "px-3 py-2 rounded-lg text-sm font-semibold transition-colors border whitespace-nowrap",
+                      isActive
+                        ? "bg-indigo-600 text-white border-indigo-600"
+                        : "bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:border-indigo-300 hover:text-indigo-700 dark:hover:text-indigo-300",
+                    ].join(" ")
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+            {tabFadeLeft && (
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-white to-transparent dark:from-gray-800" />
+            )}
+            {tabFadeRight && (
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-white to-transparent dark:from-gray-800" />
+            )}
+          </div>
+        )}
 
-        {activeTab === "name" && (
-          <>
-            {/* Header */}
-            <div className="mb-4">
+        <div>
+          <div className={activeTab === "name" ? "block" : "hidden"}>
+            <>
+              {/* Header */}
+              <div className="mb-4">
               <h2
                 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 force-break"
                 lang="de"
@@ -213,35 +283,42 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
                 />
               </button>
             </div>
-          </>
-        )}
+            </>
+          </div>
 
-        {activeTab === "wrong-questions" && (
-          <WrongQuestionsPool
-            username={username}
-            allQuizzes={allQuizzes}
-            onStartWrongPool={(quiz, initialState, originProgressByQuizId) => {
-              setWrongPoolSession({ quiz, initialState, originProgressByQuizId });
-            }}
-          />
-        )}
+          {username !== "Gast" && (
+            <div className={activeTab === "wrong-questions" ? "block" : "hidden"}>
+              <WrongQuestionsPool
+                username={username}
+                allQuizzes={allQuizzes}
+                onStartWrongPool={(quiz, initialState, originProgressByQuizId) => {
+                  setWrongPoolSession({ quiz, initialState, originProgressByQuizId });
+                }}
+              />
+            </div>
+          )}
 
-        {activeTab === "suggestions" && (
-          <QuizSuggestions
-            username={username}
-            allQuizzes={allQuizzes}
-            quizMetadataMap={quizMetadataMap}
-            onNavigateToQuiz={handleNavigateToQuiz}
-          />
-        )}
+          {username !== "Gast" && (
+            <div className={activeTab === "suggestions" ? "block" : "hidden"}>
+              <QuizSuggestions
+                username={username}
+                allQuizzes={allQuizzes}
+                quizMetadataMap={quizMetadataMap}
+                onNavigateToQuiz={handleNavigateToQuiz}
+              />
+            </div>
+          )}
 
-        {activeTab === "progress" && (
-          <UserDashboard
-            username={username}
-            subjects={subjects}
-            onNavigateToQuiz={handleNavigateToQuiz}
-          />
-        )}
+          {username !== "Gast" && (
+            <div className={activeTab === "progress" ? "block" : "hidden"}>
+              <UserDashboard
+                username={username}
+                subjects={subjects}
+                onNavigateToQuiz={handleNavigateToQuiz}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
