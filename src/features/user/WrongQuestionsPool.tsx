@@ -1,11 +1,20 @@
 import React, { useEffect, useState, useMemo } from "react";
 import type { UserQuizProgress, QuestionSRSData } from "userProgress";
 import { loadAllUserProgress } from "@utils/loadAllUserProgress";
-import { AlertTriangle, RefreshCcw, HelpCircle } from "lucide-react";
+import { AlertTriangle, RefreshCcw } from "lucide-react";
+import type { Quiz, Question } from "quizTypes";
+import type { QuizPlayerInitialState } from "@hooks/useQuizPlayer";
+import { ensureSRSFields } from "@utils/srsHelpers";
+import { WRONG_QUESTIONS_POOL_QUIZ_ID } from "@utils/wrongQuestionsPool";
 
 interface WrongQuestionsPoolProps {
   username: string;
   allQuizzes: any[];
+  onStartWrongPool?: (
+    quiz: Quiz,
+    initialState: QuizPlayerInitialState,
+    originProgressByQuizId: Record<string, UserQuizProgress>,
+  ) => void;
 }
 
 interface WrongQuestion {
@@ -14,7 +23,18 @@ interface WrongQuestion {
   data: QuestionSRSData;
 }
 
-export const WrongQuestionsPool: React.FC<WrongQuestionsPoolProps> = ({ username, allQuizzes }) => {
+interface WrongQuestionResolved {
+  quizId: string;
+  questionId: string;
+  question: Question;
+  questionIndex: number;
+}
+
+export const WrongQuestionsPool: React.FC<WrongQuestionsPoolProps> = ({
+  username,
+  allQuizzes,
+  onStartWrongPool,
+}) => {
   const [userProgress, setUserProgress] = useState<Record<string, UserQuizProgress>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +65,42 @@ export const WrongQuestionsPool: React.FC<WrongQuestionsPoolProps> = ({ username
     return pool;
   }, [userProgress]);
 
+  const wrongQuestionsResolved = useMemo(() => {
+    const resolved: WrongQuestionResolved[] = [];
+    const seen = new Set<string>();
+
+    const getQuestionById = (quizObj: any, questionId: string) => {
+      const questionsArr: Question[] = Array.isArray(quizObj?.questions)
+        ? quizObj.questions
+        : typeof quizObj?.questions === "object" && quizObj?.questions !== null
+          ? Object.values(quizObj.questions)
+          : [];
+
+      const match = questionId.match(/_(q)?(\d+)$/);
+      if (!match) return null;
+      const idx = parseInt(match[2], 10);
+      if (Number.isNaN(idx) || !questionsArr[idx]) return null;
+      return { question: questionsArr[idx], index: idx };
+    };
+
+    wrongQuestions.forEach((q) => {
+      if (seen.has(q.questionId)) return;
+      const quizObj = allQuizzes.find((quiz) => quiz.id === q.quizId);
+      if (!quizObj) return;
+      const resolvedQuestion = getQuestionById(quizObj, q.questionId);
+      if (!resolvedQuestion) return;
+      resolved.push({
+        quizId: q.quizId,
+        questionId: q.questionId,
+        question: resolvedQuestion.question,
+        questionIndex: resolvedQuestion.index,
+      });
+      seen.add(q.questionId);
+    });
+
+    return resolved;
+  }, [wrongQuestions, allQuizzes]);
+
   if (loading)
     return (
       <div className="mb-4 flex items-center gap-2 text-yellow-700 dark:text-yellow-200 animate-pulse">
@@ -59,77 +115,66 @@ export const WrongQuestionsPool: React.FC<WrongQuestionsPoolProps> = ({ username
         {error}
       </div>
     );
-  if (wrongQuestions.length === 0)
-    return (
-      <div className="mb-4 flex items-center gap-2 text-green-700 dark:text-green-200">
-        <HelpCircle className="w-5 h-5" />
-        Keine falsch beantworteten Fragen gefunden!
-      </div>
-    );
+  if (wrongQuestions.length === 0 || wrongQuestionsResolved.length === 0) return null;
+
+  const handleStartReview = () => {
+    if (!onStartWrongPool) return;
+
+    const questions: Question[] = wrongQuestionsResolved.map((item) => ({
+      ...item.question,
+      id: item.questionId,
+      originQuizId: item.quizId,
+      originQuestionIndex: item.questionIndex,
+    }));
+
+    if (questions.length === 0) return;
+
+    const initialQuestions: Record<string, QuestionSRSData> = {};
+    wrongQuestionsResolved.forEach((item) => {
+      const originProgress = userProgress[item.quizId];
+      const existing = originProgress?.questions?.[item.questionId];
+      initialQuestions[item.questionId] = ensureSRSFields(existing || {});
+    });
+
+    const reviewQuiz: Quiz = {
+      id: WRONG_QUESTIONS_POOL_QUIZ_ID,
+      title: "Fehler-Pool",
+      shortTitle: "Fehler-Pool",
+      url: WRONG_QUESTIONS_POOL_QUIZ_ID,
+      questions,
+    };
+
+    const initialState: QuizPlayerInitialState = {
+      questions: initialQuestions,
+    };
+
+    onStartWrongPool(reviewQuiz, initialState, userProgress);
+  };
 
   return (
-    <div className="mb-8 p-6 rounded-2xl shadow-lg bg-gradient-to-br from-yellow-50 via-white to-yellow-100 dark:from-yellow-900/30 dark:via-gray-900 dark:to-yellow-900/10 border border-yellow-200 dark:border-yellow-700">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="mb-6 p-5 rounded-2xl shadow-lg bg-gradient-to-br from-yellow-50 via-white to-yellow-100 dark:from-yellow-900/30 dark:via-gray-900 dark:to-yellow-900/10 border border-yellow-200 dark:border-yellow-700">
+      <div className="flex items-center gap-2 mb-2">
         <AlertTriangle className="w-6 h-6 text-yellow-700 dark:text-yellow-200" />
-        <h2 className="text-2xl font-extrabold text-yellow-800 dark:text-yellow-200 tracking-tight">Falsch beantwortete Fragen</h2>
+        <h2 className="text-xl font-extrabold text-yellow-800 dark:text-yellow-200 tracking-tight">Fehler-Pool</h2>
       </div>
-      <ul className="grid gap-3">
-        {wrongQuestions
-          .filter((q) => allQuizzes.some((quiz) => quiz.id === q.quizId))
-          .map((q) => {
-            // Quiz-Fragetext holen
-            const quizObj = allQuizzes.find((quiz) => quiz.id === q.quizId);
-            let questionText = "Fragetext nicht gefunden";
-            if (quizObj && quizObj.questions) {
-              let questionsArr: Array<{ question?: string }> = [];
-              if (Array.isArray(quizObj.questions)) {
-                questionsArr = quizObj.questions;
-              } else if (typeof quizObj.questions === "object" && quizObj.questions !== null) {
-                questionsArr = Object.values(quizObj.questions);
-              }
-              // Versuche, die Frage per id zu finden
-              let question = null;
-              // Extrahiere Index aus questionId, z.B. quizId_q78 -> 78
-              const match = q.questionId.match(/_(q)?(\d+)$/);
-              if (match) {
-                const idx = parseInt(match[2], 10);
-                if (!isNaN(idx) && questionsArr[idx]) {
-                  question = questionsArr[idx];
-                }
-              }
-              if (question && question.question) {
-                questionText = question.question;
-              } else {
-                // Fallback: gekürzte ID anzeigen
-                questionText = q.questionId.length > 12 ? q.questionId.slice(0, 12) + "..." : q.questionId;
-              }
-            }
-            return (
-              <li
-                key={q.quizId + q.questionId}
-                className="rounded-xl border border-yellow-200 dark:border-yellow-700 bg-white dark:bg-yellow-900/30 p-4 flex flex-col md:flex-row md:items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="flex-1">
-                  <div className="text-sm text-gray-500 dark:text-gray-300 mb-1">
-                    <span className="font-semibold text-yellow-700 dark:text-yellow-200">Quiz:</span> <span className="font-mono">{quizObj?.title || q.quizId}</span><br />
-                    <span className="font-semibold text-yellow-700 dark:text-yellow-200">Frage:</span> <span className="font-mono">{questionText}</span>
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    <span className="font-semibold">Versuche:</span> {q.data.attempts}
-                    {q.data.correctStreak > 0 && (
-                      <span className="ml-2 text-green-600 dark:text-green-300">Streak: {q.data.correctStreak}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="inline-block px-2 py-1 rounded bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100 text-xs font-bold">
-                    Noch nicht richtig!
-                  </span>
-                </div>
-              </li>
-            );
-          })}
-      </ul>
+      <p className="text-sm text-gray-700 dark:text-gray-200">
+        Du hast <span className="font-semibold">{wrongQuestionsResolved.length}</span>{" "}
+        {wrongQuestionsResolved.length === 1 ? "offenen Fehler" : "offene Fehler"}.
+      </p>
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <p className="text-xs text-gray-600 dark:text-gray-300">
+          Starte ein Review-Quiz mit allen zuletzt falsch beantworteten Fragen.
+        </p>
+        <button
+          type="button"
+          onClick={handleStartReview}
+          className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold shadow-sm transition-colors"
+          aria-label="Review-Quiz starten"
+          title="Review-Quiz starten"
+        >
+          Review starten
+        </button>
+      </div>
     </div>
   );
 };
