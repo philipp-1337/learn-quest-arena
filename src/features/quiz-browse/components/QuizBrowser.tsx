@@ -1,32 +1,35 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Cog, UserCircle, Sword, Component } from "lucide-react";
+
+import AppHeader, { type MenuItem } from "@shared/AppHeader";
+import Footer from "@features/footer/Footer";
 import {
-  Cog,
-  UserCircle,
-  Sword,
-  Component,
-} from 'lucide-react';
+  Breadcrumb,
+  SubjectSelector,
+  ClassSelector,
+  TopicSelector,
+  QuizSelector,
+} from "@quiz";
 
-import AppHeader, { type MenuItem } from '@shared/AppHeader';
-import Footer from '@features/footer/Footer';
-import {Breadcrumb, SubjectSelector, ClassSelector, TopicSelector, QuizSelector } from '@quiz';
+import { useUsername } from "@username/hooks/useUsername";
+import UsernameFlow from "@username/components/UsernameFlow";
+import FeaturedQuizzes from "./FeaturedQuizzes";
+import HiddenQuizzes from "./HiddenQuizzes";
+import ChallengesSection from "./ChallengesSection";
+import QuizPlayer from "@quiz-player/components/QuizPlayer";
 
-import { useUsername } from '@username/hooks/useUsername';
-import UsernameFlow from '@username/components/UsernameFlow';
-import FeaturedQuizzes from './FeaturedQuizzes';
-import ChallengesSection from './ChallengesSection';
-import QuizPlayer from '@quiz-player/components/QuizPlayer';
-
-import { useQuizNavigation, useQuizState } from '@features/quiz-browse';
-import type { QuizStartMode } from '@hooks/useQuizPlayer';
-import { useAuth } from '@auth';
+import { useQuizNavigation, useQuizState } from "@features/quiz-browse";
+import type { QuizStartMode } from "@hooks/useQuizPlayer";
+import { useAuth } from "@auth";
+import { useUserRole } from "@hooks/useUserRole";
 
 import {
   filterVisibleSubjects,
   filterVisibleClasses,
   filterVisibleTopics,
   filterVisibleQuizzes,
-} from '@utils/quizVisibilityHelpers';
+} from "@utils/quizVisibilityHelpers";
 
 import type {
   Subject,
@@ -35,7 +38,7 @@ import type {
   Quiz,
   QuizChallenge,
   QuizDocument,
-} from 'quizTypes';
+} from "quizTypes";
 
 interface QuizBrowserProps {
   subjects: Subject[];
@@ -48,11 +51,13 @@ export default function QuizBrowser({
 }: QuizBrowserProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  const { username, isGuest, showPicker, setShowPicker, updateUsername } = useUsername();
+
+  const { username, isGuest, showPicker, setShowPicker, updateUsername } =
+    useUsername();
   const { isAuthenticated } = useAuth();
-  
-  const [quizStartMode, setQuizStartMode] = useState<QuizStartMode>('fresh');
+  const { userRole, loading: userRoleLoading } = useUserRole();
+
+  const [quizStartMode, setQuizStartMode] = useState<QuizStartMode>("fresh");
   const [loading] = useState(false);
 
   const {
@@ -78,15 +83,15 @@ export default function QuizBrowser({
   // Read quiz start mode from URL query parameter and handle username picker
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const mode = searchParams.get('mode');
-    
-    if (mode === 'fresh' || mode === 'continue' || mode === 'review') {
+    const mode = searchParams.get("mode");
+
+    if (mode === "fresh" || mode === "continue" || mode === "review") {
       setQuizStartMode(mode);
     }
 
     // Check if we should open the username picker
-    const chooseName = searchParams.get('chooseName');
-    if (chooseName === 'true') {
+    const chooseName = searchParams.get("chooseName");
+    if (chooseName === "true") {
       setShowPicker(true);
       // Remove the query parameter from URL
       navigate(location.pathname, { replace: true });
@@ -116,9 +121,12 @@ export default function QuizBrowser({
     navigateToTopic(selectedSubject, selectedClass, topic);
   };
 
-  const handleQuizSelect = (quiz: Quiz | QuizDocument, mode?: QuizStartMode) => {
-    console.log('Selected quiz:', quiz, 'mode:', mode);
-    setQuizStartMode(mode || 'fresh');
+  const handleQuizSelect = (
+    quiz: Quiz | QuizDocument,
+    mode?: QuizStartMode,
+  ) => {
+    console.log("Selected quiz:", quiz, "mode:", mode);
+    setQuizStartMode(mode || "fresh");
 
     // Ergänze IDs aus der aktuellen Auswahl, falls sie im Quiz fehlen
     const quizWithIds = {
@@ -129,24 +137,26 @@ export default function QuizBrowser({
     };
 
     const subject = subjects.find((s) => s.id === quizWithIds.subjectId);
-    const classItem = subject?.classes.find((c) => c.id === quizWithIds.classId);
+    const classItem = subject?.classes.find(
+      (c) => c.id === quizWithIds.classId,
+    );
     const topic = classItem?.topics.find((t) => t.id === quizWithIds.topicId);
 
     if (!subject) {
-      console.error('Subject not found for quiz:', quizWithIds);
+      console.error("Subject not found for quiz:", quizWithIds);
       return;
     }
     if (!classItem) {
-      console.error('Class not found for quiz:', quizWithIds);
+      console.error("Class not found for quiz:", quizWithIds);
       return;
     }
     if (!topic) {
-      console.error('Topic not found for quiz:', quizWithIds);
+      console.error("Topic not found for quiz:", quizWithIds);
       return;
     }
 
     console.log(
-      'Navigating to quiz with subject, class, topic:',
+      "Navigating to quiz with subject, class, topic:",
       subject,
       classItem,
       topic,
@@ -157,7 +167,7 @@ export default function QuizBrowser({
 
   const handleBackFromQuiz = () => {
     selectQuiz(null as any);
-    setQuizStartMode('fresh');
+    setQuizStartMode("fresh");
     navigateToHome();
   };
 
@@ -177,6 +187,9 @@ export default function QuizBrowser({
   const handleChallengeSelect = (challenge: QuizChallenge) => {
     navigate(`/challenge/${challenge.id}`);
   };
+
+  const showHiddenQuizzesSection =
+    isAuthenticated && userRole === "admin" && !userRoleLoading;
 
   // Username picker flow
   if (showPicker) {
@@ -218,13 +231,13 @@ export default function QuizBrowser({
   const menuItems: MenuItem[] = [
     {
       icon: UserCircle,
-      label: username !== 'Gast' ? username : 'Gast',
-      onClick: () => navigate('/user'),
+      label: username !== "Gast" ? username : "Gast",
+      onClick: () => navigate("/user"),
       hasNotification: isGuest,
     },
     {
       icon: Cog,
-      label: 'Admin',
+      label: "Admin",
       onClick: onAdminClick,
     },
   ];
@@ -268,11 +281,11 @@ export default function QuizBrowser({
         {/* Feature Section & Challenges - nur auf Hauptseite */}
         {!selectedSubject && (
           <>
-            <FeaturedQuizzes 
-              subjects={subjects} 
-              onQuizSelect={handleQuizSelect} 
+            <FeaturedQuizzes
+              subjects={subjects}
+              onQuizSelect={handleQuizSelect}
             />
-            
+
             <ChallengesSection
               isAuthenticated={isAuthenticated}
               onChallengeSelect={handleChallengeSelect}
@@ -303,10 +316,7 @@ export default function QuizBrowser({
         )}
 
         {selectedClass && !selectedTopic && (
-          <TopicSelector 
-            topics={visibleTopics} 
-            onSelect={handleTopicSelect} 
-          />
+          <TopicSelector topics={visibleTopics} onSelect={handleTopicSelect} />
         )}
 
         {selectedTopic && (
@@ -315,6 +325,9 @@ export default function QuizBrowser({
             onSelect={handleQuizSelect}
             username={isGuest ? undefined : username}
           />
+        )}
+        {!selectedSubject && showHiddenQuizzesSection && (
+          <HiddenQuizzes subjects={subjects} onQuizSelect={handleQuizSelect} />
         )}
       </div>
       <Footer />
