@@ -22,6 +22,7 @@ export default function QuestionCard({
 }: QuestionCardProps) {
   const isImageQuestion = (question.questionType || "text") === "image" && question.questionImage;
   const isAudioQuestion = (question.questionType || "text") === "audio" && question.questionAudio;
+  const hasExplanation = Boolean(question.explanation && question.explanation.trim());
 
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-0 bg-gray-50 dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600 transition-colors overflow-hidden flex flex-col">
@@ -84,6 +85,11 @@ export default function QuestionCard({
                       ? "Bilder"
                       : "Audio"}
                 </span>
+                {hasExplanation && (
+                  <span className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 px-2 py-1 rounded">
+                    Erklärung
+                  </span>
+                )}
               </div>
             </div>
           </div>

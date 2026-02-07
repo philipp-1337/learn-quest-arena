@@ -166,6 +166,18 @@ export default function QuizQuestion({
           })()
         )}
 
+        {/* Erklärung nach der Antwort */}
+        {isAnswerSubmitted && question.explanation && (
+          <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+            <p className="text-sm text-amber-900 dark:text-amber-200 font-semibold mb-1">
+              Erklärung
+            </p>
+            <p className="text-sm text-amber-900 dark:text-amber-100 whitespace-pre-wrap">
+              {question.explanation}
+            </p>
+          </div>
+        )}
+
         {/* Submit Answer Button - erscheint wenn Antwort gewählt aber noch nicht geprüft */}
         {selectedAnswers.length > 0 && !isAnswerSubmitted && (
           <button

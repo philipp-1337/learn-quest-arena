@@ -76,6 +76,7 @@ export interface Question {
   questionImage?: string; // URL of question image if questionType is 'image'
   questionImageAlt?: string; // Alt text for question image
   questionAudio?: string; // URL of question audio if questionType is 'audio'
+  explanation?: string; // Optional explanation shown after answering
   answerType: string;
   answers: Answer[];
   correctAnswerIndex: number; // Deprecated: Use correctAnswerIndices for multi-select support

@@ -36,6 +36,7 @@ export default function QuestionEditorView() {
   });
 
   const { validateQuestion } = useQuestionValidation();
+  const explanationEnabled = question.explanation !== undefined;
 
   const handleSaveQuestion = async () => {
     if (!validateQuestion(question)) return;
@@ -68,6 +69,9 @@ export default function QuestionEditorView() {
 
       if (question.id) {
         cleanQuestion.id = question.id;
+      }
+      if (question.explanation && question.explanation.trim()) {
+        cleanQuestion.explanation = question.explanation.trim();
       }
       if (question.questionType === "image" && question.questionImage) {
         cleanQuestion.questionImage = question.questionImage;
@@ -183,6 +187,51 @@ export default function QuestionEditorView() {
               onToggleCorrect={handleToggleCorrectAnswer}
               onUpdateAnswer={updateAnswer}
             />
+
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <div className="flex items-center gap-3">
+                <input
+                  id="question-explanation-toggle"
+                  type="checkbox"
+                  checked={explanationEnabled}
+                  onChange={(e) =>
+                    setQuestion({
+                      ...question,
+                      explanation: e.target.checked
+                        ? question.explanation ?? ""
+                        : undefined,
+                    })
+                  }
+                  className="h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 rounded"
+                />
+                <label
+                  htmlFor="question-explanation-toggle"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Erklärtext nach der Antwort anzeigen
+                </label>
+              </div>
+
+              {explanationEnabled && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Erklärtext
+                  </label>
+                  <textarea
+                    value={question.explanation ?? ""}
+                    onChange={(e) =>
+                      setQuestion({ ...question, explanation: e.target.value })
+                    }
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="Optional: Kurze Erklärung oder Hintergrundinfo zur richtigen Antwort."
+                  />
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    Wird nach der Antwortauswertung im Quiz angezeigt.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
