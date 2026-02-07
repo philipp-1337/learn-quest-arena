@@ -159,6 +159,7 @@ export default function FlashcardQuizApp() {
           }
         />
         <Route path="/user" element={<UserView subjects={quizSubjects} />} />
+        <Route path="/user/:tab" element={<UserView subjects={quizSubjects} />} />
         <Route
           path="/challenge/:challengeId"
           element={<QuizChallengePlayer />}

@@ -9,6 +9,7 @@ import { getQuestionId } from '@utils/questionIdHelper';
 import { ensureSRSFields } from '@utils/srsHelpers';
 import { calculateXP } from '@utils/xpCalculation';
 import { useImagePreload } from '@utils/useImagePreload';
+import { WRONG_QUESTIONS_POOL_QUIZ_ID } from '@utils/wrongQuestionsPool';
 
 
 
@@ -18,10 +19,20 @@ interface QuizPlayerProps {
   onHome: () => void;
   username?: string;
   startMode?: QuizStartMode;
+  initialStateOverride?: QuizPlayerInitialState;
+  originProgressByQuizId?: Record<string, UserQuizProgress>;
 }
 
 // Innere Komponente, die erst gerendert wird, wenn Daten geladen sind
-function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialState }: QuizPlayerProps & { initialState?: QuizPlayerInitialState }) {
+function QuizPlayerInner({
+  quiz,
+  onBack,
+  onHome,
+  username,
+  startMode,
+  initialState,
+  originProgressByQuizId,
+}: QuizPlayerProps & { initialState?: QuizPlayerInitialState }) {
   const quizPlayer = useQuizPlayer(quiz, initialState, startMode || 'fresh');
   const {
     currentQuestion,
@@ -47,6 +58,7 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
   } = quizPlayer;
 
   const [xpData, setXpData] = useState<{ xpEarned: number; xpDelta: number }>({ xpEarned: 0, xpDelta: 0 });
+  const isWrongQuestionsPool = quiz.id === WRONG_QUESTIONS_POOL_QUIZ_ID;
 
   // Preload Bilder der nächsten 2 Fragen für bessere UX
   useImagePreload(quiz.questions, currentQuestion, 2);
@@ -54,6 +66,44 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
   // Fortschritt speichern nach jeder Aktion (neues Modell mit Question IDs)
   useEffect(() => {
     if (!username) return;
+    if (isWrongQuestionsPool) {
+      if (!originProgressByQuizId) return;
+
+      const questionProgress = quizPlayer.questionProgress || {};
+      const now = Date.now();
+      const updatesByQuizId: Record<string, UserQuizProgress> = {};
+
+      quiz.questions.forEach((q, idx) => {
+        const originQuizId = q.originQuizId;
+        if (!originQuizId) return;
+        const baseProgress = originProgressByQuizId[originQuizId];
+        if (!baseProgress) return;
+
+        const questionId = getQuestionId(
+          q,
+          originQuizId,
+          typeof q.originQuestionIndex === 'number' ? q.originQuestionIndex : idx
+        );
+        const updatedQuestion = questionProgress[questionId];
+        if (!updatedQuestion) return;
+
+        if (!updatesByQuizId[originQuizId]) {
+          updatesByQuizId[originQuizId] = {
+            ...baseProgress,
+            questions: { ...baseProgress.questions },
+            lastUpdated: now,
+          };
+        }
+
+        updatesByQuizId[originQuizId].questions[questionId] = updatedQuestion;
+      });
+
+      Object.values(updatesByQuizId).forEach((progress) => {
+        progress.completed = Object.values(progress.questions).every(q => q.answered);
+        saveUserQuizProgress(progress);
+      });
+      return;
+    }
     // questions-Objekt für Firestore erzeugen mit Question IDs
     const questionsObj: UserQuizProgress['questions'] = {};
     
@@ -114,7 +164,7 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
     };
     saveUserQuizProgress(progress);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers, solvedQuestions, totalTries, quiz.id, username, quizPlayer.questionProgress]);
+  }, [answers, solvedQuestions, totalTries, quiz.id, username, quizPlayer.questionProgress, isWrongQuestionsPool, originProgressByQuizId]);
 
   if (showResults) {
     const statistics = getStatistics();
@@ -158,12 +208,25 @@ function QuizPlayerInner({ quiz, onBack, onHome, username, startMode, initialSta
   );
 }
 
-export default function QuizPlayer({ quiz, onBack, onHome, username, startMode = 'fresh' }: QuizPlayerProps) {
+export default function QuizPlayer({
+  quiz,
+  onBack,
+  onHome,
+  username,
+  startMode = 'fresh',
+  initialStateOverride,
+  originProgressByQuizId,
+}: QuizPlayerProps) {
   // Fortschritt laden und an useQuizPlayer übergeben (nur wenn username gesetzt)
   const [initialState, setInitialState] = useState<QuizPlayerInitialState | undefined>(undefined);
-  const [progressLoaded, setProgressLoaded] = useState(!username);
+  const [progressLoaded, setProgressLoaded] = useState(!username || !!initialStateOverride);
 
   useEffect(() => {
+    if (initialStateOverride) {
+      setInitialState(initialStateOverride);
+      setProgressLoaded(true);
+      return;
+    }
     if (!username) {
       setInitialState(undefined);
       setProgressLoaded(true);
@@ -202,6 +265,7 @@ export default function QuizPlayer({ quiz, onBack, onHome, username, startMode =
       username={username} 
       startMode={startMode}
       initialState={initialState}
+      originProgressByQuizId={originProgressByQuizId}
     />
   );
 }

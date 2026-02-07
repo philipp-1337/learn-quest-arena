@@ -68,6 +68,9 @@ export interface QuizDocument extends Omit<Quiz, 'id'> {
 
 export interface Question {
   id?: string;  // Unique identifier for the question
+  // Optional origin metadata for pooled/custom quizzes
+  originQuizId?: string;
+  originQuestionIndex?: number;
   question: string;
   questionType?: 'text' | 'image' | 'audio'; // Type of question (text, image, or audio)
   questionImage?: string; // URL of question image if questionType is 'image'
