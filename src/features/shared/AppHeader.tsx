@@ -2,7 +2,7 @@ import { Menu, X, Sun, Moon, Lightbulb, IdCard } from 'lucide-react';
 import { useState, useRef, useEffect, type ComponentType } from 'react';
 import { Link } from 'react-router-dom';
 import useDarkMode from '@hooks/useDarkMode';
-import { getFlashCardMode, setFlashCardMode } from '@utils/userSettings';
+import { getFlashCardMode, setFlashCardMode, subscribeFlashCardMode } from '@utils/userSettings';
 
 export interface MenuItem {
   icon: ComponentType<{ className?: string }>;
@@ -39,6 +39,10 @@ export default function AppHeader({
   useEffect(() => {
     setFlashCardMode(flashCardMode);
   }, [flashCardMode]);
+
+  useEffect(() => {
+    return subscribeFlashCardMode(setFlashCardModeState);
+  }, []);
 
   // Close menu when clicking outside
   useEffect(() => {

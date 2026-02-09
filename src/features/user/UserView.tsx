@@ -15,7 +15,7 @@ import { findQuizById } from "@utils/quizHierarchySearch";
 import { useQuizNavigation } from "@features/quiz-browse";
 import type { QuizPlayerInitialState } from "@hooks/useQuizPlayer";
 import type { UserQuizProgress } from "userProgress";
-import { getFlashCardMode, setFlashCardMode } from "@utils/userSettings";
+import { getFlashCardMode, setFlashCardMode, subscribeFlashCardMode } from "@utils/userSettings";
 
 interface UserViewProps {
   subjects: Subject[];
@@ -99,6 +99,10 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
   useEffect(() => {
     setFlashCardMode(flashCardMode);
   }, [flashCardMode]);
+
+  useEffect(() => {
+    return subscribeFlashCardMode(setFlashCardModeState);
+  }, []);
 
   // Quiz-Metadaten-Map für effiziente Lookup - nur einmal berechnen
   const quizMetadataMap = useMemo(() => {
