@@ -15,7 +15,6 @@ import { findQuizById } from "@utils/quizHierarchySearch";
 import { useQuizNavigation } from "@features/quiz-browse";
 import type { QuizPlayerInitialState } from "@hooks/useQuizPlayer";
 import type { UserQuizProgress } from "userProgress";
-import { getFlashCardMode, setFlashCardMode, subscribeFlashCardMode } from "@utils/userSettings";
 
 interface UserViewProps {
   subjects: Subject[];
@@ -43,7 +42,6 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
     const stored = localStorage.getItem("lqa_username");
     return stored && stored !== "" ? stored : "Gast";
   });
-  const [flashCardMode, setFlashCardModeState] = useState<boolean>(() => getFlashCardMode());
 
   const activeTab = username === "Gast" ? "name" : tab ?? "name";
 
@@ -52,7 +50,6 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
     { id: "progress", label: "Fortschritt" },
     { id: "suggestions", label: "Vorschläge" },
     { id: "wrong-questions", label: "Falsche Fragen" },
-    { id: "settings", label: "Einstellungen" },
   ];
 
   useEffect(() => {
@@ -96,13 +93,6 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
     };
   }, []);
 
-  useEffect(() => {
-    setFlashCardMode(flashCardMode);
-  }, [flashCardMode]);
-
-  useEffect(() => {
-    return subscribeFlashCardMode(setFlashCardModeState);
-  }, []);
 
   // Quiz-Metadaten-Map für effiziente Lookup - nur einmal berechnen
   const quizMetadataMap = useMemo(() => {
@@ -330,44 +320,6 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
             </div>
           )}
 
-          {username !== "Gast" && (
-            <div className={activeTab === "settings" ? "block" : "hidden"}>
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 force-break" lang="de">
-                    Einstellungen
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400 force-break" lang="de">
-                    Passe dein Quiz-Erlebnis an.
-                  </p>
-                </div>
-
-                <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50 dark:bg-gray-900/40">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white" lang="de">
-                        Flash-Card Modus
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400" lang="de">
-                        Antworten selbst eingeben statt aus Optionen zu wählen.
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={flashCardMode}
-                        onChange={(e) => setFlashCardModeState(e.target.checked)}
-                        className="sr-only peer"
-                        aria-label="Flash-Card Modus"
-                      />
-                      <div className="w-12 h-7 bg-gray-300 dark:bg-gray-700 rounded-full peer-checked:bg-indigo-600 transition-colors" />
-                      <span className="absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform peer-checked:translate-x-5" />
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
