@@ -37,16 +37,23 @@ export type QuizPlayerInitialState = {
   lastXP?: number;
 };
 
+type QuizPlayerOptions = {
+  flashCardMode?: boolean;
+};
+
 export function useQuizPlayer(
   quiz: Quiz,
   initialState?: QuizPlayerInitialState,
-  startMode: QuizStartMode = 'fresh'
+  startMode: QuizStartMode = 'fresh',
+  options: QuizPlayerOptions = {}
 ) {
+  const flashCardMode = options.flashCardMode === true;
   // Fragen einmalig mischen (gleiche Reihenfolge für die Session)
   // Bei 'continue' Modus: Nur falsch beantwortete Fragen anzeigen
   // Bei 'review' Modus: Nur fällige Wiederholungsfragen anzeigen
   const [shuffledQuestions] = useState(() => {
-    let questionsToUse = [...quiz.questions];
+    const allQuestions = [...quiz.questions];
+    let questionsToUse = [...allQuestions];
     
     // In 'continue' mode, filter to only incorrectly answered questions
     if (startMode === 'continue' && initialState?.questions) {
@@ -69,9 +76,23 @@ export function useQuizPlayer(
       });
     }
     
-    // If no questions to continue with, fall back to all questions
+    if (flashCardMode) {
+      questionsToUse = questionsToUse.filter((q) => {
+        const correctIndices = q.correctAnswerIndices || [q.correctAnswerIndex];
+        if (!q.answers || q.answers.length === 0) return false;
+        return correctIndices.every((idx) => q.answers[idx]?.type === 'text');
+      });
+    }
+
+    // If no questions to continue with, fall back to all questions (filtered if flash-card mode)
     if (questionsToUse.length === 0) {
-      questionsToUse = [...quiz.questions];
+      questionsToUse = flashCardMode
+        ? allQuestions.filter((q) => {
+            const correctIndices = q.correctAnswerIndices || [q.correctAnswerIndex];
+            if (!q.answers || q.answers.length === 0) return false;
+            return correctIndices.every((idx) => q.answers[idx]?.type === 'text');
+          })
+        : [...allQuestions];
     }
     
     // Shuffle the questions
@@ -187,19 +208,29 @@ export function useQuizPlayer(
     }
   };
 
-  const handleSubmitAnswer = () => {
-    if (selectedAnswers.length === 0 || isAnswerSubmitted) return;
-    
+  const handleSubmitAnswer = (options?: { typedAnswer?: string; selfCorrect?: boolean }) => {
+    if (isAnswerSubmitted) return;
+    if (flashCardMode) {
+      if (typeof options?.selfCorrect !== 'boolean') return;
+    } else if (selectedAnswers.length === 0) {
+      return;
+    }
+
     setIsAnswerSubmitted(true);
     const questions = repeatQuestions || shuffledQuestions;
     const currentQ = questions[currentQuestion];
-    // Support for multiple correct answers - ALL must be selected
     const correctIndices = currentQ.correctAnswerIndices || [currentQ.correctAnswerIndex];
-    const selectedIndices = selectedAnswers.map(a => a.originalIndex).sort();
-    
-    // Check if selected answers exactly match correct answers
-    const isCorrect = correctIndices.length === selectedIndices.length &&
-      correctIndices.every(idx => selectedIndices.includes(idx));
+
+    let isCorrect = false;
+    if (flashCardMode) {
+      isCorrect = options?.selfCorrect === true;
+    } else {
+      // Support for multiple correct answers - ALL must be selected
+      const selectedIndices = selectedAnswers.map(a => a.originalIndex).sort();
+      // Check if selected answers exactly match correct answers
+      isCorrect = correctIndices.length === selectedIndices.length &&
+        correctIndices.every(idx => selectedIndices.includes(idx));
+    }
     
     // Question ID für das Progress-Tracking ermitteln - verwende Helper-Funktion
     const originalIndex = findOriginalQuestionIndex(currentQ, quiz);

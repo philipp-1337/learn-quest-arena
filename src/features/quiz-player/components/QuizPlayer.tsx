@@ -10,6 +10,7 @@ import { ensureSRSFields } from '@utils/srsHelpers';
 import { calculateXP } from '@utils/xpCalculation';
 import { useImagePreload } from '@utils/useImagePreload';
 import { WRONG_QUESTIONS_POOL_QUIZ_ID } from '@utils/wrongQuestionsPool';
+import { getFlashCardMode } from '@utils/userSettings';
 
 
 
@@ -32,8 +33,9 @@ function QuizPlayerInner({
   startMode,
   initialState,
   originProgressByQuizId,
-}: QuizPlayerProps & { initialState?: QuizPlayerInitialState }) {
-  const quizPlayer = useQuizPlayer(quiz, initialState, startMode || 'fresh');
+  flashCardMode,
+}: QuizPlayerProps & { initialState?: QuizPlayerInitialState; flashCardMode: boolean }) {
+  const quizPlayer = useQuizPlayer(quiz, initialState, startMode || 'fresh', { flashCardMode });
   const {
     currentQuestion,
     selectedAnswers,
@@ -134,7 +136,7 @@ function QuizPlayerInner({
     let newXP = 0;
     let xpDelta = 0;
     
-    if (username !== 'Gast' && statistics.totalAnswered > 0) {
+    if (!flashCardMode && username !== 'Gast' && statistics.totalAnswered > 0) {
       const xpCalculation = calculateXP(
         statistics.percentage,
         elapsedTime,
@@ -148,6 +150,8 @@ function QuizPlayerInner({
       xpDelta = newXP - previousXP;
       
       setXpData({ xpEarned: newXP, xpDelta });
+    } else if (flashCardMode) {
+      setXpData({ xpEarned: 0, xpDelta: 0 });
     }
     
     const progress: UserQuizProgress = {
@@ -160,7 +164,7 @@ function QuizPlayerInner({
       totalElapsedTime: elapsedTime,
       ...(completed && { completedTime: quizPlayer.completedTime || elapsedTime }),
       // lastXP speichert den vorherigen XP-Wert für zukünftige Delta-Berechnungen
-      ...(username !== 'Gast' && newXP > 0 && { xp: newXP, lastXP: initialState?.xp || 0 }),
+      ...(!flashCardMode && username !== 'Gast' && newXP > 0 && { xp: newXP, lastXP: initialState?.xp || 0 }),
     };
     saveUserQuizProgress(progress);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -184,6 +188,37 @@ function QuizPlayerInner({
     );
   }
 
+  if (flashCardMode && quizPlayer.totalQuestions === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-2xl w-full text-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2" lang="de">
+            Keine passenden Fragen
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6" lang="de">
+            Dieses Quiz hat keine Text-Antworten, die im Flash-Card Modus genutzt werden können.
+          </p>
+          <button
+            onClick={onBack}
+            className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+            title="Zurück"
+            aria-label="Zurück"
+          >
+            Zurück
+          </button>
+          <button
+            onClick={onHome}
+            className="w-full mt-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            title="Zur Startseite"
+            aria-label="Zur Startseite"
+          >
+            Zur Startseite
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const question = getCurrentQuestion();
   const correctAnswers = getCorrectAnswer(); // Now returns an array
   const isMultiSelectQuestion = isMultiSelect();
@@ -204,6 +239,8 @@ function QuizPlayerInner({
       elapsedTime={elapsedTime}
       hasProgress={!!username && username !== 'Gast'}
       isMultiSelect={isMultiSelectQuestion}
+      flashCardMode={flashCardMode}
+      lastAnswerCorrect={answers.length > 0 ? answers[answers.length - 1] : undefined}
     />
   );
 }
@@ -217,6 +254,7 @@ export default function QuizPlayer({
   initialStateOverride,
   originProgressByQuizId,
 }: QuizPlayerProps) {
+  const [flashCardMode] = useState(() => getFlashCardMode());
   // Fortschritt laden und an useQuizPlayer übergeben (nur wenn username gesetzt)
   const [initialState, setInitialState] = useState<QuizPlayerInitialState | undefined>(undefined);
   const [progressLoaded, setProgressLoaded] = useState(!username || !!initialStateOverride);
@@ -266,6 +304,7 @@ export default function QuizPlayer({
       startMode={startMode}
       initialState={initialState}
       originProgressByQuizId={originProgressByQuizId}
+      flashCardMode={flashCardMode}
     />
   );
 }
