@@ -41,6 +41,7 @@ export default function AppHeader({
   }, [flashCardMode]);
 
   useEffect(() => {
+    setFlashCardModeState(getFlashCardMode());
     return subscribeFlashCardMode(setFlashCardModeState);
   }, []);
 

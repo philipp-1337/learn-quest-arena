@@ -138,11 +138,13 @@ export default function QuizQuestion({
                     className="absolute inset-0 w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 text-center flex items-center justify-center min-h-[220px]"
                     style={{ backfaceVisibility: 'hidden', transform: 'rotateX(180deg)' }}
                   >
-                    <div className="w-full">
-                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {flashCorrectAnswers.join(', ')}
-                      </p>
-                    </div>
+                    {(flashRevealed || isAnswerSubmitted) && (
+                      <div className="w-full">
+                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                          {flashCorrectAnswers.join(', ')}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
