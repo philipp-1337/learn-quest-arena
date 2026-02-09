@@ -116,12 +116,12 @@ export default function AppHeader({
           <button
             onClick={() => setFlashCardModeState((prev) => !prev)}
             className="cursor-pointer hidden md:block relative group p-2 rounded-full text-gray-700 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            aria-label="Quiz & Card Modus wechseln"
-            title="Quiz & Card Modus wechseln"
+            aria-label={flashCardMode ? "Quiz Modus aktivieren" : "Card Modus aktivieren"}
+            title={flashCardMode ? "Quiz Modus aktivieren" : "Card Modus aktivieren"}
           >
             {flashCardMode ? <Lightbulb className="w-6 h-6" /> : <IdCard className="w-6 h-6" />}
             <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-              {flashCardMode ? "Card Modus" : "Quiz Modus"}
+              {flashCardMode ? "Quiz Modus" : "Card Modus"}
             </span>
           </button>
 
@@ -172,7 +172,7 @@ export default function AppHeader({
                 className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 {flashCardMode ? <Lightbulb className="w-5 h-5" /> : <IdCard className="w-5 h-5" />}
-                <span className="font-medium">{flashCardMode ? "Card Modus" : "Quiz Modus"}</span>
+                <span className="font-medium">{flashCardMode ? "Quiz Modus" : "Card Modus"}</span>
               </button>
               <div className="my-1 border-t border-gray-100 dark:border-gray-700"></div>
               {/* Dark Mode Toggle in Mobile Menu */}
