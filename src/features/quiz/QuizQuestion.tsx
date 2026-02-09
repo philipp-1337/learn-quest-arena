@@ -205,14 +205,14 @@ export default function QuizQuestion({
               )}
 
               {flashRevealed && question.explanation && (
-                <div className="p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
-                  <p className="text-sm text-amber-900 dark:text-amber-200 font-semibold mb-1">
+                <details className="p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+                  <summary className="text-sm text-amber-900 dark:text-amber-200 font-semibold cursor-pointer">
                     Erklärung
-                  </p>
-                  <p className="text-sm text-amber-900 dark:text-amber-100 whitespace-pre-wrap">
+                  </summary>
+                  <p className="mt-1 text-sm text-amber-900 dark:text-amber-100 whitespace-pre-wrap">
                     {question.explanation}
                   </p>
-                </div>
+                </details>
               )}
 
               {showFeedback && lastAnswerCorrect !== undefined && !flashCardMode && (
@@ -294,14 +294,14 @@ export default function QuizQuestion({
 
         {/* Erklärung nach der Antwort */}
         {isAnswerSubmitted && question.explanation && !flashCardMode && (
-          <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
-            <p className="text-sm text-amber-900 dark:text-amber-200 font-semibold mb-1">
+          <details className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+            <summary className="text-sm text-amber-900 dark:text-amber-200 font-semibold cursor-pointer">
               Erklärung
-            </p>
-            <p className="text-sm text-amber-900 dark:text-amber-100 whitespace-pre-wrap">
+            </summary>
+            <p className="mt-1 text-sm text-amber-900 dark:text-amber-100 whitespace-pre-wrap">
               {question.explanation}
             </p>
-          </div>
+          </details>
         )}
 
         {/* Submit Answer Button - erscheint wenn Antwort gewählt aber noch nicht geprüft */}

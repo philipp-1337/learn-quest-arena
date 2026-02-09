@@ -9,7 +9,7 @@ interface FeaturedQuizzesProps {
 }
 
 export default function FeaturedQuizzes({ subjects, onQuizSelect }: FeaturedQuizzesProps) {
-  const { quizzes, loading } = useFeaturedQuizzes(3);
+  const { quizzes, loading, error, refetch } = useFeaturedQuizzes(3);
 
   return (
     <div className="mb-5">
@@ -20,18 +20,61 @@ export default function FeaturedQuizzes({ subjects, onQuizSelect }: FeaturedQuiz
         </h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
-        {loading
-          ? Array.from({ length: 3 }).map((_, i) => (
-              <FeaturedQuizSkeleton key={i} />
-            ))
-          : quizzes.map((quiz: import("quizTypes").QuizDocument) => (
-              <FeaturedQuizCard
-                key={quiz.id}
-                quiz={quiz}
-                subjects={subjects}
-                onSelect={onQuizSelect}
-              />
-            ))}
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <FeaturedQuizSkeleton key={i} />
+          ))
+        ) : error ? (
+          <FeaturedQuizMessage
+            title="Neue Quizze konnten nicht geladen werden"
+            message="Bitte versuche es in ein paar Sekunden erneut."
+            onRetry={refetch}
+          />
+        ) : quizzes.length === 0 ? (
+          <FeaturedQuizMessage
+            title="Aktuell keine neuen Quizze"
+            message="Schau bald wieder vorbei."
+          />
+        ) : (
+          quizzes.map((quiz: import("quizTypes").QuizDocument) => (
+            <FeaturedQuizCard
+              key={quiz.id}
+              quiz={quiz}
+              subjects={subjects}
+              onSelect={onQuizSelect}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FeaturedQuizMessage({
+  title,
+  message,
+  onRetry,
+}: {
+  title: string;
+  message: string;
+  onRetry?: () => void;
+}) {
+  return (
+    <div className="relative flex flex-col h-full md:col-span-3">
+      <div className="w-full bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="text-slate-900 dark:text-white text-lg font-semibold mb-1">
+          {title}
+        </div>
+        <div className="text-slate-600 dark:text-slate-400">{message}</div>
+        {onRetry && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="mt-4 inline-flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
+          >
+            Erneut versuchen
+          </button>
+        )}
       </div>
     </div>
   );
