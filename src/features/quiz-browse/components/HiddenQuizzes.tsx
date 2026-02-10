@@ -3,9 +3,15 @@ import { Play, Shapes, School, Book, EyeOff } from 'lucide-react';
 import type { Subject, Quiz } from 'quizTypes';
 import type { QuizStartMode } from '@hooks/useQuizPlayer';
 
+type QuizWithIds = Quiz & {
+  subjectId: string;
+  classId: string;
+  topicId: string;
+};
+
 interface HiddenQuizzesProps {
   subjects: Subject[];
-  onQuizSelect: (quiz: Quiz, mode?: QuizStartMode) => void;
+  onQuizSelect: (quiz: QuizWithIds, mode?: QuizStartMode) => void;
 }
 
 export default function HiddenQuizzes({ subjects, onQuizSelect }: HiddenQuizzesProps) {
@@ -47,11 +53,23 @@ export default function HiddenQuizzes({ subjects, onQuizSelect }: HiddenQuizzesP
               key={quiz.id}
               role="button"
               tabIndex={0}
-              onClick={() => onQuizSelect(quiz)}
+              onClick={() =>
+                onQuizSelect({
+                  ...quiz,
+                  subjectId: subject.id,
+                  classId: classItem.id,
+                  topicId: topic.id,
+                } as QuizWithIds)
+              }
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  onQuizSelect(quiz);
+                  onQuizSelect({
+                    ...quiz,
+                    subjectId: subject.id,
+                    classId: classItem.id,
+                    topicId: topic.id,
+                  } as QuizWithIds);
                 }
               }}
               className="relative flex flex-col h-full cursor-pointer group"
