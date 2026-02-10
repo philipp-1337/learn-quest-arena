@@ -21,6 +21,7 @@ interface AppHeaderProps {
   menuItems: MenuItem[];
   breadcrumb?: React.ReactNode;
   homeUrl?: string; // URL der jeweiligen Startseite
+  showFlashCardToggle?: boolean;
 }
 
 export default function AppHeader({
@@ -30,6 +31,7 @@ export default function AppHeader({
   menuItems,
   breadcrumb,
   homeUrl,
+  showFlashCardToggle = true,
 }: AppHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -113,17 +115,19 @@ export default function AppHeader({
             </span>
           </button>
           {/* Flash-Card Toggle - visible on desktop */}
-          <button
-            onClick={() => setFlashCardModeState((prev) => !prev)}
-            className="cursor-pointer hidden md:block relative group p-2 rounded-full text-gray-700 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            aria-label={flashCardMode ? "Quiz Modus aktivieren" : "Card Modus aktivieren"}
-            title={flashCardMode ? "Quiz Modus aktivieren" : "Card Modus aktivieren"}
-          >
-            {flashCardMode ? <Lightbulb className="w-6 h-6" /> : <IdCard className="w-6 h-6" />}
-            <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
-              {flashCardMode ? "Quiz Modus" : "Card Modus"}
-            </span>
-          </button>
+          {showFlashCardToggle && (
+            <button
+              onClick={() => setFlashCardModeState((prev) => !prev)}
+              className="cursor-pointer hidden md:block relative group p-2 rounded-full text-gray-700 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label={flashCardMode ? "Quiz Modus aktivieren" : "Card Modus aktivieren"}
+              title={flashCardMode ? "Quiz Modus aktivieren" : "Card Modus aktivieren"}
+            >
+              {flashCardMode ? <Lightbulb className="w-6 h-6" /> : <IdCard className="w-6 h-6" />}
+              <span className="absolute -bottom-8 right-1/2 translate-x-1/2 scale-0 group-hover:scale-100 transition-transform text-xs rounded px-2 py-1 pointer-events-none z-10 whitespace-nowrap shadow-lg">
+                {flashCardMode ? "Quiz Modus" : "Card Modus"}
+              </span>
+            </button>
+          )}
 
           {/* Desktop Buttons - visible on md and larger */}
           <div className="hidden md:flex flex-row gap-2">
@@ -164,17 +168,21 @@ export default function AppHeader({
           {isMenuOpen && (
             <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-50 md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
               {/* Flash-Card Toggle in Mobile Menu */}
-              <button
-                onClick={() => {
-                  setFlashCardModeState((prev) => !prev);
-                  setIsMenuOpen(false);
-                }}
-                className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                {flashCardMode ? <Lightbulb className="w-5 h-5" /> : <IdCard className="w-5 h-5" />}
-                <span className="font-medium">{flashCardMode ? "Quiz Modus" : "Card Modus"}</span>
-              </button>
-              <div className="my-1 border-t border-gray-100 dark:border-gray-700"></div>
+              {showFlashCardToggle && (
+                <>
+                  <button
+                    onClick={() => {
+                      setFlashCardModeState((prev) => !prev);
+                      setIsMenuOpen(false);
+                    }}
+                    className="cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    {flashCardMode ? <Lightbulb className="w-5 h-5" /> : <IdCard className="w-5 h-5" />}
+                    <span className="font-medium">{flashCardMode ? "Quiz Modus" : "Card Modus"}</span>
+                  </button>
+                  <div className="my-1 border-t border-gray-100 dark:border-gray-700"></div>
+                </>
+              )}
               {/* Dark Mode Toggle in Mobile Menu */}
               <button
                 onClick={() => {
