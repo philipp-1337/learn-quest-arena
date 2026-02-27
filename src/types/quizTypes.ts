@@ -27,6 +27,7 @@ export interface Quiz {
   url: string; // Einmalig festgelegte URL für Deeplink
   questions: Question[];
   hidden?: boolean; // Wenn true, ist das Quiz ausgeblendet
+  isFlashCardQuiz?: boolean; // Wenn true, läuft das Quiz im Flash-Card Modus
 }
 
 /**

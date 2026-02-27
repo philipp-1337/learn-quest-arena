@@ -10,7 +10,6 @@ import { ensureSRSFields } from '@utils/srsHelpers';
 import { calculateXP } from '@utils/xpCalculation';
 import { useImagePreload } from '@utils/useImagePreload';
 import { WRONG_QUESTIONS_POOL_QUIZ_ID } from '@utils/wrongQuestionsPool';
-import { getFlashCardMode } from '@utils/userSettings';
 
 
 
@@ -254,7 +253,7 @@ export default function QuizPlayer({
   initialStateOverride,
   originProgressByQuizId,
 }: QuizPlayerProps) {
-  const [flashCardMode] = useState(() => getFlashCardMode());
+  const flashCardMode = quiz.isFlashCardQuiz === true;
   // Fortschritt laden und an useQuizPlayer übergeben (nur wenn username gesetzt)
   const [initialState, setInitialState] = useState<QuizPlayerInitialState | undefined>(undefined);
   const [progressLoaded, setProgressLoaded] = useState(!username || !!initialStateOverride);

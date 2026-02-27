@@ -75,6 +75,38 @@ export default function QuizDetailsForm({
           />
         </div>
         <div className="space-y-2">
+          <div>
+            <p className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Quiz-Modus
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <label className="cursor-pointer flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                <input
+                  type="radio"
+                  name="quiz-mode"
+                  checked={!quiz.isFlashCardQuiz}
+                  onChange={() => onQuizChange({ isFlashCardQuiz: false })}
+                  className="text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  Klassisch (Multiple Choice)
+                </span>
+              </label>
+              <label className="cursor-pointer flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                <input
+                  type="radio"
+                  name="quiz-mode"
+                  checked={!!quiz.isFlashCardQuiz}
+                  onChange={() => onQuizChange({ isFlashCardQuiz: true })}
+                  className="text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  Flash-Card
+                </span>
+              </label>
+            </div>
+          </div>
+
           <div className="flex items-center gap-2">
             <input
               type="checkbox"

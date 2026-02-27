@@ -113,6 +113,7 @@ export function useQuizHierarchy(
       url: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
       questions: [],
       hidden,
+      isFlashCardQuiz: false,
     };
 
     // Save to quizzes collection only
@@ -265,6 +266,7 @@ export function useQuizHierarchy(
       shortTitle: updatedQuiz.shortTitle,
       questions: updatedQuiz.questions,
       hidden: updatedQuiz.hidden,
+      isFlashCardQuiz: updatedQuiz.isFlashCardQuiz === true,
       updatedAt: Date.now(),
       // Update denormalized names if available
       subjectName: subject.name,

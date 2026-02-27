@@ -152,5 +152,6 @@ export function quizDocumentToQuiz(doc: QuizDocument): Quiz {
     url: doc.url,
     questions: doc.questions,
     hidden: doc.hidden,
+    isFlashCardQuiz: doc.isFlashCardQuiz === true,
   };
 }

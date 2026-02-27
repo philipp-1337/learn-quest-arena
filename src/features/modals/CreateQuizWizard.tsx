@@ -224,6 +224,7 @@ export default function CreateQuizWizard({
         url: formData.url.trim(),
         questions: [],
         hidden: true, // New quizzes start hidden
+        isFlashCardQuiz: false,
         createdAt: now,
         updatedAt: now,
         authorId: user.uid,

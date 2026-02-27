@@ -91,7 +91,6 @@ export default function AdminHeader({ onProfileClick }: AdminHeaderProps) {
       title="Administration"
       subtitle="Für Lehrerkräfte von morgen."
       menuItems={menuItems}
-      showFlashCardToggle={false}
     />
   );
 }

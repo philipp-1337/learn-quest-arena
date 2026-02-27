@@ -43,6 +43,7 @@ export function useQuizEditorState({
           url: quiz.url,
           questions: quiz.questions || [],
           hidden: quiz.hidden === undefined ? true : quiz.hidden,
+          isFlashCardQuiz: quiz.isFlashCardQuiz === true,
         });
         setIsLoading(false);
       } catch (error) {
@@ -62,7 +63,8 @@ export function useQuizEditorState({
       editedQuiz.title !== quizDocument.title ||
       editedQuiz.shortTitle !== (quizDocument.shortTitle || quizDocument.title) ||
       editedQuiz.url !== quizDocument.url ||
-      editedQuiz.hidden !== (quizDocument.hidden === undefined ? true : quizDocument.hidden);
+      editedQuiz.hidden !== (quizDocument.hidden === undefined ? true : quizDocument.hidden) ||
+      editedQuiz.isFlashCardQuiz !== (quizDocument.isFlashCardQuiz === true);
 
     setAllChangesSaved(!changed);
   }, [editedQuiz, quizDocument]);

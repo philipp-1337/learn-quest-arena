@@ -98,6 +98,7 @@ export default function QuizEditorView() {
         url: editedQuiz.url,
         questions: editedQuiz.questions,
         hidden: editedQuiz.hidden,
+        isFlashCardQuiz: editedQuiz.isFlashCardQuiz === true,
       });
 
       toast.custom(() => (
@@ -142,6 +143,7 @@ export default function QuizEditorView() {
                       quizDocument.hidden === undefined
                         ? true
                         : quizDocument.hidden,
+                    isFlashCardQuiz: quizDocument.isFlashCardQuiz === true,
                   });
                 }
                 toast.dismiss(t);
