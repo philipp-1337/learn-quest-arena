@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   CheckCircle2,
   ChevronDown,
@@ -52,12 +52,12 @@ export const ProgressAccordionItem: React.FC<ProgressAccordionItemProps> = ({
       : 0;
 
   // SRS Statistiken berechnen - useMemo um Reinheit zu gewährleisten
+  const [statsReferenceTime] = useState(() => Date.now());
   const srsStats = useMemo(() => {
-    const now = Date.now();
     const questionValues = Object.values(progress.questions);
     return {
       dueForReview: questionValues.filter(
-        (q) => q.nextReviewDate && q.nextReviewDate <= now && q.answered,
+        (q) => q.nextReviewDate && q.nextReviewDate <= statsReferenceTime && q.answered,
       ).length,
       masteredQuestions: questionValues.filter((q) => q.difficultyLevel >= 5)
         .length,
@@ -67,7 +67,7 @@ export const ProgressAccordionItem: React.FC<ProgressAccordionItemProps> = ({
       newQuestions: questionValues.filter((q) => q.difficultyLevel === 0)
         .length,
     };
-  }, [progress.questions]);
+  }, [progress.questions, statsReferenceTime]);
   const { dueForReview, masteredQuestions, learningQuestions, newQuestions } =
     srsStats;
 

@@ -3,6 +3,12 @@ import { MoveHorizontal, X, Loader2, CheckCircle } from 'lucide-react';
 import { reassignQuiz, loadAllQuizDocuments } from '@utils/quiz-collection';
 import type { QuizDocument } from 'quizTypes';
 
+interface ReassignUpdates {
+  newSubject?: { name: string };
+  newClass?: { name: string };
+  newTopic?: { name: string };
+}
+
 interface ReassignQuizModalProps {
   quiz: QuizDocument;
   onClose: () => void;
@@ -48,7 +54,7 @@ export default function ReassignQuizModal({
     setIsProcessing(true);
 
     try {
-      const updates: any = {};
+      const updates: ReassignUpdates = {};
 
       if (selectedSubject !== quiz.subjectName) {
         updates.newSubject = { name: selectedSubject };

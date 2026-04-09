@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 export function useSwipeToDelete() {
   const [swipeState, setSwipeState] = useState<{ [key: string]: number }>({});
   const [isMobile, setIsMobile] = useState(false);
+  const [activeItemId, setActiveItemId] = useState("");
   const touchStartX = useRef<number>(0);
   const touchStartY = useRef<number>(0);
   const currentItemId = useRef<string>("");
@@ -19,6 +20,7 @@ export function useSwipeToDelete() {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
     currentItemId.current = itemId;
+    setActiveItemId(itemId);
   };
 
   const handleTouchMove = (e: React.TouchEvent, itemId: string) => {
@@ -54,6 +56,7 @@ export function useSwipeToDelete() {
     }
     
     currentItemId.current = "";
+    setActiveItemId("");
   };
 
   const resetSwipe = (itemId: string) => {
@@ -70,7 +73,7 @@ export function useSwipeToDelete() {
     onTouchEnd: () => handleTouchEnd(itemId),
     style: {
       transform: isMobile ? `translateX(-${swipeState[itemId] || 0}px)` : 'none',
-      transition: currentItemId.current === itemId ? 'none' : 'transform 0.3s ease-out',
+      transition: activeItemId === itemId ? 'none' : 'transform 0.3s ease-out',
     }
   });
 
@@ -79,6 +82,6 @@ export function useSwipeToDelete() {
     swipeState,
     getSwipeProps,
     resetSwipe,
-    currentItemId: currentItemId.current
+    currentItemId: activeItemId
   };
 }

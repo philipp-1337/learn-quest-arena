@@ -37,7 +37,7 @@ export default function QuizSelector({ quizzes, onSelect, username }: QuizSelect
         if (!username) throw new Error('Username is required');
         const allProgress = await loadAllUserProgress(username);
         if (mounted) setProgressMap(allProgress);
-      } catch (e) {
+      } catch {
         if (mounted) setProgressMap({});
       } finally {
         if (mounted) setLoading(false);

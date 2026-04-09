@@ -22,8 +22,9 @@ interface QuizListManagerProps {
   onRefetch?: () => Promise<void>;
 }
 
-export default function QuizListManager({}: QuizListManagerProps) {
-    const navigate = useNavigate();
+export default function QuizListManager({ onRefetch }: QuizListManagerProps) {
+  void onRefetch;
+  const navigate = useNavigate();
   const { quizzes, setQuizzes, loading, authorAbbreviations } = useQuizzes();
   const { userRole } = useUserRole();
   const {

@@ -8,6 +8,7 @@ import { useStatsCalculation } from '@hooks/useStatsCalculation';
 import { QuizListManager, AdminHeader, AdminStats, QRCodeInfo, QuizChallengeManager } from '@admin';
 import ImportModal from '@modals/ImportModal';
 import ExportModal from '@modals/ExportModal';
+import type { DocumentData } from 'firebase/firestore';
 
 // ============================================
 // ADMIN VIEW COMPONENT
@@ -57,12 +58,17 @@ export default function AdminView({
   // Load quiz challenges from Firestore on mount
   const handleLoadChallenges = async () => {
     const loadedChallenges = await fetchCollection("quizChallenges");
-    const formattedChallenges: QuizChallenge[] = loadedChallenges.map((challenge: any) => ({
-      id: challenge.id,
-      title: challenge.title || "",
-      levels: challenge.levels || [],
-      hidden: challenge.hidden || false,
-    }));
+    const formattedChallenges: QuizChallenge[] = loadedChallenges
+      .filter(
+        (challenge): challenge is DocumentData & Partial<QuizChallenge> & { id: string } =>
+          typeof challenge.id === 'string'
+      )
+      .map((challenge) => ({
+        id: challenge.id,
+        title: challenge.title || "",
+        levels: challenge.levels || [],
+        hidden: challenge.hidden || false,
+      }));
     setChallenges(formattedChallenges);
   };
 

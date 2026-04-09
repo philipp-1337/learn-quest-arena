@@ -5,7 +5,7 @@ import { loadAllUserProgress } from "@utils/loadAllUserProgress";
 import { deleteUserQuizProgress } from "@utils/deleteUserQuizProgress";
 import { findQuizOnly } from "@utils/quizHierarchySearch";
 import type { UserQuizProgress } from "userProgress";
-import type { Subject } from "quizTypes";
+import type { Subject, Quiz } from "quizTypes";
 
 interface UserDashboardProps {
   username: string;
@@ -17,7 +17,7 @@ interface UserDashboardProps {
 }
 
 interface ProgressItemWithQuiz extends UserQuizProgress {
-  quiz?: any;
+  quiz?: Quiz;
 }
 
 export const UserDashboard: React.FC<UserDashboardProps> = ({

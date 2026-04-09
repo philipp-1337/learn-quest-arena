@@ -9,6 +9,18 @@ import { removeUndefinedFields } from './quizHelpers';
 
 const QUIZZES_COLLECTION = "quizzes";
 
+function getErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null) {
+    if ('code' in error && typeof error.code === 'string') {
+      return error.code;
+    }
+    if ('message' in error && typeof error.message === 'string') {
+      return error.message;
+    }
+  }
+  return 'Unknown error';
+}
+
 /**
  * Converts an embedded Quiz to a QuizDocument for the new collection.
  * Uses deterministic IDs for subjects, classes, and topics based on their names.
@@ -102,15 +114,8 @@ export async function updateQuizDocument(
     await setDoc(ref, cleanedUpdates, { merge: true });
 
     return { success: true, error: null };
-  } catch (err: any) {
-    let errorMessage = "Unknown error";
-    if (err && typeof err === "object") {
-      if (err.code) {
-        errorMessage = err.code;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-    }
+  } catch (err: unknown) {
+    const errorMessage = getErrorMessage(err);
     console.error("Error updating quiz document:", errorMessage);
     return { success: false, error: errorMessage };
   }
@@ -126,15 +131,8 @@ export async function deleteQuizDocument(quizId: string): Promise<{ success: boo
     await deleteDoc(ref);
 
     return { success: true, error: null };
-  } catch (err: any) {
-    let errorMessage = "Unknown error";
-    if (err && typeof err === "object") {
-      if (err.code) {
-        errorMessage = err.code;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-    }
+  } catch (err: unknown) {
+    const errorMessage = getErrorMessage(err);
     console.error("Error deleting quiz document:", errorMessage);
     return { success: false, error: errorMessage };
   }

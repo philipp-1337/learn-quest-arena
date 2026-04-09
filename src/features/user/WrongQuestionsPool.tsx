@@ -9,7 +9,7 @@ import { WRONG_QUESTIONS_POOL_QUIZ_ID } from "@utils/wrongQuestionsPool";
 
 interface WrongQuestionsPoolProps {
   username: string;
-  allQuizzes: any[];
+  allQuizzes: Quiz[];
   onStartWrongPool?: (
     quiz: Quiz,
     initialState: QuizPlayerInitialState,
@@ -40,13 +40,12 @@ export const WrongQuestionsPool: React.FC<WrongQuestionsPoolProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
     loadAllUserProgress(username)
       .then((progress) => {
         setUserProgress(progress);
         setLoading(false);
       })
-      .catch((_) => {
+      .catch(() => {
         setError("Fehler beim Laden des Fortschritts.");
         setLoading(false);
       });
@@ -69,7 +68,7 @@ export const WrongQuestionsPool: React.FC<WrongQuestionsPoolProps> = ({
     const resolved: WrongQuestionResolved[] = [];
     const seen = new Set<string>();
 
-    const getQuestionById = (quizObj: any, questionId: string) => {
+    const getQuestionById = (quizObj: Quiz, questionId: string) => {
       const questionsArr: Question[] = Array.isArray(quizObj?.questions)
         ? quizObj.questions
         : typeof quizObj?.questions === "object" && quizObj?.questions !== null
@@ -133,7 +132,7 @@ export const WrongQuestionsPool: React.FC<WrongQuestionsPoolProps> = ({
     wrongQuestionsResolved.forEach((item) => {
       const originProgress = userProgress[item.quizId];
       const existing = originProgress?.questions?.[item.questionId];
-      initialQuestions[item.questionId] = ensureSRSFields(existing || {});
+      initialQuestions[item.questionId] = ensureSRSFields(existing);
     });
 
     const reviewQuiz: Quiz = {

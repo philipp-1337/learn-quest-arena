@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import LoadingScreen from './features/shared/LoadingScreen';
 import MaintenanceView from './features/shared/MaintenanceView';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
@@ -40,9 +40,6 @@ export default function FlashcardQuizApp() {
   } = useQuizzesFromCollection();
   const { isMaintenanceMode, isLoading: maintenanceLoading } =
     useMaintenanceMode();
-  // Use quizSubjects directly, no local subjects state
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Scroll to top when route changes
@@ -51,16 +48,6 @@ export default function FlashcardQuizApp() {
   // PWA Support
   usePwaPrompt();
   usePwaUpdate();
-
-  // Update loading and error state when quizzes are loaded from collection
-  useEffect(() => {
-    if (!quizzesLoading) {
-      setIsLoading(false);
-      if (quizzesError) {
-        setError(quizzesError);
-      }
-    }
-  }, [quizzesLoading, quizzesError]);
 
   // Toast-Portal-Container im Body anlegen
   useEffect(() => {
@@ -93,6 +80,9 @@ export default function FlashcardQuizApp() {
 
   // handleLogin wird nicht mehr benötigt, da Auth-Status direkt von Firebase kommt
   const handleLogin = () => {};
+
+  const isLoading = quizzesLoading || maintenanceLoading;
+  const error = quizzesError;
 
   if (isLoading || maintenanceLoading) {
     return <LoadingScreen />;

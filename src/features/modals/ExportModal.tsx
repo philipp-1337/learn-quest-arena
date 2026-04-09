@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { Download, X, FileJson, FileSpreadsheet, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { exportQuizzesToJSON, exportQuizzesToCSV } from '@utils/quizExport';
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'Unbekannter Fehler';
+}
+
 interface ExportModalProps {
   onClose: () => void;
 }
@@ -30,10 +34,10 @@ export default function ExportModal({ onClose }: ExportModalProps) {
           message: result.error || "Export fehlgeschlagen",
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setExportResult({
         success: false,
-        message: `Fehler: ${error.message}`,
+        message: `Fehler: ${getErrorMessage(error)}`,
       });
     } finally {
       setIsExporting(false);

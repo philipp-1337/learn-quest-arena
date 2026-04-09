@@ -40,6 +40,12 @@ import type {
   QuizDocument,
 } from "quizTypes";
 
+type QuizSelectionWithMetadata = (Quiz | QuizDocument) & {
+  subjectId?: string;
+  classId?: string;
+  topicId?: string;
+};
+
 interface QuizBrowserProps {
   subjects: Subject[];
   onAdminClick: () => void;
@@ -129,11 +135,11 @@ export default function QuizBrowser({
     setQuizStartMode(mode || "fresh");
 
     // Ergänze IDs aus der aktuellen Auswahl, falls sie im Quiz fehlen
-    const quizWithIds = {
+    const quizWithIds: QuizSelectionWithMetadata = {
       ...quiz,
-      subjectId: (quiz as any).subjectId || selectedSubject?.id,
-      classId: (quiz as any).classId || selectedClass?.id,
-      topicId: (quiz as any).topicId || selectedTopic?.id,
+      subjectId: ('subjectId' in quiz ? quiz.subjectId : undefined) || selectedSubject?.id,
+      classId: ('classId' in quiz ? quiz.classId : undefined) || selectedClass?.id,
+      topicId: ('topicId' in quiz ? quiz.topicId : undefined) || selectedTopic?.id,
     };
 
     const subject = subjects.find((s) => s.id === quizWithIds.subjectId);
@@ -166,21 +172,18 @@ export default function QuizBrowser({
   };
 
   const handleBackFromQuiz = () => {
-    selectQuiz(null as any);
+    resetSelection();
     setQuizStartMode("fresh");
     navigateToHome();
   };
 
   const handleNavigateToSubject = () => {
     if (!selectedSubject) return;
-    selectClass(null as any);
-    selectTopic(null as any);
     navigateToSubject(selectedSubject);
   };
 
   const handleNavigateToClass = () => {
     if (!selectedSubject || !selectedClass) return;
-    selectTopic(null as any);
     navigateToClass(selectedSubject, selectedClass);
   };
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Quiz, QuizDocument } from 'quizTypes';
 import { loadQuizDocument } from '@utils/quiz-collection';
 
@@ -19,7 +19,6 @@ export function useQuizEditorState({
 }: UseQuizEditorStateOptions): UseQuizEditorStateReturn {
   const [editedQuiz, setEditedQuiz] = useState<Quiz | null>(null);
   const [quizDocument, setQuizDocument] = useState<QuizDocument | null>(null);
-  const [allChangesSaved, setAllChangesSaved] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   // Load quiz document
@@ -55,9 +54,10 @@ export function useQuizEditorState({
     loadQuiz();
   }, [quizId]);
 
-  // Track unsaved changes
-  useEffect(() => {
-    if (!editedQuiz || !quizDocument) return;
+  const allChangesSaved = useMemo(() => {
+    if (!editedQuiz || !quizDocument) {
+      return true;
+    }
 
     const changed =
       editedQuiz.title !== quizDocument.title ||
@@ -66,7 +66,7 @@ export function useQuizEditorState({
       editedQuiz.hidden !== (quizDocument.hidden === undefined ? true : quizDocument.hidden) ||
       editedQuiz.isFlashCardQuiz !== (quizDocument.isFlashCardQuiz === true);
 
-    setAllChangesSaved(!changed);
+    return !changed;
   }, [editedQuiz, quizDocument]);
 
   return {

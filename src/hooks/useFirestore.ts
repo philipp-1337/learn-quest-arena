@@ -1,18 +1,25 @@
 import { collection, doc, getFirestore, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
 import { useCallback } from 'react';
 
+function getErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string') {
+    return error.message;
+  }
+  return 'Unknown error';
+}
+
 const useFirestore = () => {
   const db = getFirestore();
 
-  const saveDocument = useCallback(async (path: string, data: any) => {
+  const saveDocument = useCallback(async (path: string, data: unknown) => {
     try {
       console.log(`Saving document to ${path}:`, data);
       await setDoc(doc(db, path), data);
       console.log(`Success: Document saved successfully to ${path}`);
       return { success: true, error: null };
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(`Error saving document to ${path}:`, err);
-      return { success: false, error: err.message };
+      return { success: false, error: getErrorMessage(err) };
     }
   }, [db]);
 
@@ -26,7 +33,7 @@ const useFirestore = () => {
       }));
       console.log(`Success: Fetched ${docs.length} documents from ${path}`);
       return docs;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(`Error fetching collection ${path}:`, err);
       // Return empty array instead of throwing
       return [];
@@ -39,9 +46,9 @@ const useFirestore = () => {
       await deleteDoc(doc(db, path));
       console.log(`Success: Document deleted successfully at ${path}`);
       return { success: true, error: null };
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(`Error deleting document at ${path}:`, err);
-      return { success: false, error: err.message };
+      return { success: false, error: getErrorMessage(err) };
     }
   }, [db]);
 

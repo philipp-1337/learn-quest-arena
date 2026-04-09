@@ -63,7 +63,7 @@ export default function QuizEditorView() {
           const data = authorDoc.data();
           setUserRole(data.role || null);
         }
-      } catch (err) {
+      } catch {
         setUserRole(null);
       }
     };
@@ -184,7 +184,7 @@ export default function QuizEditorView() {
       toast.custom(() => (
         <CustomToast message="Frage gelöscht" type="success" />
       ));
-    } catch (error) {
+    } catch {
       toast.custom(() => (
         <CustomToast message="Fehler beim Löschen der Frage" type="error" />
       ));

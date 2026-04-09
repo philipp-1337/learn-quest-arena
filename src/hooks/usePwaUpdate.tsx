@@ -40,7 +40,7 @@ export const usePwaUpdate = () => {
       };
       
       toast.custom(
-        (_) => (
+        () => (
           <CustomToast
             type="success"
             message={

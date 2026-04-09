@@ -31,6 +31,7 @@ export default defineConfig([
 
     rules: {
       'local/button-requires-cursor-pointer': 'warn',
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
 ])

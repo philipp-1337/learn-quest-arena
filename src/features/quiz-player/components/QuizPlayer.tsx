@@ -281,7 +281,7 @@ export default function QuizPlayer({
     }
     fetchProgress();
     return () => { mounted = false; };
-  }, [quiz.id, username]);
+  }, [initialStateOverride, quiz.id, username]);
 
   if (!progressLoaded) {
     return (

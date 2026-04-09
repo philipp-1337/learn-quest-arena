@@ -13,6 +13,16 @@ interface PasswordChangeResult {
 
 const MIN_PASSWORD_LENGTH = 6;
 
+function getFirebaseAuthError(error: unknown): { code?: string; message?: string } {
+  if (typeof error === 'object' && error !== null) {
+    return {
+      code: 'code' in error && typeof error.code === 'string' ? error.code : undefined,
+      message: 'message' in error && typeof error.message === 'string' ? error.message : undefined,
+    };
+  }
+  return {};
+}
+
 const usePasswordChange = () => {
   const [loading, setLoading] = useState(false);
 
@@ -43,11 +53,12 @@ const usePasswordChange = () => {
 
       setLoading(false);
       return { success: true };
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const firebaseError = getFirebaseAuthError(err);
       let errorMessage = "Ein Fehler ist aufgetreten";
 
       // Handle specific Firebase error codes
-      switch (err.code) {
+      switch (firebaseError.code) {
         case "auth/wrong-password":
         case "auth/invalid-credential":
           errorMessage = "Das aktuelle Passwort ist falsch";
@@ -63,7 +74,7 @@ const usePasswordChange = () => {
           errorMessage = "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung";
           break;
         default:
-          errorMessage = err.message || "Ein Fehler ist aufgetreten";
+          errorMessage = firebaseError.message || "Ein Fehler ist aufgetreten";
       }
 
       setLoading(false);

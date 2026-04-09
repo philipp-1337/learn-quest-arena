@@ -9,7 +9,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { loadAllUserProgress } from "@utils/loadAllUserProgress";
-import type { Subject, Quiz } from "quizTypes";
+import type { Subject, Quiz, Class, Topic } from "quizTypes";
 import { showConfirmationToast } from "@utils/confirmationToast";
 import { findQuizById } from "@utils/quizHierarchySearch";
 import { useQuizNavigation } from "@features/quiz-browse";
@@ -22,8 +22,8 @@ interface UserViewProps {
 
 interface QuizMetadata {
   subject: Subject;
-  classItem: any;
-  topic: any;
+  classItem: Class;
+  topic: Topic;
 }
 
 const UserView: React.FC<UserViewProps> = ({ subjects }) => {
@@ -246,13 +246,13 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
             <div className="mb-6 flex items-center justify-between text-2xl text-gray-800 dark:text-gray-200 font-mono break-all select-all border border-gray-200 dark:border-gray-700 rounded-lg py-4 px-4 bg-gray-50 dark:bg-gray-900">
               <span className="truncate">{username}</span>
               <button
-                onClick={async (_) => {
+                onClick={async () => {
                   // Fortschritt laden
                   let hasProgress = false;
                   try {
                     const progressObj = await loadAllUserProgress(username);
                     hasProgress = Object.keys(progressObj).length > 0;
-                  } catch (e) {
+                  } catch {
                     hasProgress = false;
                   }
                   if (username !== "Gast" || hasProgress) {

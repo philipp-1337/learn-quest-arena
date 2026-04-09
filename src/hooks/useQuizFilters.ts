@@ -42,7 +42,9 @@ export function useQuizFilters(
       if (stored) {
         return { ...defaultFilters, ...JSON.parse(stored) };
       }
-    } catch {}
+    } catch {
+      // Ignore malformed session data and fall back to defaults.
+    }
     return defaultFilters;
   };
 
@@ -54,7 +56,9 @@ export function useQuizFilters(
       const next = typeof update === "function" ? update(prev) : update;
       try {
         sessionStorage.setItem("quizFilters", JSON.stringify(next));
-      } catch {}
+      } catch {
+        // Ignore storage write failures.
+      }
       return next;
     });
   };
@@ -151,7 +155,9 @@ export function useQuizFilters(
   const clearFilters = () => {
     try {
       sessionStorage.removeItem("quizFilters");
-    } catch {}
+    } catch {
+      // Ignore storage removal failures.
+    }
     setFiltersRaw(defaultFilters);
   };
 

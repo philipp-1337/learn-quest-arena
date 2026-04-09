@@ -61,7 +61,7 @@ export const UserRoleManager: React.FC = () => {
         <CustomToast message="Name erfolgreich geändert" type="success" />
       ));
       setEditingNameUserId(null);
-    } catch (err) {
+    } catch {
       toast.custom(() => (
         <CustomToast message="Fehler beim Ändern des Namens" type="error" />
       ));
@@ -93,7 +93,7 @@ export const UserRoleManager: React.FC = () => {
         } else {
           setCurrentUserRole(null);
         }
-      } catch (err) {
+      } catch {
         setCurrentUserRole(null);
         setCurrentUserId(null);
       } finally {
@@ -125,7 +125,7 @@ export const UserRoleManager: React.FC = () => {
             return nameA.localeCompare(nameB);
           });
         setUsers(userList);
-      } catch (err) {
+      } catch {
         setError("Fehler beim Laden der Nutzer");
       } finally {
         setLoading(false);
@@ -145,7 +145,7 @@ export const UserRoleManager: React.FC = () => {
       toast.custom(() => (
         <CustomToast message="Rolle erfolgreich geändert" type="success" />
       ));
-    } catch (err) {
+    } catch {
       toast.custom(() => (
         <CustomToast message="Fehler beim Ändern der Rolle" type="error" />
       ));

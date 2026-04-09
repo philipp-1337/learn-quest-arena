@@ -3,15 +3,15 @@ import type { UserProgress, UserQuizProgress } from 'userProgress';
 import { ensureSRSFields } from './srsHelpers';
 
 // Helper function to remove undefined values from an object (recursively)
-function removeUndefinedFields<T extends Record<string, any>>(obj: T): Partial<T> {
-  const cleaned: any = {};
+function removeUndefinedFields<T extends Record<string, unknown>>(obj: T): Partial<T> {
+  const cleaned: Partial<T> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (value !== undefined) {
       // Recursively clean nested objects
       if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-        cleaned[key] = removeUndefinedFields(value);
+        cleaned[key as keyof T] = removeUndefinedFields(value as Record<string, unknown>) as T[keyof T];
       } else {
-        cleaned[key] = value;
+        cleaned[key as keyof T] = value as T[keyof T];
       }
     }
   }

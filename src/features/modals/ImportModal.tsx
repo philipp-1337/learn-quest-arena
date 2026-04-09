@@ -19,6 +19,34 @@ interface ImportResult {
   details?: string[];
 }
 
+interface CsvQuestionRow {
+  question: string;
+  answerType: 'text';
+  answers: Array<{ type: 'text'; content: string }>;
+  correctAnswerIndex: number;
+}
+
+interface ImportQuiz {
+  title: string;
+  questions: QuizDocument['questions'];
+}
+
+interface ImportItem {
+  subject: string;
+  class: string;
+  topic: string;
+  quizzes: ImportQuiz[];
+}
+
+type GroupedCsvData = Record<
+  string,
+  Record<string, Record<string, Record<string, CsvQuestionRow[]>>>
+>;
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'Unbekannter Fehler';
+}
+
 export default function ImportModal({ onClose, onImportComplete }: ImportModalProps) {
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -77,7 +105,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
     }
   };
 
-  const parseCSV = (csvText: string): any => {
+  const parseCSV = (csvText: string): ImportItem[] => {
     const lines = csvText.split('\n').filter(line => line.trim());
     if (lines.length < 2) {
       throw new Error('CSV muss mindestens eine Header-Zeile und eine Daten-Zeile enthalten');
@@ -92,7 +120,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
     }
 
     // Group by Subject > Class > Topic > Quiz
-    const grouped: any = {};
+    const grouped: GroupedCsvData = {};
 
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(',').map(v => v.trim());
@@ -125,11 +153,11 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
     }
 
     // Convert to import format
-    const result = [];
+    const result: ImportItem[] = [];
     for (const [subjectName, classes] of Object.entries(grouped)) {
-      for (const [className, topics] of Object.entries(classes as any)) {
-        for (const [topicName, quizzes] of Object.entries(topics as any)) {
-          for (const [quizTitle, questions] of Object.entries(quizzes as any)) {
+      for (const [className, topics] of Object.entries(classes)) {
+        for (const [topicName, quizzes] of Object.entries(topics)) {
+          for (const [quizTitle, questions] of Object.entries(quizzes)) {
             result.push({
               subject: subjectName,
               class: className,
@@ -167,7 +195,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
 
     try {
       const text = await file.text();
-      let importData: any[];
+      let importData: ImportItem[];
 
       if (file.name.endsWith('.json')) {
         const parsed = JSON.parse(text);
@@ -186,10 +214,10 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
       if (result.success) {
         onImportComplete();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setImportResult({
         success: false,
-        message: `Import fehlgeschlagen: ${error.message}`,
+        message: `Import fehlgeschlagen: ${getErrorMessage(error)}`,
       });
     } finally {
       setIsProcessing(false);
@@ -197,7 +225,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
   };
 
   const importToQuizzesCollection = async (
-    importData: any[], 
+    importData: ImportItem[], 
     authorId: string, 
     authorEmail?: string
   ): Promise<ImportResult> => {
@@ -309,10 +337,10 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
           ...details
         ]
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        message: error.message,
+        message: getErrorMessage(error),
         details: details
       };
     }

@@ -4,12 +4,12 @@ import { Play, School, Book, Boxes, BotOff } from "lucide-react";
 import { loadAllUserProgress } from "@utils/loadAllUserProgress";
 import { showConfirmationToast } from "@utils/confirmationToast";
 import { addDismissedQuiz } from "@utils/dismissedQuizzesFirestore";
-import type { Quiz } from "quizTypes";
+import type { Quiz, Subject, Class, Topic } from "quizTypes";
 
 interface QuizMetadata {
-  subject: any;
-  classItem: any;
-  topic: any;
+  subject: Subject;
+  classItem: Class;
+  topic: Topic;
 }
 
 interface QuizSuggestionsProps {

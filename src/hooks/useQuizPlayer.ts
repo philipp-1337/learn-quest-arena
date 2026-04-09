@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Quiz, Question, Answer } from 'quizTypes';
 import type { QuestionSRSData } from 'userProgress';
 import { getQuestionId } from '@utils/questionIdHelper';
@@ -47,6 +47,18 @@ export function useQuizPlayer(
   startMode: QuizStartMode = 'fresh',
   options: QuizPlayerOptions = {}
 ) {
+  const shuffleAnswers = (answersToShuffle: Answer[]) => {
+    const answerIndices = answersToShuffle.map((_, idx) => idx);
+    for (let i = answerIndices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [answerIndices[i], answerIndices[j]] = [answerIndices[j], answerIndices[i]];
+    }
+    return answerIndices.map(idx => ({
+      ...answersToShuffle[idx],
+      originalIndex: idx,
+    }));
+  };
+
   const flashCardMode = options.flashCardMode === true;
   // Fragen einmalig mischen (gleiche Reihenfolge für die Session)
   // Bei 'continue' Modus: Nur falsch beantwortete Fragen anzeigen
@@ -130,13 +142,14 @@ export function useQuizPlayer(
   const [answers, setAnswers] = useState<boolean[]>(initialState?.answers || []);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [repeatQuestions, setRepeatQuestions] = useState<Question[] | null>(null);
+  const [shuffledAnswers, setShuffledAnswers] = useState<Array<Answer & { originalIndex: number }>>([]);
   const [totalTries, setTotalTries] = useState<number>(initialState?.totalTries || 1);
   const [solvedQuestions, setSolvedQuestions] = useState<Set<string>>(
     initialState?.solvedQuestions ? new Set(initialState.solvedQuestions) : new Set()
   );
 
   // Zeit-Tracking - use ref for startTime to avoid re-renders
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(0);
   const [previousElapsedTime] = useState<number>(initialState?.totalElapsedTime || 0);
   const [elapsedTime, setElapsedTime] = useState<number>(previousElapsedTime);
   const [completedTime, setCompletedTime] = useState<number | null>(null);
@@ -164,24 +177,18 @@ export function useQuizPlayer(
     return () => clearInterval(interval);
   }, [completedTime, showResults, previousElapsedTime, isPageVisible]);
 
-  // Shuffle answers when question changes - use useMemo to avoid setState in useEffect
-  const shuffledAnswers = useMemo(() => {
+  useEffect(() => {
     const questions = repeatQuestions || shuffledQuestions;
     const question = questions[currentQuestion];
     
     // Safety check: ensure answers exist
     if (!question || !question.answers || !Array.isArray(question.answers)) {
       console.error('Question has no valid answers array:', question);
-      return [];
+      setShuffledAnswers([]);
+      return;
     }
-    
-    const answerIndices = question.answers.map((_, idx) => idx);
-    return answerIndices
-      .sort(() => Math.random() - 0.5)
-      .map(idx => ({
-        ...question.answers[idx],
-        originalIndex: idx
-      }));
+
+    setShuffledAnswers(shuffleAnswers(question.answers));
   }, [currentQuestion, shuffledQuestions, repeatQuestions]);
 
   const handleAnswerSelect = (answer: Answer & { originalIndex: number }) => {

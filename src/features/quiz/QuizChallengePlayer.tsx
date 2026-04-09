@@ -8,6 +8,7 @@ import { PRIZE_LEVELS, formatPrize } from '@utils/quizChallengeConstants';
 import { getQuestionId } from '@utils/questionIdHelper';
 import { loadAllQuizDocuments } from '@utils/quiz-collection';
 import useFirestore from '@hooks/useFirestore';
+import type { DocumentData } from 'firebase/firestore';
 
 export default function QuizChallengePlayer() {
   const { challengeId } = useParams<{ challengeId: string }>();
@@ -34,6 +35,13 @@ export default function QuizChallengePlayer() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [questionMap, setQuestionMap] = useState<Map<string, Question>>(new Map());
 
+  type ChallengeRecord = DocumentData & Partial<QuizChallenge> & { id: string };
+  type ChallengeProgressRecord = DocumentData &
+    Partial<UserQuizChallengeProgress> & {
+      username: string;
+      challengeId: string;
+    };
+
   // Load challenge and progress from Firestore
   useEffect(() => {
     const loadChallengeAndProgress = async () => {
@@ -44,7 +52,7 @@ export default function QuizChallengePlayer() {
 
       try {
         const challenges = await fetchCollection('quizChallenges');
-        const challengeData = challenges.find((c: any) => c.id === challengeId) as any;
+        const challengeData = (challenges as ChallengeRecord[]).find((c) => c.id === challengeId);
         if (!challengeData) {
           console.error('Challenge not found');
           navigate('/');
@@ -63,11 +71,11 @@ export default function QuizChallengePlayer() {
         if (username && username !== 'Gast') {
           try {
             const progress = await fetchCollection('quizChallengeProgress');
-            const userProgress = progress.find(
-              (p: any) => p.username === username && p.challengeId === challengeId
-            ) as any;
+            const userProgress = (progress as unknown as ChallengeProgressRecord[]).find(
+              (p) => p.username === username && p.challengeId === challengeId
+            );
             if (userProgress) {
-              setInitialProgress(userProgress as any);
+              setInitialProgress(userProgress as UserQuizChallengeProgress);
               setCurrentLevel(userProgress.currentLevel || 1);
             }
           } catch (error) {

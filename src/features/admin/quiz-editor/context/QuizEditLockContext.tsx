@@ -1,17 +1,10 @@
-import { createContext, useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useParams } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import { useEditLock } from '@hooks/useEditLock';
 import { releaseEditLock, refreshEditLock } from '@utils/quiz-collection'; 
-
-interface QuizEditLockContextType {
-  hasLock: boolean;
-  lockConflict: string | null;
-  isLoading: boolean;
-}
-
-export const QuizEditLockContext = createContext<QuizEditLockContextType | null>(null);
+import { QuizEditLockContext } from './editLockContextValue';
 
 export function QuizEditLockProvider({ children }: { children: ReactNode }) {
   const { id } = useParams<{ id: string }>();
@@ -62,19 +55,11 @@ export function QuizEditLockProvider({ children }: { children: ReactNode }) {
         });
       }
     };
-  }, [id, currentUser?.uid]);
+  }, [id, currentUser?.uid, lockState.hasLock]);
 
   return (
     <QuizEditLockContext.Provider value={lockState}>
       {children}
     </QuizEditLockContext.Provider>
   );
-}
-
-export function useQuizEditLock() {
-  const context = useContext(QuizEditLockContext);
-  if (!context) {
-    throw new Error("useQuizEditLock must be used within QuizEditLockProvider");
-  }
-  return context;
 }

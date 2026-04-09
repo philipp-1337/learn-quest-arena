@@ -2,6 +2,13 @@ import { useState } from 'react';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
+function getErrorCode(error: unknown): string {
+  if (typeof error === 'object' && error !== null && 'code' in error && typeof error.code === 'string') {
+    return error.code;
+  }
+  return 'unknown';
+}
+
 // Hilfsfunktion zur Übersetzung von Firebase Auth-Fehlercodes in benutzerfreundliche deutsche Nachrichten
 const getFirebaseErrorMessage = (errorCode: string): string => {
   switch (errorCode) {
@@ -55,8 +62,8 @@ const useFirebaseAuth = () => {
             });
         }
       return userCredential.user;
-    } catch (err: any) {
-      const errorCode = err.code || 'unknown';
+    } catch (err: unknown) {
+      const errorCode = getErrorCode(err);
       const userFriendlyMessage = getFirebaseErrorMessage(errorCode);
       setError(userFriendlyMessage);
       setLoading(false);

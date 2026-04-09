@@ -1,29 +1,29 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 // Utility: iOS-Detection
 function isIOS() {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
-  // @ts-ignore
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window);
 }
 
 // Portal-Komponente, die ihre Kinder in #toast-portal rendert und bei iOS die Position anpasst
 export const CustomToastPortal: React.FC<{ children: React.ReactNode; position?: 'top' | 'bottom' }> = ({ children, position = 'bottom' }) => {
-  const portalRef = useRef<HTMLElement | null>(null);
+  const [portalElement, setPortalElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    portalRef.current = document.getElementById('toast-portal');
-    if (!portalRef.current) return;
+    const portal = document.getElementById('toast-portal');
+    setPortalElement(portal);
+    if (!portal) return;
 
     if (isIOS()) {
       const updatePosition = () => {
         if (position === 'top') {
-          portalRef.current!.style.top = window.scrollY + 'px';
-          portalRef.current!.style.bottom = '';
+          portal.style.top = window.scrollY + 'px';
+          portal.style.bottom = '';
         } else {
-          portalRef.current!.style.top = '';
-          portalRef.current!.style.bottom = (-window.scrollY) + 'px';
+          portal.style.top = '';
+          portal.style.bottom = (-window.scrollY) + 'px';
         }
       };
       updatePosition();
@@ -35,12 +35,12 @@ export const CustomToastPortal: React.FC<{ children: React.ReactNode; position?:
       };
     } else {
       // Für andere Systeme: fixed
-      portalRef.current.style.position = 'fixed';
-      portalRef.current.style.top = position === 'top' ? '0' : '';
-      portalRef.current.style.bottom = position === 'bottom' ? '0' : '';
+      portal.style.position = 'fixed';
+      portal.style.top = position === 'top' ? '0' : '';
+      portal.style.bottom = position === 'bottom' ? '0' : '';
     }
   }, [position]);
 
-  if (!portalRef.current) return null;
-  return ReactDOM.createPortal(children, portalRef.current);
+  if (!portalElement) return null;
+  return ReactDOM.createPortal(children, portalElement);
 };
