@@ -199,7 +199,7 @@ function QuizPlayerInner({
           </p>
           <button
             onClick={onBack}
-            className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+            className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors cursor-pointer"
             title="Zurück"
             aria-label="Zurück"
           >
@@ -207,7 +207,7 @@ function QuizPlayerInner({
           </button>
           <button
             onClick={onHome}
-            className="w-full mt-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            className="w-full mt-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer"
             title="Zur Startseite"
             aria-label="Zur Startseite"
           >

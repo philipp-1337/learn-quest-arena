@@ -197,7 +197,7 @@ export const WrongQuestionsPool: React.FC<WrongQuestionsPoolProps> = ({
           <button
             type="button"
             onClick={handleStartReview}
-            className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold shadow-sm transition-colors"
+            className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold shadow-sm transition-colors cursor-pointer"
             aria-label="Review-Quiz starten"
             title="Review-Quiz starten"
           >

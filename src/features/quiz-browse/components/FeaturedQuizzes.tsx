@@ -70,7 +70,7 @@ function FeaturedQuizMessage({
           <button
             type="button"
             onClick={onRetry}
-            className="mt-4 inline-flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
+            className="mt-4 inline-flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-2 text-sm font-semibold hover:opacity-90 transition cursor-pointer"
           >
             Erneut versuchen
           </button>

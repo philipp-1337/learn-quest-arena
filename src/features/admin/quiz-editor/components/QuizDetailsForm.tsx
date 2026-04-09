@@ -80,7 +80,11 @@ export default function QuizDetailsForm({
               Quiz-Modus
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <label className="cursor-pointer flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+              <label className={`cursor-pointer flex items-center gap-2 rounded-lg border p-3 transition-colors ${
+                !quiz.isFlashCardQuiz
+                  ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
+                  : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+              }`}>
                 <input
                   type="radio"
                   name="quiz-mode"
@@ -88,11 +92,15 @@ export default function QuizDetailsForm({
                   onChange={() => onQuizChange({ isFlashCardQuiz: false })}
                   className="text-indigo-600 focus:ring-indigo-500"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <span className={`text-sm ${!quiz.isFlashCardQuiz ? "text-indigo-700 dark:text-indigo-300 font-medium" : "text-gray-700 dark:text-gray-300"}`}>
                   Klassisch (Multiple Choice)
                 </span>
               </label>
-              <label className="cursor-pointer flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+              <label className={`cursor-pointer flex items-center gap-2 rounded-lg border p-3 transition-colors ${
+                quiz.isFlashCardQuiz
+                  ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
+                  : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+              }`}>
                 <input
                   type="radio"
                   name="quiz-mode"
@@ -100,7 +108,7 @@ export default function QuizDetailsForm({
                   onChange={() => onQuizChange({ isFlashCardQuiz: true })}
                   className="text-indigo-600 focus:ring-indigo-500"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <span className={`text-sm ${quiz.isFlashCardQuiz ? "text-indigo-700 dark:text-indigo-300 font-medium" : "text-gray-700 dark:text-gray-300"}`}>
                   Flash-Card
                 </span>
               </label>

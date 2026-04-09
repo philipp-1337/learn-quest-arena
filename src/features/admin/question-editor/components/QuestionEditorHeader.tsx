@@ -52,7 +52,7 @@ export default function QuestionEditorHeader({
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={onBack}
-              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-gray-100 dark:bg-gray-900/40 border border-gray-300 dark:border-gray-700 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-900/50 font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm sm:text-base bg-gray-100 dark:bg-gray-900/40 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-900/50 font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
               aria-label="Abbrechen"
             >
               <XIcon className="w-4 h-4 sm:hidden" />

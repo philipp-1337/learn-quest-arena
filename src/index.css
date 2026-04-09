@@ -89,3 +89,29 @@ html.dark body {
 ::view-transition-new(root) {
   animation: slideInFromRight 0.3s ease-out;
 }
+
+/* Pop-in entrance: scale from small → overshoot → settle */
+@keyframes popIn {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Gentle float loop for trophy */
+@keyframes floatGentle {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-7px); }
+}
+
+.animate-pop-in {
+  animation: popIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Reduced motion: disable all animations and transitions */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

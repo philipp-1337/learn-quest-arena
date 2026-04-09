@@ -54,7 +54,7 @@ export function SwipeableListItem({
           {/* Desktop Delete Button (not on mobile) */}
           {!isMobile && (
             <button
-              className="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded shadow flex-shrink-0"
+              className="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded shadow flex-shrink-0 cursor-pointer"
               onClick={handleDelete}
               type="button"
             >

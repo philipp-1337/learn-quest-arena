@@ -84,21 +84,24 @@ export default function QuizResults({
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-5 sm:p-6 md:p-8 max-w-3xl w-full border border-gray-100 dark:border-gray-700">
         {/* Header mit Icon */}
         <div
-          className={`text-center mb-6 transition-all duration-700 ${
+          className={`text-center mb-6 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             headerVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 -translate-y-4"
           }`}
         >
-          <div className="mb-4 relative">
+          <div className="mb-4">
             {isPerfect ? (
-              <Trophy className="w-16 h-16 text-yellow-400 mx-auto drop-shadow-lg animate-bounce translate-y-2" />
+              <Trophy
+                className="w-16 h-16 text-yellow-400 mx-auto drop-shadow-lg"
+                style={{ animation: 'popIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both, floatGentle 4s 0.6s ease-in-out infinite' }}
+              />
             ) : isGood ? (
-              <PartyPopper className="w-16 h-16 text-green-500 mx-auto animate-bounce translate-y-2" />
+              <PartyPopper className="w-16 h-16 text-green-500 mx-auto animate-pop-in" />
             ) : isOkay ? (
-              <ThumbsUp className="w-16 h-16 text-blue-500 mx-auto" />
+              <ThumbsUp className="w-16 h-16 text-blue-500 mx-auto animate-pop-in" />
             ) : (
-              <Award className="w-16 h-16 text-orange-500 mx-auto" />
+              <Award className="w-16 h-16 text-orange-500 mx-auto animate-pop-in" />
             )}
           </div>
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -112,6 +115,7 @@ export default function QuizResults({
           </h2>
           <div
             className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-bold ${gradeInfo.bgColor} ${gradeInfo.color} border ${gradeInfo.borderColor}`}
+            style={{ animation: 'popIn 0.4s 0.4s cubic-bezier(0.22, 1, 0.36, 1) both' }}
           >
             {animatedPercentage}% &#8226; {correctCount}/{totalAnswered}
           </div>
@@ -123,7 +127,7 @@ export default function QuizResults({
           <div
             className={`rounded-xl p-2 border ${gradeInfo.bgColor} ${
               gradeInfo.borderColor
-            } transition-all duration-700 ${
+            } transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
               card1Visible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-4"
@@ -149,7 +153,7 @@ export default function QuizResults({
 
           {/* Box 2: Time */}
           <div
-            className={`bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-700 rounded-xl p-2 transition-all duration-700 ${
+            className={`bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-700 rounded-xl p-2 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
               card2Visible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-4"
@@ -174,7 +178,7 @@ export default function QuizResults({
           {/* Box 3: XP (nur für registrierte User) */}
           {xpEarned > 0 && (
             <div
-              className={`bg-purple-50 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 rounded-xl p-2 transition-all duration-700 ${
+              className={`bg-purple-50 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 rounded-xl p-2 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                 card3Visible
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-4"
@@ -204,7 +208,7 @@ export default function QuizResults({
 
         {/* Progress Bar */}
         <div
-          className={`mb-6 transition-all duration-700 ${
+          className={`mb-6 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             progressVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-4"
@@ -218,7 +222,7 @@ export default function QuizResults({
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
             <div
-              className={`h-3 rounded-full transition-all duration-1000 ease-out ${
+              className={`h-3 rounded-full ${
                 isPerfect
                   ? "bg-gradient-to-r from-green-500 to-emerald-500"
                   : isGood
@@ -229,7 +233,7 @@ export default function QuizResults({
                 width: progressVisible
                   ? `${(correctCount / totalQuestions) * 100}%`
                   : "0%",
-                transition: "width 1000ms ease-out",
+                transition: "width 1100ms cubic-bezier(0.22, 1, 0.36, 1)",
               }}
             />
           </div>
@@ -238,7 +242,7 @@ export default function QuizResults({
         {/* Wrong Questions Accordion */}
         {wrongQuestions.length > 0 && (
           <div
-            className={`mb-3 transition-all duration-700 ${
+            className={`mb-3 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
               wrongQuestionsVisible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-4"
@@ -246,62 +250,67 @@ export default function QuizResults({
           >
             <button
               onClick={() => setWrongQuestionsExpanded(!wrongQuestionsExpanded)}
-              className="w-full flex items-center justify-center p-4 bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors cursor-pointer"
+              className="w-full flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
                 <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">
                   Falsche Fragen
-                  {/* ({wrongQuestions.length}) */}
                 </h3>
               </div>
               <ChevronDown
-                className={`w-5 h-5 text-red-600 dark:text-red-400 transition-transform ${
-                  wrongQuestionsExpanded ? "transform rotate-180" : ""
+                className={`w-5 h-5 text-red-600 dark:text-red-400 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  wrongQuestionsExpanded ? "rotate-180" : ""
                 }`}
               />
             </button>
 
-            {wrongQuestionsExpanded && (
-              <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
-                {wrongQuestions.map((q, idx) => (
-                  <div
-                    key={q.index}
-                    className="bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-lg p-3"
-                  >
-                    <div className="flex gap-3 items-center justify-center">
-                      <span className="flex-shrink-0 w-8 h-8 rounded-full bg-red-200 dark:bg-red-800/60 text-red-800 dark:text-red-200 font-bold flex items-center justify-center text-sm">
-                        {idx + 1}
-                      </span>
-                      <p
-                        className="text-gray-800 dark:text-gray-200 text-sm flex-1 force-break text-center"
-                        lang="de"
-                      >
-                        {q.question}
-                      </p>
+            {/* CSS grid expand — avoids instant mount/unmount */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateRows: wrongQuestionsExpanded ? '1fr' : '0fr',
+                transition: 'grid-template-rows 300ms cubic-bezier(0.22, 1, 0.36, 1)',
+              }}
+            >
+              <div className="overflow-hidden">
+                <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
+                  {wrongQuestions.map((q, idx) => (
+                    <div
+                      key={q.index}
+                      className="bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-lg p-3"
+                    >
+                      <div className="flex gap-3 items-center justify-center">
+                        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-red-200 dark:bg-red-800/60 text-red-800 dark:text-red-200 font-bold flex items-center justify-center text-sm">
+                          {idx + 1}
+                        </span>
+                        <p
+                          className="text-gray-800 dark:text-gray-200 text-sm flex-1 force-break text-center"
+                          lang="de"
+                        >
+                          {q.question}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {wrongQuestions.length > 0 && (
+                  ))}
                   <button
                     onClick={onRepeatWrong}
-                    className="w-full bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:scale-[0.98] active:scale-[1] cursor-pointer"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:scale-[0.98] active:scale-[1] cursor-pointer"
                     title="Falsche Fragen wiederholen"
                     aria-label="Falsche Fragen wiederholen"
                   >
                     <RefreshCw className="w-5 h-5" />
                     Wiederholen
-                    {/* ({wrongQuestions.length}) */}
                   </button>
-                )}
+                </div>
               </div>
-            )}
+            </div>
           </div>
         )}
 
         {/* Action Buttons */}
         <div
-          className={`space-y-3 transition-all duration-700 ${
+          className={`space-y-3 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             buttonsVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-4"
@@ -316,7 +325,7 @@ export default function QuizResults({
                   onRestart();
                 }
               }}
-              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[0.98] active:scale-[1] cursor-pointer"
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-4 px-6 rounded-xl font-semibold transition-[transform,box-shadow,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:shadow-md cursor-pointer"
               title="Neu starten"
               aria-label="Neu starten"
             >
@@ -326,7 +335,7 @@ export default function QuizResults({
 
             <button
               onClick={onBack}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white py-4 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[0.98] active:scale-[1] cursor-pointer"
+              className="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white py-4 px-6 rounded-xl font-semibold transition-[transform,box-shadow,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 cursor-pointer"
               title="Zurück"
               aria-label="Zurück"
             >
@@ -337,7 +346,7 @@ export default function QuizResults({
 
           <button
             onClick={onHome}
-            className="w-full text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white py-2 transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[0.98] active:scale-[1] cursor-pointer"
+            className="w-full text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white py-2 transition-[transform,color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] flex items-center justify-center gap-2 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             title="Zum Start"
             aria-label="Zum Start"
           >

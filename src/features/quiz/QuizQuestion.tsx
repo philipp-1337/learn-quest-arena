@@ -105,7 +105,7 @@ export default function QuizQuestion({
         <div className="mb-6">
           <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
             <span>Frage {currentQuestion + 1} von {totalQuestions}</span>
-            <span className="font-mono text-indigo-600 dark:text-indigo-400 font-semibold">{formatTime(elapsedTime)}</span>
+            <span className="text-indigo-600 dark:text-indigo-400 font-semibold">{formatTime(elapsedTime)}</span>
             <span>{Math.round(((currentQuestion + 1) / totalQuestions) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
