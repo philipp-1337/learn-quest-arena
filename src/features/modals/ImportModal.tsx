@@ -28,6 +28,7 @@ interface CsvQuestionRow {
 
 interface ImportQuiz {
   title: string;
+  isFlashCardQuiz?: boolean;
   questions: QuizDocument['questions'];
 }
 
@@ -43,6 +44,8 @@ type GroupedCsvData = Record<
   Record<string, Record<string, Record<string, CsvQuestionRow[]>>>
 >;
 
+type ImportMode = 'classic' | 'flashcard';
+
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Unbekannter Fehler';
 }
@@ -50,49 +53,85 @@ function getErrorMessage(error: unknown): string {
 export default function ImportModal({ onClose, onImportComplete }: ImportModalProps) {
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [importMode, setImportMode] = useState<ImportMode>('classic');
 
   const downloadTemplate = (type: 'json' | 'csv') => {
     if (type === 'json') {
-      const template = {
-        subject: "Mathematik",
-        class: "Klasse 3",
-        topic: "Multiplikation",
-        quizzes: [
-          {
-            title: "Einmaleins Übung",
-            questions: [
+      const template = importMode === 'flashcard'
+        ? {
+            subject: "Mathematik",
+            class: "Klasse 3",
+            topic: "Einmaleins",
+            quizzes: [
               {
-                question: "Was ist 3 × 4?",
-                answerType: "text",
-                answers: [
-                  { type: "text", content: "12" },
-                  { type: "text", content: "10" },
-                  { type: "text", content: "15" }
-                ],
-                correctAnswerIndex: 0
-              },
-              {
-                question: "Was ist 5 × 2?",
-                answerType: "text",
-                answers: [
-                  { type: "text", content: "10" },
-                  { type: "text", content: "12" },
-                  { type: "text", content: "8" }
-                ],
-                correctAnswerIndex: 0
+                title: "Multiplikation Karten",
+                isFlashCardQuiz: true,
+                questions: [
+                  {
+                    question: "3 × 4",
+                    answerType: "text",
+                    answers: [
+                      { type: "text", content: "12" }
+                    ],
+                    correctAnswerIndex: 0
+                  },
+                  {
+                    question: "5 × 2",
+                    answerType: "text",
+                    answers: [
+                      { type: "text", content: "10" }
+                    ],
+                    correctAnswerIndex: 0
+                  }
+                ]
               }
             ]
           }
-        ]
-      };
+        : {
+            subject: "Mathematik",
+            class: "Klasse 3",
+            topic: "Multiplikation",
+            quizzes: [
+              {
+                title: "Einmaleins Übung",
+                questions: [
+                  {
+                    question: "Was ist 3 × 4?",
+                    answerType: "text",
+                    answers: [
+                      { type: "text", content: "12" },
+                      { type: "text", content: "10" },
+                      { type: "text", content: "15" }
+                    ],
+                    correctAnswerIndex: 0
+                  },
+                  {
+                    question: "Was ist 5 × 2?",
+                    answerType: "text",
+                    answers: [
+                      { type: "text", content: "10" },
+                      { type: "text", content: "12" },
+                      { type: "text", content: "8" }
+                    ],
+                    correctAnswerIndex: 0
+                  }
+                ]
+              }
+            ]
+          };
       const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'quiz-template.json';
+      a.download = importMode === 'flashcard' ? 'flashcard-template.json' : 'quiz-template.json';
       a.click();
     } else {
-      const csv = `Subject,Class,Topic,Quiz,Question,Answer1,Answer2,Answer3,CorrectAnswer
+      const csv = importMode === 'flashcard'
+        ? `Subject,Class,Topic,Quiz,Question,Answer
+Mathematik,Klasse 3,Einmaleins,Multiplikation Karten,3 × 4,12
+Mathematik,Klasse 3,Einmaleins,Multiplikation Karten,5 × 2,10
+Deutsch,Klasse 2,Wortarten,Nomen Karten,Nenne ein Nomen,Haus`
+        : `Subject,Class,Topic,Quiz,Question,Answer1,Answer2,Answer3,CorrectAnswer
 Mathematik,Klasse 3,Multiplikation,Einmaleins,Was ist 3 × 4?,12,10,15,1
 Mathematik,Klasse 3,Multiplikation,Einmaleins,Was ist 5 × 2?,10,12,8,1
 Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein Wiewort,1`;
@@ -100,19 +139,21 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'quiz-template.csv';
+      a.download = importMode === 'flashcard' ? 'flashcard-template.csv' : 'quiz-template.csv';
       a.click();
     }
   };
 
-  const parseCSV = (csvText: string): ImportItem[] => {
+  const parseCSV = (csvText: string, mode: ImportMode): ImportItem[] => {
     const lines = csvText.split('\n').filter(line => line.trim());
     if (lines.length < 2) {
       throw new Error('CSV muss mindestens eine Header-Zeile und eine Daten-Zeile enthalten');
     }
 
     const headers = lines[0].split(',').map(h => h.trim());
-    const requiredHeaders = ['Subject', 'Class', 'Topic', 'Quiz', 'Question', 'Answer1', 'Answer2', 'Answer3', 'CorrectAnswer'];
+    const requiredHeaders = mode === 'flashcard'
+      ? ['Subject', 'Class', 'Topic', 'Quiz', 'Question', 'Answer']
+      : ['Subject', 'Class', 'Topic', 'Quiz', 'Question', 'Answer1', 'Answer2', 'Answer3', 'CorrectAnswer'];
     
     const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
     if (missingHeaders.length > 0) {
@@ -124,6 +165,29 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
 
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(',').map(v => v.trim());
+      if (mode === 'flashcard') {
+        if (values.length < 6) continue;
+
+        const [subject, classLevel, topic, quiz, question, answer] = values;
+
+        if (!grouped[subject]) grouped[subject] = {};
+        if (!grouped[subject][classLevel]) grouped[subject][classLevel] = {};
+        if (!grouped[subject][classLevel][topic]) grouped[subject][classLevel][topic] = {};
+        if (!grouped[subject][classLevel][topic][quiz]) {
+          grouped[subject][classLevel][topic][quiz] = [];
+        }
+
+        grouped[subject][classLevel][topic][quiz].push({
+          question,
+          answerType: 'text',
+          answers: [
+            { type: 'text', content: answer }
+          ],
+          correctAnswerIndex: 0
+        });
+        continue;
+      }
+
       if (values.length < 9) continue;
 
       const [subject, classLevel, topic, quiz, question, ans1, ans2, ans3, correctStr] = values;
@@ -164,6 +228,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
               topic: topicName,
               quizzes: [{
                 title: quizTitle,
+                isFlashCardQuiz: mode === 'flashcard',
                 questions: questions
               }]
             });
@@ -201,13 +266,13 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
         const parsed = JSON.parse(text);
         importData = Array.isArray(parsed) ? parsed : [parsed];
       } else if (file.name.endsWith('.csv')) {
-        importData = parseCSV(text);
+        importData = parseCSV(text, importMode);
       } else {
         throw new Error('Nur JSON oder CSV Dateien werden unterstützt');
       }
 
       // Import directly to the quizzes collection
-      const result = await importToQuizzesCollection(importData, user.uid, user.email || undefined);
+      const result = await importToQuizzesCollection(importData, user.uid, user.email || undefined, importMode);
       
       setImportResult(result);
       
@@ -227,7 +292,8 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
   const importToQuizzesCollection = async (
     importData: ImportItem[], 
     authorId: string, 
-    authorEmail?: string
+    authorEmail?: string,
+    importMode: ImportMode = 'classic'
   ): Promise<ImportResult> => {
     const details: string[] = [];
     let quizzesAdded = 0;
@@ -272,6 +338,8 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             throw new Error(`Quiz "${quiz.title || 'unbenannt'}" hat keine gültigen Fragen`);
           }
 
+          const isFlashCardQuiz = quiz.isFlashCardQuiz === true || importMode === 'flashcard';
+
           // Check for duplicate quiz
           const existingQuiz = existingQuizzes.find(q => 
             q.title.toLowerCase() === quiz.title.toLowerCase() &&
@@ -284,8 +352,14 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
 
           // Validate questions
           for (const q of quiz.questions) {
-            if (!q.question || !q.answers || q.answers.length < 2 || q.answers.length > 5) {
-              throw new Error(`Ungültige Frage in Quiz "${quiz.title}": Jede Frage braucht Text und 2-5 Antworten`);
+            if (!q.question || !q.answers || q.answers.length === 0) {
+              throw new Error(`Ungültige Frage in Quiz "${quiz.title}": Jede Frage braucht einen Fragetext und mindestens eine Antwort`);
+            }
+            if (!isFlashCardQuiz && (q.answers.length < 2 || q.answers.length > 5)) {
+              throw new Error(`Ungültige Frage in Quiz "${quiz.title}": Im klassischen Modus braucht jede Frage 2-5 Antworten`);
+            }
+            if (isFlashCardQuiz && q.answers.length < 1) {
+              throw new Error(`Ungültige Frage in Quiz "${quiz.title}": Im Flash-Card Modus braucht jede Karte eine Rückseite`);
             }
             if (q.correctAnswerIndex < 0 || q.correctAnswerIndex >= q.answers.length) {
               throw new Error(`Ungültiger correctAnswerIndex in Quiz "${quiz.title}": Muss zwischen 0 und ${q.answers.length - 1} sein`);
@@ -303,6 +377,7 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             url: quiz.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
             questions: quiz.questions,
             hidden: true, // Start hidden
+            isFlashCardQuiz,
             createdAt: now,
             updatedAt: now,
             authorId,
@@ -370,10 +445,59 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
             </h4>
             <ol className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-decimal list-inside">
               <li>Lade eine Vorlage herunter (JSON oder CSV)</li>
+              <li>Wähle vorher den gewünschten Importmodus</li>
               <li>Fülle die Vorlage mit deinen Quiz-Daten</li>
               <li>Lade die Datei hier hoch</li>
               <li>Fehlende Fächer/Klassen/Themen werden automatisch erstellt</li>
             </ol>
+          </div>
+
+          <div>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Importmodus
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setImportMode('classic')}
+                className={`rounded-lg border p-3 text-left transition-colors cursor-pointer ${
+                  importMode === 'classic'
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                <span className={`block text-sm font-medium ${
+                  importMode === 'classic'
+                    ? 'text-indigo-700 dark:text-indigo-300'
+                    : 'text-gray-700 dark:text-gray-300'
+                }`}>
+                  Klassisch
+                </span>
+                <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Multiple-Choice mit 2 bis 5 Antworten pro Frage
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setImportMode('flashcard')}
+                className={`rounded-lg border p-3 text-left transition-colors cursor-pointer ${
+                  importMode === 'flashcard'
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                <span className={`block text-sm font-medium ${
+                  importMode === 'flashcard'
+                    ? 'text-indigo-700 dark:text-indigo-300'
+                    : 'text-gray-700 dark:text-gray-300'
+                }`}>
+                  Flash-Card
+                </span>
+                <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Vorderseite plus genau eine textuelle Karten-Rückseite
+                </span>
+              </button>
+            </div>
           </div>
 
           {/* Download Templates */}
@@ -397,6 +521,9 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
               CSV Vorlage
             </button>
           </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Aktuell ausgewählt: {importMode === 'flashcard' ? 'Flash-Card Import' : 'klassischer Quiz-Import'}
+          </p>
         </div>
 
         {/* File Upload */}
@@ -474,7 +601,27 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
               <div>
                 <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">JSON Format:</h5>
                 <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-xs text-gray-600 dark:text-gray-300 overflow-x-auto">
-{`{
+{importMode === 'flashcard' ? `{
+  "subject": "Mathematik",
+  "class": "Klasse 3",
+  "topic": "Einmaleins",
+  "quizzes": [
+    {
+      "title": "Multiplikation Karten",
+      "isFlashCardQuiz": true,
+      "questions": [
+        {
+          "question": "3 × 4",
+          "answerType": "text",
+          "answers": [
+            { "type": "text", "content": "12" }
+          ],
+          "correctAnswerIndex": 0
+        }
+      ]
+    }
+  ]
+}` : `{
   "subject": "Mathematik",
   "class": "Klasse 3",
   "topic": "Multiplikation",
@@ -501,12 +648,16 @@ Deutsch,Klasse 2,Wortarten,Nomen Quiz,Was ist ein Nomen?,Ein Ding,Ein Tuwort,Ein
               <div>
                 <h5 className="font-medium text-gray-700 dark:text-gray-300 mb-2">CSV Format:</h5>
                 <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-xs text-gray-600 dark:text-gray-300 overflow-x-auto">
-{`Subject,Class,Topic,Quiz,Question,Answer1,Answer2,Answer3,CorrectAnswer
+{importMode === 'flashcard' ? `Subject,Class,Topic,Quiz,Question,Answer
+Mathematik,Klasse 3,Einmaleins,Multiplikation Karten,3 × 4,12
+Mathematik,Klasse 3,Einmaleins,Multiplikation Karten,5 × 2,10` : `Subject,Class,Topic,Quiz,Question,Answer1,Answer2,Answer3,CorrectAnswer
 Mathematik,Klasse 3,Multiplikation,Einmaleins,Was ist 3 × 4?,12,10,15,1
 Mathematik,Klasse 3,Multiplikation,Einmaleins,Was ist 5 × 2?,10,12,8,1`}
                 </pre>
                 <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">
-                  <strong>Hinweis:</strong> CorrectAnswer ist 1-basiert (1 bis 5)
+                  <strong>Hinweis:</strong> {importMode === 'flashcard'
+                    ? 'Flash-Cards nutzen genau eine Antwortspalte als Karten-Rückseite.'
+                    : 'CorrectAnswer ist 1-basiert (1 bis 5).'}
                 </p>
               </div>
             </div>
