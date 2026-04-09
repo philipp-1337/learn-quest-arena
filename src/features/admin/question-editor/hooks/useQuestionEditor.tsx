@@ -64,6 +64,18 @@ export function useQuestionEditor({
 
         setQuizDocument(quiz);
 
+        // For new flash card questions, start with a single answer
+        if (!isEditing && quiz.isFlashCardQuiz) {
+          setQuestion({
+            question: "",
+            questionType: "text",
+            answerType: "text",
+            answers: [{ type: "text", content: "" }],
+            correctAnswerIndex: 0,
+            correctAnswerIndices: [0],
+          });
+        }
+
         // Load existing question if editing
         if (isEditing && quiz.questions && quiz.questions[questionIndex]) {
           const existingQuestion = quiz.questions[questionIndex];

@@ -193,6 +193,36 @@ export default function QuizEditorView() {
     }
   };
 
+  const modeUnsaved =
+    !!editedQuiz &&
+    editedQuiz.isFlashCardQuiz !== (quizDocument?.isFlashCardQuiz === true);
+
+  const handleAddQuestion = () => {
+    if (modeUnsaved) {
+      toast.custom(() => (
+        <CustomToast
+          message="Bitte speichere zuerst den Quiz-Modus, bevor du Fragen hinzufügst."
+          type="error"
+        />
+      ));
+      return;
+    }
+    navigate(`/admin/quiz/edit/${id}/question/new`);
+  };
+
+  const handleEditQuestion = (index: number) => {
+    if (modeUnsaved) {
+      toast.custom(() => (
+        <CustomToast
+          message="Bitte speichere zuerst den Quiz-Modus, bevor du Fragen bearbeitest."
+          type="error"
+        />
+      ));
+      return;
+    }
+    navigate(`/admin/quiz/edit/${id}/question/${index}`);
+  };
+
   const handleMoveQuestion = (index: number) => {
     setMoveModal({ open: true, index });
   };
@@ -292,12 +322,9 @@ export default function QuizEditorView() {
           {/* Questions List */}
           <QuestionsList
             questions={editedQuiz.questions}
-            onAddQuestion={() =>
-              navigate(`/admin/quiz/edit/${id}/question/new`)
-            }
-            onEditQuestion={(index) =>
-              navigate(`/admin/quiz/edit/${id}/question/${index}`)
-            }
+            modeUnsaved={modeUnsaved}
+            onAddQuestion={handleAddQuestion}
+            onEditQuestion={handleEditQuestion}
             onDeleteQuestion={(index) => setDeleteModal({ open: true, index })}
             onMoveQuestion={handleMoveQuestion}
           />

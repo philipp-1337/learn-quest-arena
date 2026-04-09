@@ -7,7 +7,7 @@ import type { Question } from 'quizTypes';
 // Sonst gibt es Syntaxfehler bei JSX in Funktionen.
 // Falls die Datei noch .ts ist, bitte in .tsx umbenennen.
 export function useQuestionValidation() {
-  const validateQuestion = (question: Question): boolean => {
+  const validateQuestion = (question: Question, isFlashCard = false): boolean => {
     // Validate question content based on type
     if (question.questionType === "text" && !question.question.trim()) {
       toast.custom(() => (
@@ -34,16 +34,23 @@ export function useQuestionValidation() {
     }
 
     // Validate answers count
-    if (question.answers.length < 2) {
+    if (!isFlashCard && question.answers.length < 2) {
       toast.custom(() => (
         <CustomToast message="Mindestens 2 Antworten erforderlich" type="error" />
       ));
       return false;
     }
 
-    if (question.answers.length > 5) {
+    if (!isFlashCard && question.answers.length > 5) {
       toast.custom(() => (
         <CustomToast message="Maximal 5 Antworten erlaubt" type="error" />
+      ));
+      return false;
+    }
+
+    if (isFlashCard && question.answers.length === 0) {
+      toast.custom(() => (
+        <CustomToast message="Bitte gib eine Karten-Rückseite ein" type="error" />
       ));
       return false;
     }

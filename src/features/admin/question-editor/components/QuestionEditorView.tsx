@@ -36,10 +36,11 @@ export default function QuestionEditorView() {
   });
 
   const { validateQuestion } = useQuestionValidation();
+  const isFlashCardQuiz = quizDocument?.isFlashCardQuiz === true;
   const explanationEnabled = question.explanation !== undefined;
 
   const handleSaveQuestion = async () => {
-    if (!validateQuestion(question)) return;
+    if (!validateQuestion(question, isFlashCardQuiz)) return;
     if (!quizDocument) return;
 
     setSaving(true);
@@ -175,18 +176,35 @@ export default function QuestionEditorView() {
               onChange={(updates) => setQuestion({ ...question, ...updates })}
             />
 
-            <AnswerTypeSelector
-              selectedType={question.answerType}
-              onChange={handleAnswerTypeChange}
-            />
+            {isFlashCardQuiz ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Karten-Rückseite (Antwort)
+                </label>
+                <textarea
+                  value={question.answers[0]?.content || ""}
+                  onChange={(e) => updateAnswer(0, { content: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="Antwort / Rückseite der Karte"
+                />
+              </div>
+            ) : (
+              <>
+                <AnswerTypeSelector
+                  selectedType={question.answerType}
+                  onChange={handleAnswerTypeChange}
+                />
 
-            <AnswersList
-              question={question}
-              onAddAnswer={handleAddAnswer}
-              onRemoveAnswer={handleRemoveAnswer}
-              onToggleCorrect={handleToggleCorrectAnswer}
-              onUpdateAnswer={updateAnswer}
-            />
+                <AnswersList
+                  question={question}
+                  onAddAnswer={handleAddAnswer}
+                  onRemoveAnswer={handleRemoveAnswer}
+                  onToggleCorrect={handleToggleCorrectAnswer}
+                  onUpdateAnswer={updateAnswer}
+                />
+              </>
+            )}
 
             <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
               <div className="flex items-center gap-3">
