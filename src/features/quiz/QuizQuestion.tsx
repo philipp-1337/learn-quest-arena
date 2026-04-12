@@ -149,14 +149,27 @@ export default function QuizQuestion({
                 </div>
               </div>
               {!flashRevealed && !isAnswerSubmitted && (
-                <button
-                  onClick={() => setFlashRevealed(true)}
-                  className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors cursor-pointer"
-                  title="Richtige Antwort zeigen"
-                  aria-label="Richtige Antwort zeigen"
-                >
-                  Richtige Antwort zeigen
-                </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setFlashRevealed(true)}
+                    className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold hover:bg-indigo-700 transition-colors cursor-pointer"
+                    title="Richtige Antwort zeigen"
+                    aria-label="Richtige Antwort zeigen"
+                  >
+                    Richtige Antwort zeigen
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFlashRevealed(true);
+                      onSubmitAnswer({ selfCorrect: false });
+                    }}
+                    className="w-full bg-red-600 text-white py-4 rounded-xl font-semibold hover:bg-red-700 transition-colors cursor-pointer"
+                    title="Ich weiß es nicht"
+                    aria-label="Ich weiß es nicht"
+                  >
+                    Ich weiß es nicht
+                  </button>
+                </div>
               )}
             </div>
           ) : (
