@@ -33,7 +33,14 @@ function QuizPlayerInner({
   initialState,
   originProgressByQuizId,
   flashCardMode,
-}: QuizPlayerProps & { initialState?: QuizPlayerInitialState; flashCardMode: boolean }) {
+  isReversed = false,
+  onToggleReversed,
+}: QuizPlayerProps & { 
+  initialState?: QuizPlayerInitialState; 
+  flashCardMode: boolean;
+  isReversed?: boolean;
+  onToggleReversed?: () => void;
+}) {
   const quizPlayer = useQuizPlayer(quiz, initialState, startMode || 'fresh', { flashCardMode });
   const {
     currentQuestion,
@@ -155,7 +162,7 @@ function QuizPlayerInner({
     
     const progress: UserQuizProgress = {
       username: username as string,
-      quizId: quiz.id,
+      quizId: isReversed ? `${quiz.id}_reversed` : quiz.id,
       questions: questionsObj,
       totalTries: typeof totalTries === 'function' ? 1 : totalTries,
       completed,
@@ -167,7 +174,7 @@ function QuizPlayerInner({
     };
     saveUserQuizProgress(progress);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers, solvedQuestions, totalTries, quiz.id, username, quizPlayer.questionProgress, isWrongQuestionsPool, originProgressByQuizId]);
+  }, [answers, solvedQuestions, totalTries, quiz.id, username, quizPlayer.questionProgress, isWrongQuestionsPool, originProgressByQuizId, isReversed]);
 
   if (showResults) {
     const statistics = getStatistics();
@@ -240,6 +247,8 @@ function QuizPlayerInner({
       isMultiSelect={isMultiSelectQuestion}
       flashCardMode={flashCardMode}
       lastAnswerCorrect={answers.length > 0 ? answers[answers.length - 1] : undefined}
+      isReversed={isReversed}
+      onToggleReversed={onToggleReversed}
     />
   );
 }
@@ -254,6 +263,15 @@ export default function QuizPlayer({
   originProgressByQuizId,
 }: QuizPlayerProps) {
   const flashCardMode = quiz.isFlashCardQuiz === true;
+
+  // State for reversed direction (only applicable if flashCardMode is true)
+  const [isReversed, setIsReversed] = useState<boolean>(() => {
+    if (flashCardMode) {
+      return localStorage.getItem(`flashcard_reversed_${quiz.id}`) === 'true';
+    }
+    return false;
+  });
+
   // Fortschritt laden und an useQuizPlayer übergeben (nur wenn username gesetzt)
   const [initialState, setInitialState] = useState<QuizPlayerInitialState | undefined>(undefined);
   const [progressLoaded, setProgressLoaded] = useState(!username || !!initialStateOverride);
@@ -271,17 +289,27 @@ export default function QuizPlayer({
     }
     let mounted = true;
     async function fetchProgress() {
-      const progress = await loadUserQuizProgress(username as string, quiz.id);
+      setProgressLoaded(false);
+      const effectiveQuizId = (flashCardMode && isReversed) ? `${quiz.id}_reversed` : quiz.id;
+      const progress = await loadUserQuizProgress(username as string, effectiveQuizId);
       if (mounted) {
         if (progress) {
           setInitialState(progress);
+        } else {
+          setInitialState(undefined);
         }
         setProgressLoaded(true);
       }
     }
     fetchProgress();
     return () => { mounted = false; };
-  }, [initialStateOverride, quiz.id, username]);
+  }, [initialStateOverride, quiz.id, username, isReversed, flashCardMode]);
+
+  const handleToggleReversed = () => {
+    const newValue = !isReversed;
+    setIsReversed(newValue);
+    localStorage.setItem(`flashcard_reversed_${quiz.id}`, String(newValue));
+  };
 
   if (!progressLoaded) {
     return (
@@ -296,6 +324,7 @@ export default function QuizPlayer({
 
   return (
     <QuizPlayerInner 
+      key={isReversed ? 'reversed' : 'normal'}
       quiz={quiz} 
       onBack={onBack} 
       onHome={onHome} 
@@ -304,6 +333,8 @@ export default function QuizPlayer({
       initialState={initialState}
       originProgressByQuizId={originProgressByQuizId}
       flashCardMode={flashCardMode}
+      isReversed={isReversed}
+      onToggleReversed={handleToggleReversed}
     />
   );
 }

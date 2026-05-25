@@ -23,6 +23,8 @@ interface QuizQuestionProps {
   isMultiSelect?: boolean; // Whether this question has multiple correct answers
   flashCardMode?: boolean;
   lastAnswerCorrect?: boolean;
+  isReversed?: boolean;
+  onToggleReversed?: () => void;
 }
 
 export default function QuizQuestion({
@@ -44,6 +46,8 @@ export default function QuizQuestion({
   isMultiSelect = false,
   flashCardMode = false,
   lastAnswerCorrect,
+  isReversed = false,
+  onToggleReversed,
 }: QuizQuestionProps) {
   const showFeedback = showResultOverride !== undefined ? showResultOverride : isAnswerSubmitted;
   const cancelButtonText = hasProgress ? 'Pausieren' : 'Quiz abbrechen';
@@ -101,6 +105,38 @@ export default function QuizQuestion({
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-2xl w-full">
+        {/* Toggle Direction for Flashcards */}
+        {flashCardMode && onToggleReversed && (
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex rounded-xl p-1 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => isReversed && onToggleReversed()}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  !isReversed
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer'
+                }`}
+                title="Standard-Richtung lernen (Frage → Antwort)"
+                aria-label="Standard-Richtung lernen (Frage → Antwort)"
+              >
+                Standard
+              </button>
+              <button
+                onClick={() => !isReversed && onToggleReversed()}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  isReversed
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer'
+                }`}
+                title="Umgekehrte Richtung lernen (Antwort → Frage)"
+                aria-label="Umgekehrte Richtung lernen (Antwort → Frage)"
+              >
+                Umgekehrt
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Progress and Timer */}
         <div className="mb-6">
           <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -132,7 +168,15 @@ export default function QuizQuestion({
                     className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-6 text-center flex items-center justify-center min-h-[220px]"
                     style={{ backfaceVisibility: 'hidden' }}
                   >
-                    <div className="w-full">{questionContent}</div>
+                    <div className="w-full">
+                      {isReversed ? (
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white force-break" lang="de">
+                          {flashCorrectAnswers.join(', ')}
+                        </h2>
+                      ) : (
+                        questionContent
+                      )}
+                    </div>
                   </div>
                   <div
                     className="absolute inset-0 w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 text-center flex items-center justify-center min-h-[220px]"
@@ -140,9 +184,13 @@ export default function QuizQuestion({
                   >
                     {(flashRevealed || isAnswerSubmitted) && (
                       <div className="w-full">
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {flashCorrectAnswers.join(', ')}
-                        </p>
+                        {isReversed ? (
+                          questionContent
+                        ) : (
+                          <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                            {flashCorrectAnswers.join(', ')}
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>

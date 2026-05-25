@@ -53,38 +53,107 @@ export default function QuizSelector({ quizzes, onSelect, username }: QuizSelect
   return (
     <div className="space-y-4">
       {[...visibleQuizzes].sort((a, b) => a.title.localeCompare(b.title)).map((quiz: Quiz) => {
+        const isFlashCard = quiz.isFlashCardQuiz === true;
+        const lastReversed = isFlashCard && localStorage.getItem(`flashcard_reversed_${quiz.id}`) === 'true';
+
         const progress = progressMap[quiz.id];
+        const progressReversed = progressMap[quiz.id + '_reversed'];
+
         let progressElement: React.ReactNode = null;
         let triesText = '';
         let wrongCount = 0;
         let solved = 0;
         const total = quiz.questions.length;
         
-        if (username && progress) {
-          // Fortschritt aus neuem Modell berechnen
-          if (progress.questions) {
-            solved = Object.values(progress.questions).filter(q => q.answered).length;
-            // Falsche Fragen = Fragen mit Versuchen aber nicht beantwortet
-            wrongCount = Object.values(progress.questions).filter(q => !q.answered && q.attempts > 0).length;
-          }
-          const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
-          if (progress.completed) {
-            progressElement = (
-              <span className="inline-flex items-center">
-                Abgeschlossen ({solved}/{total})
-              </span>
-            );
-          } else {
-            progressElement = `${solved}/${total} gelöst (${percent}%)`;
-          }
-          if (typeof progress.totalTries === 'number') {
-            triesText = `Versuche: ${progress.totalTries}`;
+        if (username) {
+          if (isFlashCard) {
+            let solvedStandard = 0;
+            let solvedReversed = 0;
+            let wrongCountStandard = 0;
+            let wrongCountReversed = 0;
+            let triesStandard = 0;
+            let triesReversed = 0;
+
+            if (progress && progress.questions) {
+              solvedStandard = Object.values(progress.questions).filter(q => q.answered).length;
+              wrongCountStandard = Object.values(progress.questions).filter(q => !q.answered && q.attempts > 0).length;
+              triesStandard = progress.totalTries || 0;
+            }
+            if (progressReversed && progressReversed.questions) {
+              solvedReversed = Object.values(progressReversed.questions).filter(q => q.answered).length;
+              wrongCountReversed = Object.values(progressReversed.questions).filter(q => !q.answered && q.attempts > 0).length;
+              triesReversed = progressReversed.totalTries || 0;
+            }
+
+            const percentStandard = total > 0 ? Math.round((solvedStandard / total) * 100) : 0;
+            const percentReversed = total > 0 ? Math.round((solvedReversed / total) * 100) : 0;
+
+            if (progress || progressReversed) {
+              progressElement = (
+                <div className="flex flex-col gap-1 mt-1">
+                  <div className="flex flex-wrap gap-1 text-xs">
+                    <span className="text-green-200">
+                      Standard: {solvedStandard}/{total} gelöst ({percentStandard}%)
+                    </span>
+                    {triesStandard > 0 && (
+                      <span className="text-indigo-200">(Versuche: {triesStandard})</span>
+                    )}
+                    {!progress?.completed && wrongCountStandard > 0 && (
+                      <span className="text-orange-200">– {wrongCountStandard} falsch</span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-1 text-xs">
+                    <span className="text-green-200">
+                      Umgekehrt: {solvedReversed}/{total} gelöst ({percentReversed}%)
+                    </span>
+                    {triesReversed > 0 && (
+                      <span className="text-indigo-200">(Versuche: {triesReversed})</span>
+                    )}
+                    {!progressReversed?.completed && wrongCountReversed > 0 && (
+                      <span className="text-orange-200">– {wrongCountReversed} falsch</span>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+          } else if (progress) {
+            // Fortschritt aus neuem Modell berechnen
+            if (progress.questions) {
+              solved = Object.values(progress.questions).filter(q => q.answered).length;
+              // Falsche Fragen = Fragen mit Versuchen aber nicht beantwortet
+              wrongCount = Object.values(progress.questions).filter(q => !q.answered && q.attempts > 0).length;
+            }
+            const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
+            if (progress.completed) {
+              progressElement = (
+                <span className="inline-flex items-center">
+                  Abgeschlossen ({solved}/{total})
+                </span>
+              );
+            } else {
+              progressElement = `${solved}/{total} gelöst (${percent}%)`;
+            }
+            if (typeof progress.totalTries === 'number') {
+              triesText = `Versuche: ${progress.totalTries}`;
+            }
           }
         }
         
         // Check if user has incomplete progress (has wrong or unanswered questions)
-        const hasIncompleteProgress = username && progress && !progress.completed && solved > 0;
-        // const unansweredCount = total - solved;
+        const activeProgressForIncomplete = isFlashCard 
+          ? (lastReversed ? progressReversed : progress)
+          : progress;
+        
+        const solvedForIncomplete = isFlashCard
+          ? (lastReversed 
+              ? (progressReversed?.questions ? Object.values(progressReversed.questions).filter(q => q.answered).length : 0)
+              : (progress?.questions ? Object.values(progress.questions).filter(q => q.answered).length : 0))
+          : solved;
+
+        const hasIncompleteProgress = username && 
+          activeProgressForIncomplete && 
+          !activeProgressForIncomplete.completed && 
+          solvedForIncomplete > 0;
         
         return (
           <div key={quiz.id} className="relative">
@@ -99,15 +168,22 @@ export default function QuizSelector({ quizzes, onSelect, username }: QuizSelect
                     loading ? (
                       <span className="text-xs text-indigo-200">Lade Fortschritt...</span>
                     ) : progressElement ? (
-                      <div className="flex flex-wrap gap-1">
-                        <span className="text-xs text-green-200 after:content-['–'] after:ml-1 after:text-indigo-100">Fortschritt: {progressElement}</span>
-                        {wrongCount > 0 && (
-                          <span className="text-xs text-orange-200 after:content-['–'] after:ml-1 after:text-indigo-100">{wrongCount} falsch beantwortet</span>
-                        )}
-                        {triesText && (
-                          <span className="text-xs text-indigo-100">{triesText}</span>
-                        )}
-                      </div>
+                      isFlashCard ? (
+                        <div className="space-y-1">
+                          <span className="text-xs font-semibold text-indigo-200 block">Fortschritt:</span>
+                          {progressElement}
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-1">
+                          <span className="text-xs text-green-200 after:content-['–'] after:ml-1 after:text-indigo-100">Fortschritt: {progressElement}</span>
+                          {wrongCount > 0 && (
+                            <span className="text-xs text-orange-200 after:content-['–'] after:ml-1 after:text-indigo-100">{wrongCount} falsch beantwortet</span>
+                          )}
+                          {triesText && (
+                            <span className="text-xs text-indigo-100">{triesText}</span>
+                          )}
+                        </div>
+                      )
                     ) : (
                       <span className="text-xs text-indigo-200">Noch nicht gestartet</span>
                     )
