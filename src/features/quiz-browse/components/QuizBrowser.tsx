@@ -172,9 +172,13 @@ export default function QuizBrowser({
   };
 
   const handleBackFromQuiz = () => {
-    resetSelection();
+    if (selectedSubject && selectedClass && selectedTopic) {
+      navigateToTopic(selectedSubject, selectedClass, selectedTopic);
+    } else {
+      resetSelection();
+      navigateToHome();
+    }
     setQuizStartMode("fresh");
-    navigateToHome();
   };
 
   const handleNavigateToSubject = () => {

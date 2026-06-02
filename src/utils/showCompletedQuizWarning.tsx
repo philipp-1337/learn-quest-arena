@@ -2,9 +2,9 @@ import { showConfirmationToast } from './confirmationToast';
 
 export function showCompletedQuizWarning(onContinue: () => void): void {
   showConfirmationToast({
-    message: 'Dieses Quiz ist bereits abgeschlossen. Wenn du es nochmal machst, wird dein Fortschritt überschrieben. Bist du sicher?',
+    message: 'Neuer Versuch, dein Fortschritt wird überschrieben. Let’s go, zeig was du kannst.',
     onConfirm: onContinue,
-    confirmText: 'Fortsetzen',
+    confirmText: 'Quiz starten',
     cancelText: 'Abbrechen',
   });
 }
