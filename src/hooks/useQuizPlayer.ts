@@ -157,6 +157,9 @@ export function useQuizPlayer(
 
   // Page Visibility API - pausiere Timer wenn Tab nicht sichtbar
   useEffect(() => {
+    // Initialisiere Startzeit beim ersten Rendern
+    startTimeRef.current = Date.now();
+
     const handleVisibilityChange = () => {
       setIsPageVisible(!document.hidden);
     };
