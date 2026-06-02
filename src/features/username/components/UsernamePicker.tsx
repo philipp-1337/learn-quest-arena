@@ -43,11 +43,10 @@ export default function UsernamePicker({
     setLoading(true);
     setError(null);
 
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     let didTimeout = false;
 
     // Set a timeout for 5 seconds
-    timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       didTimeout = true;
       toast.custom(
         (t) => (
@@ -79,12 +78,12 @@ export default function UsernamePicker({
     try {
       const names = await generateUniqueUsernames();
       if (!didTimeout) {
-        if (timeoutId) clearTimeout(timeoutId);
+        clearTimeout(timeoutId);
         setUsernames(names);
       }
     } catch {
       if (!didTimeout) {
-        if (timeoutId) clearTimeout(timeoutId);
+        clearTimeout(timeoutId);
         setError("Fehler beim Generieren der Usernamen.");
         setLoading(false);
       }

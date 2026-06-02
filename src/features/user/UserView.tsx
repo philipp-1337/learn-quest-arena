@@ -253,7 +253,7 @@ const UserView: React.FC<UserViewProps> = ({ subjects }) => {
                     const progressObj = await loadAllUserProgress(username);
                     hasProgress = Object.keys(progressObj).length > 0;
                   } catch {
-                    hasProgress = false;
+                    // hasProgress bleibt false
                   }
                   if (username !== "Gast" || hasProgress) {
                     showConfirmationToast({

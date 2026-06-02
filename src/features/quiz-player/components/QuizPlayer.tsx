@@ -140,7 +140,6 @@ function QuizPlayerInner({
     // XP berechnen - nur wenn Quiz läuft oder gerade abgeschlossen wurde
     const statistics = getStatistics();
     let newXP = 0;
-    let xpDelta = 0;
     
     if (!flashCardMode && username !== 'Gast' && statistics.totalAnswered > 0) {
       const xpCalculation = calculateXP(
@@ -153,9 +152,8 @@ function QuizPlayerInner({
       
       // Delta berechnen: neuer XP minus alter XP
       const previousXP = initialState?.xp || 0;
-      xpDelta = newXP - previousXP;
       
-      setXpData({ xpEarned: newXP, xpDelta });
+      setXpData({ xpEarned: newXP, xpDelta: newXP - previousXP });
     } else if (flashCardMode) {
       setXpData({ xpEarned: 0, xpDelta: 0 });
     }

@@ -55,7 +55,7 @@ const usePasswordChange = () => {
       return { success: true };
     } catch (err: unknown) {
       const firebaseError = getFirebaseAuthError(err);
-      let errorMessage = "Ein Fehler ist aufgetreten";
+      let errorMessage: string;
 
       // Handle specific Firebase error codes
       switch (firebaseError.code) {
